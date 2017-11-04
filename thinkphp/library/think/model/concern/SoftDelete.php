@@ -1,9 +1,12 @@
 <?php
 
-namespace traits\model;
+namespace think\model\concern;
 
 use think\db\Query;
 
+/**
+ * 数据软删除
+ */
 trait SoftDelete
 {
 
@@ -15,9 +18,11 @@ trait SoftDelete
     public function trashed()
     {
         $field = $this->getDeleteTimeField();
-        if (!empty($this->data[$field])) {
+
+        if (!empty($this->getOrigin($field))) {
             return true;
         }
+
         return false;
     }
 
@@ -29,8 +34,8 @@ trait SoftDelete
     public static function withTrashed()
     {
         $model = new static();
-        $field = $model->getDeleteTimeField(true);
-        return $model->getQuery();
+
+        return $model->db(false);
     }
 
     /**
@@ -42,7 +47,9 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->getQuery()
+
+        return $model
+            ->db(false)
             ->useSoftDelete($field, ['not null', '']);
     }
 
@@ -57,32 +64,33 @@ trait SoftDelete
         if (false === $this->trigger('before_delete', $this)) {
             return false;
         }
+
         $name = $this->getDeleteTimeField();
+
         if (!$force) {
             // 软删除
-            $this->data[$name] = $this->autoWriteTimestamp($name);
-            $result            = $this->isUpdate()->save();
+            $this->data($name, $this->autoWriteTimestamp($name));
+
+            $result = $this->isUpdate()->save();
         } else {
-            // 删除条件
+            // 读取更新条件
             $where = $this->getWhere();
+
             // 删除当前模型数据
-            $result = $this->getQuery()->where($where)->delete();
+            $result = $this->db(false)->where($where)->delete();
         }
 
         // 关联删除
         if (!empty($this->relationWrite)) {
-            foreach ($this->relationWrite as $key => $name) {
-                $name  = is_numeric($key) ? $name : $key;
-                $model = $this->getAttr($name);
-                if ($model instanceof Model) {
-                    $model->delete($force);
-                }
-            }
+            $this->autoRelationDelete();
         }
 
         $this->trigger('after_delete', $this);
-        // 清空原始数据
+
+        // 清空数据
+        $this->data   = [];
         $this->origin = [];
+
         return $result;
     }
 
@@ -97,8 +105,9 @@ trait SoftDelete
     {
         // 包含软删除数据
         $query = self::withTrashed();
+
         if (is_array($data) && key($data) !== 0) {
-            $query->where($data);
+            $query->where($this->parseWhere($data));
             $data = null;
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $query]);
@@ -109,12 +118,14 @@ trait SoftDelete
 
         $resultSet = $query->select($data);
         $count     = 0;
+
         if ($resultSet) {
             foreach ($resultSet as $data) {
                 $result = $data->delete($force);
                 $count += $result;
             }
         }
+
         return $count;
     }
 
@@ -127,27 +138,17 @@ trait SoftDelete
     public function restore($where = [])
     {
         $name = $this->getDeleteTimeField();
+
         if (empty($where)) {
             $pk         = $this->getPk();
             $where[$pk] = $this->getData($pk);
         }
-        // 恢复删除
-        return $this->getQuery()
-            ->useSoftDelete($name, ['not null', ''])
-            ->where($where)
-            ->update([$name => null]);
-    }
 
-    /**
-     * 查询默认不包含软删除数据
-     * @access protected
-     * @param Query $query 查询对象
-     * @return void
-     */
-    protected function base($query)
-    {
-        $field = $this->getDeleteTimeField(true);
-        $query->useSoftDelete($field);
+        // 恢复删除
+        return $this->db(false)
+            ->where($where)
+            ->useSoftDelete($name, ['not null', ''])
+            ->update([$name => null]);
     }
 
     /**
@@ -159,13 +160,16 @@ trait SoftDelete
     protected function getDeleteTimeField($read = false)
     {
         $field = property_exists($this, 'deleteTime') && isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
+
         if (!strpos($field, '.')) {
             $field = '__TABLE__.' . $field;
         }
+
         if (!$read && strpos($field, '.')) {
             $array = explode('.', $field);
             $field = array_pop($array);
         }
+
         return $field;
     }
 }
