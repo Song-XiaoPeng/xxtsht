@@ -18,8 +18,6 @@ return [
         ':name' => ['index/hello', ['method' => 'post']],
     ],
     '[test]' => [
-        '[v1]' => [
-            'test' => ['customer/Index/index'],
-        ]
+        'test' => ['customer/Index/index'],
     ]
 ];
