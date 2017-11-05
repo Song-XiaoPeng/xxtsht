@@ -13,9 +13,13 @@ return [
     '__pattern__' => [
         'name' => '\w+',
     ],
-    '[hello]'     => [
+    '[hello]' => [
         ':id'   => ['index/hello', ['method' => 'get'], ['id' => '\d+']],
         ':name' => ['index/hello', ['method' => 'post']],
     ],
-
+    '[test]' => [
+        '[v1]' => [
+            'test' => ['customer/Index/index'],
+        ]
+    ]
 ];
