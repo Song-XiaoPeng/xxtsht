@@ -13,11 +13,7 @@ return [
     '__pattern__' => [
         'name' => '\w+',
     ],
-    '[hello]' => [
-        ':id'   => ['index/hello', ['method' => 'get'], ['id' => '\d+']],
-        ':name' => ['index/hello', ['method' => 'post']],
-    ],
     '[api]' => [
-        ':version/:controller/:function' => ['api/:version.:controller/:function'],
+        ':version/:Model/:controller/:function' => ['api/:version.:Model.:controller/:function'],
     ]
 ];
