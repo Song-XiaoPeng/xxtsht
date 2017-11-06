@@ -17,7 +17,7 @@ return [
         ':id'   => ['index/hello', ['method' => 'get'], ['id' => '\d+']],
         ':name' => ['index/hello', ['method' => 'post']],
     ],
-    '[test]' => [
-        'test' => ['customer/Index/index'],
+    '[api]' => [
+        ':version/:controller/:function' => ['api/:version.:controller/:function'],
     ]
 ];
