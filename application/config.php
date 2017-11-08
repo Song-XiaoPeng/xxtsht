@@ -238,4 +238,7 @@ return [
         'var_page'  => 'page',
         'list_rows' => 15,
     ],
+
+    //账号授权服务器api域名地址
+    'auth_server_url' => 'http://wxyx.lyfz.net'
 ];

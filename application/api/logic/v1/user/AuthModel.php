@@ -24,9 +24,10 @@ class AuthModel extends Model {
 
         $res = $client->request(
             'PUT', 
-            'http://wxyx.lyfz.net/api.php/Auth/companyLogin', 
+            config('auth_server_url').'/api.php/Auth/companyLogin', 
             [
-                'json' => $request_data
+                'json' => $request_data,
+                'timeout' => 3
             ]
         );
 
