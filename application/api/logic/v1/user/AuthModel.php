@@ -36,6 +36,10 @@ class AuthModel extends Model {
             return msg($body['meta']['code'],$body['meta']['message']);
         }
 
+        if(!array_key_exists('11',$body['body']['auth_info'])){
+            return msg(3009,'未获得功能模块授权');
+        }
+
         $expiration_date = $body['body']['auth_info']['11']['expiration_date'];
         $login_token = $body['body']['token'];
         $address = $body['body']['address'];
@@ -50,6 +54,8 @@ class AuthModel extends Model {
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
         }
 
+        $this->addAuthCache($uid,$login_token,$company_id,$expiration_date);
+
         return msg(
             200,
             'success',
@@ -61,8 +67,62 @@ class AuthModel extends Model {
                 'company_name' => $company_name,
                 'username' => $username,
                 'logo' => $logo,
-                'phone_no' => $phone_no
+                'phone_no' => $phone_no,
+                'uid' => $uid
             ]
         );
     }
+
+    /**
+     * 添加授权缓存
+     * @param token 登录的token
+	 * @param uid 账户uid
+	 * @param company_id 商户company_id
+	 * @param expiration_date 模块到期时间
+	 * @return code 200->成功
+	 */
+    private function addAuthCache ($uid,$token,$company_id,$expiration_date) {
+        $auth_res = Db::name('login_token')->where(['uid'=>$uid])->find();
+
+        $time = date('Y-m-d H:i:s');
+
+        if($auth_res){
+            Db::name('login_token')->where(['tid'=>$auth_res['tid']])->update(['token'=>$token,'add_time'=>$time,'expiration_date'=>$expiration_date]);
+        }else{
+            Db::name('login_token')->insert([
+                'token'=>$token,
+                'company_id'=>$company_id,
+                'uid'=>$uid,
+                'add_time'=>$time,
+                'expiration_date'=>$expiration_date
+            ]);
+        }
+
+        $count = Db::name('login_token')->where(['company_id'=>$company_id])->count();
+        if($count > 1){
+            Db::name('login_token')->where(['company_id'=>$company_id])->save(['expiration_date'=>$expiration_date]);
+        }
+
+        return msg(200,'success');
+    }
+
+    /**
+     * 更新授权时间
+     * @param company_id 修改商家授权的company_id
+     * @param expiration_date 到期时间
+	 * @return code 200->成功
+	 */
+    public function updateAuthTime($data){
+        $company_id = $data['company_id'];
+        $expiration_date = $data['expiration_date'];
+
+        $res = Db::name('login_token')->where(['company_id'=>$company_id])->update(['expiration_date'=>$expiration_date]);
+        if($res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
+
+    
 }
