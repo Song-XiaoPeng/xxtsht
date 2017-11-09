@@ -158,4 +158,37 @@ class UserOperationModel extends Model {
 
         return json_decode($res->getBody(),true);
     }
+
+    /**
+     * 设置子账号状态
+	 * @param token 登录token
+	 * @param uid 要设置离职的用户uid
+	 * @param state -1 设置为离职 1恢复正常
+	 * @return code 200->成功 3001->更新数据失败
+	 */
+    public function setUserState($data){
+        $uid = $data['uid'];
+        $state = $data['state'] == 1 ? 1 : -1;
+        $token = $data['token'];
+
+        $request_data = [
+            'uid' => $uid,
+            'state' => $state
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request(
+            'POST', 
+            combinationApiUrl('/api.php/MeiBackstage/setUserQuit'), 
+            [
+                'json' => $request_data,
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        return json_decode($res->getBody(),true);
+    } 
 }

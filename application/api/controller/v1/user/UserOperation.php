@@ -88,4 +88,22 @@ class UserOperation extends AuthController{
         
         return \think\Loader::model('UserOperationModel','logic\v1\user')->delUserGroup($data);
     }
+
+    /**
+     * 设置子账号状态
+     * 请求类型 post
+	 * 传入JSON格式: {"uid":12,"state":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"}}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/setUserState
+	 * API_URL_服务器: http://customer.lyfz.net/api/v1/user/UserOperation/setUserState
+	 * @param uid 要设置离职的用户uid
+	 * @param state -1 设置为离职 1恢复正常
+	 * @return code 200->成功 3001->更新数据失败
+	 */
+    public function setUserState () {
+        $data = input('put.');
+        $data['token'] = $this->token;
+        
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->setUserState($data);
+    }
 }
