@@ -17,6 +17,7 @@ class UserOperationModel extends Model {
         $token = $data['token'];
         $phone_no = $data['phone_no'];
         $password = $data['password'];
+        $user_name = $data['user_name'];
         $user_group_id = $data['user_group_id'];
 
         $request_data = [
@@ -26,9 +27,10 @@ class UserOperationModel extends Model {
             'user_name' => $user_name
         ];
 
+        $client = new \GuzzleHttp\Client();
         $res = $client->request(
             'PUT', 
-            config('auth_server_url').'/api.php/Auth/companyLogin', 
+            config('auth_server_url').'/api.php/MeiBackstage/addSonUser', 
             [
                 'json' => $request_data,
                 'timeout' => 3,

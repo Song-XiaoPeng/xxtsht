@@ -12,10 +12,14 @@ class UserOperation extends AuthController{
 	 * API_URL_服务器: http://customer.lyfz.net/api/v1/user/UserOperation/addAccountNumber
      * @param phone_no 用户手机
 	 * @param password 密码md5
+	 * @param user_group_id 分组id
+	 * @param user_name 账户名称姓名
 	 * @return code 200->成功
 	 */
     public function addAccountNumber () {
         $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['token'] = $this->token;
         
         return \think\Loader::model('UserOperationModel','logic\v1\user')->addAccountNumber($data);
     }
