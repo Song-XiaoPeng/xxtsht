@@ -6,3 +6,8 @@ function msg($code,$msg,$arr = ''){
     $result['body'] = $arr != '' ? $arr : null;
     return $result;
 }
+
+//组合apiurl
+function combinationApiUrl($url){
+    return config('auth_server_url').$url;
+}

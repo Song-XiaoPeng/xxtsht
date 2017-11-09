@@ -6,14 +6,12 @@ use think\Db;
 class UserOperationModel extends Model {
     /**
      * 添加客服账号
-	 * @param company_id 商户company_id
 	 * @param user_group_id 权限分组id
 	 * @param phone_no 子账号手机(账号)
 	 * @param password 子账号登录密码md5值
-	 * @return code 200->成功 3001->插入数据失败 3002账号重复
+	 * @return code 200->成功
 	 */
     public function addAccountNumber($data){
-        $company_id = $data['company_id'];
         $token = $data['token'];
         $phone_no = $data['phone_no'];
         $password = $data['password'];
@@ -30,7 +28,7 @@ class UserOperationModel extends Model {
         $client = new \GuzzleHttp\Client();
         $res = $client->request(
             'PUT', 
-            config('auth_server_url').'/api.php/MeiBackstage/addSonUser', 
+            combinationApiUrl('/api.php/MeiBackstage/addSonUser'), 
             [
                 'json' => $request_data,
                 'timeout' => 3,
@@ -46,5 +44,118 @@ class UserOperationModel extends Model {
         }
 
         return msg(200,'success');
+    }
+
+    /**
+     * 获取客服子账号列表
+	 * @param user_group_id 分组id(选传)
+	 * @param page 分页参数默认1
+	 * @param token 账号登录token
+	 * @return code 200->成功
+	 */
+    public function getUserList($data){
+        $token = $data['token'];
+        $page = $data['page'];
+        $user_group_id = empty($data['user_group_id']) == true ? '' : $data['user_group_id'];
+
+        $request_data = [
+            'page' => $page,
+            'user_group_id' => $user_group_id
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request(
+            'PUT', 
+            combinationApiUrl('/api.php/MeiBackstage/getSonUserList'), 
+            [
+                'json' => $request_data,
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        return json_decode($res->getBody(),true);
+    }
+
+    /**
+     * 获取子账号分组
+	 * @param token 账号登录token
+	 * @return code 200->成功
+	 */
+    public function getUserGroup($token){
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request(
+            'GET', 
+            combinationApiUrl('/api.php/MeiBackstage/getUserGroup'), 
+            [
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        return json_decode($res->getBody(),true);
+    }
+
+    /**
+     * 添加子账号账户分组
+	 * @param token 账号登录token
+	 * @param user_group_name 分组名称
+	 * @return code 200->成功
+	 */
+    public function addUserGroup($data){
+        $token = $data['token'];
+        $user_group_name = $data['user_group_name'];
+
+        $request_data = [
+            'user_group_name' => $user_group_name
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request(
+            'POST', 
+            combinationApiUrl('/api.php/MeiBackstage/addUserGroup'), 
+            [
+                'json' => $request_data,
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        return json_decode($res->getBody(),true);
+    }
+
+    /**
+     * 删除子账号账户分组
+	 * @param user_group_id 分组id
+	 * @return code 200->成功
+	 */
+    public function delUserGroup($data){
+        $user_group_id = $data['user_group_id'];
+        $token = $data['token'];
+
+        $request_data = [
+            'user_group_id' => $user_group_id
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request(
+            'POST', 
+            combinationApiUrl('/api.php/MeiBackstage/delUserGroup'), 
+            [
+                'json' => $request_data,
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        return json_decode($res->getBody(),true);
     }
 }
