@@ -240,5 +240,17 @@ return [
     ],
 
     //账号授权服务器api域名地址
-    'auth_server_url' => 'http://wxyx.lyfz.net'
+    'auth_server_url' => 'http://wxyx.lyfz.net',
+
+    //第三方平台appid
+    'app_id' => 'wxab4873842bdb30b6',
+
+    //第三方平台app_secret
+    'app_secret' => 'dcda055876be4b0e6133058216aaa930',
+
+    //第三方平台公众号消息校验Token
+    'wx_msg_token' => 'WMHEDRD4NWZACPCXZ8JYXOOC',
+
+    //第三方平台公众号消息加解密Key
+    'wx_aes_key' => 'BZy405POqT7Jg4QgSyyAEq0Ve4Ih4QyNCSJMswSG6kI'
 ];

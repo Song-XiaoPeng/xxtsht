@@ -11,16 +11,7 @@ class BusinessModel extends Model {
     public function authCallback(){
         Log::record('收到微信数据------'.date('YmdHis'));
 
-        $options = [
-            'open_platform' => [
-                'app_id'   => 'wxab4873842bdb30b6',
-                'secret'   => 'dcda055876be4b0e6133058216aaa930',
-                'token'    => 'WMHEDRD4NWZACPCXZ8JYXOOC',
-                'aes_key'  => 'BZy405POqT7Jg4QgSyyAEq0Ve4Ih4QyNCSJMswSG6kI'
-                ]
-        ];
-
-        $app = new Application($options);
+        $app = new Application(wxOptions());
 
         $openPlatform = $app->open_platform;
         $server = $openPlatform->server;
@@ -47,22 +38,14 @@ class BusinessModel extends Model {
             return msg(3001,'缺少company_id参数');
         }
 
-        $options = [
-            'open_platform' => [
-                'app_id'   => 'wxab4873842bdb30b6',
-                'secret'   => 'dcda055876be4b0e6133058216aaa930',
-                'token'    => 'WMHEDRD4NWZACPCXZ8JYXOOC',
-                'aes_key'  => 'BZy405POqT7Jg4QgSyyAEq0Ve4Ih4QyNCSJMswSG6kI'
-                ]
-        ];
-
-        $app = new Application($options);
+        $app = new Application(wxOptions());
 
         $openPlatform = $app->open_platform;
         $openPlatform->pre_auth->getCode();
 
         // 直接跳转
         $response = $openPlatform->pre_auth->redirect("http://kf.lyfz.net/api/v1/we_chat/Business/authCallbackPage?company_id=$company_id");
+
         // 获取跳转的 URL
         $url = $response->getTargetUrl();
         echo "<script>window.location.href='$url'</script>";
@@ -70,16 +53,7 @@ class BusinessModel extends Model {
 
     //授权成功跳转页面
     public function authCallbackPage($data){
-        $options = [
-            'open_platform' => [
-                'app_id'   => 'wxab4873842bdb30b6',
-                'secret'   => 'dcda055876be4b0e6133058216aaa930',
-                'token'    => 'WMHEDRD4NWZACPCXZ8JYXOOC',
-                'aes_key'  => 'BZy405POqT7Jg4QgSyyAEq0Ve4Ih4QyNCSJMswSG6kI'
-                ]
-        ];
-
-        $app = new Application($options);
+        $app = new Application(wxOptions());
 
         $openPlatform = $app->open_platform;
 
@@ -90,8 +64,8 @@ class BusinessModel extends Model {
         $auth_info = Db::name('openweixin_authinfo')->where(['appid'=>$authorization_info['authorizer_appid']])->find();
         if($auth_info){
             if($auth_info['company_id'] != $data['company_id']){
-                $comapny_id = $auth_info['company_id'];
-                return msg(3001,"绑定失败,此公众平台或小程序已绑定company_id为:$comapny_id的账号,请先解绑原账号!");
+                $company_id = $auth_info['company_id'];
+                return msg(3001,"绑定失败,此公众平台或小程序已绑定company_id为:$company_id的账号,请先解绑原账号!");
             }else{
                 return msg(3002,"此公众平台或小程序已绑定完成，请勿重复绑定!");
             }
