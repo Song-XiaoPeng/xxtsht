@@ -1,10 +1,10 @@
 <?php
-namespace app\api\controller\common;
+namespace app\api\common;
 use think\Request;
 use think\Controller;
 use think\Db;
 
-class AuthController extends Controller{
+class Auth extends Controller{
     protected $uid;
 
     protected $token;

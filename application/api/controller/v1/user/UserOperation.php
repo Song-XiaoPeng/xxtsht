@@ -1,9 +1,9 @@
 <?php
 namespace app\api\controller\v1\User;
-use app\api\controller\common\AuthController;
+use app\api\common\Auth;
 
 //用户账户相关操作
-class UserOperation extends AuthController{
+class UserOperation extends Auth{
     /**
      * 添加客服账号
      * 请求类型 post
