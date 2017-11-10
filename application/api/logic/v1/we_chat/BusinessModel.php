@@ -89,7 +89,7 @@ class BusinessModel extends Model {
 
         $auth_info = Db::name('openweixin_authinfo')->where(['appid'=>$authorization_info['authorizer_appid']])->find();
         if($auth_info){
-            if($auth_info['company_id'] != $data['comapny_id']){
+            if($auth_info['company_id'] != $data['company_id']){
                 $comapny_id = $auth_info['company_id'];
                 return msg(3001,"绑定失败,此公众平台或小程序已绑定company_id为:$comapny_id的账号,请先解绑原账号!");
             }else{
@@ -98,12 +98,12 @@ class BusinessModel extends Model {
         }
 
         Db::name('openweixin_authinfo')->insert([
-            'appid' => $authorization_info['appid'],
+            'appid' => $authorization_info['authorizer_appid'],
             'access_token' => $authorization_info['authorizer_access_token'],
             'refresh_token' => $authorization_info['authorizer_refresh_token'],
             'refresh_time' => strtotime(date('Y-m-d H:i:s')),
             'type' => 1,
-            'company_id' => $comapny_id,
+            'company_id' => $data['company_id'],
             'nick_name' => $authorizer_info['nick_name'],
             'logo' => $authorizer_info['head_img'],
             'qrcode_url' => $authorizer_info['qrcode_url'],
