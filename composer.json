@@ -26,7 +26,7 @@
         "topthink/think-captcha": "^1.0",
         "topthink/think-angular": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
-        "hooklife/thinkphp5-wechat": "^1.1"
+        "overtrue/wechat": "~3.3.17"
     },
     "extra": {
         "think-path": "thinkphp"
