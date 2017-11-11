@@ -12,7 +12,14 @@ class Business {
 
     //微信公众号消息与事件处理
     public function messageEvent(){
-        return 'success';
+        $data = input('get.');
+        if(empty($data['appid'])){
+            return;
+        }else{
+            // $data['']
+        }
+
+        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->messageEvent($data);
     }
 
     //获取第三方公众号授权链接

@@ -89,4 +89,23 @@ class BusinessModel extends Model {
         echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>授权成功</title><style>.box{height:250px;text-align:center}.btn{text-align:center}#btn{background-color:#0c6;color:#fff;font-size:18px;border:0;padding:5px 20px;border-radius:5px;cursor:pointer}#btn:hover{background-color:#0c0}</style></head><body><div class="box"><img src="http://kf.lyfz.net/static/images/auth_success.png" alt=""></div><div class="btn"><button id="btn">关闭</button></div><script>const btn = document.getElementById("btn");btn.addEventListener("click", () => {window.close();
         }, false)</script></body></html>';
     }
+
+    public function messageEvent($data){
+        Log::record(json_encode($data));
+
+        $apc = new Application(wxOptions());
+        $openPlatform = $apc->open_platform;
+        $app = $openPlatform->createAuthorizerApplication('wx52bf4acbefcf4653','refreshtoken@@@sxQ17aCMDUABbpCNP2WCMHUgOtMfkGz6d9JUCU3_49c');
+
+        $server = $app->server;
+
+        $server->setMessageHandler(function ($message) {
+            // $message->FromUserName // 用户的 openid
+            // $message->MsgType // 消息类型：event, text....
+            return "您好！欢迎关注我!侧耳测试";
+        });
+
+        $response = $server->serve();
+        return $response->send();
+    }
 }

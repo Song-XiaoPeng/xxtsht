@@ -166,11 +166,17 @@ return [
 
     'log'                    => [
         // 日志记录方式，内置 file socket 支持扩展
-        'type'  => 'File',
+        //'type'  => 'File',
+        'type'  => 'socket',
         // 日志保存目录
-        'path'  => LOG_PATH,
+        //'path'  => LOG_PATH,
         // 日志记录级别
-        'level' => [],
+        //'level' => ['info','log'],
+        'host' => 'slog.thinkphp.cn',
+        //日志强制记录到配置的client_id
+        'force_client_ids'    => ['slog_07c1b4'],
+        //限制允许读取日志的client_id
+        'allow_client_ids'    => ['slog_07c1b4'],
     ],
 
     // +----------------------------------------------------------------------

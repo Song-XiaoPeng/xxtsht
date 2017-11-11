@@ -4,6 +4,7 @@ use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
+use think\Log;
 
 //微信后台操作业务类
 class WxOperationModel extends Model {
