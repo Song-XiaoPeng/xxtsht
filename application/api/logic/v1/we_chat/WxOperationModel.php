@@ -71,14 +71,21 @@ class WxOperationModel extends Model {
     public function setMessageRuld($data){
         $company_id = $data['company_id'];
         $appid = $data['appid'];
-        $key_word = $data['key_word'];
-        $reply_text = $data['reply_text'];
+        $key_word = $data['rule_type'] == 4 ? 'follow_reply' : $data['key_word'];
+        $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
         $message_rule_id = empty($data['message_rule_id']) == true ? '' : $data['message_rule_id'];
         $rule_type = $data['rule_type'];
 
-        $rule_res = Db::name('message_rule')->where(['company_id'=>$company_id,'appid'=>$appid,'key_word'=>$key_word])->find();
-        if($rule_res){
-            return msg(3002,'回复关键词已存在'); 
+        if($rule_type != 4){
+            $rule_res = Db::name('message_rule')->where(['company_id'=>$company_id,'appid'=>$appid,'key_word'=>$key_word])->find();
+            if($rule_res){
+                return msg(3002,'回复关键词已存在'); 
+            }
+        }else{
+            $follow_reply = Db::name('message_rule')->where(['company_id'=>$company_id,'appid'=>$appid,'key_word'=>'follow_reply'])->find();
+            if($follow_reply){
+                $message_rule_id = $follow_reply['message_rule_id'];
+            }
         }
 
         if($message_rule_id){
