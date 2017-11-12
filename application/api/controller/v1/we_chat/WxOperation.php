@@ -47,8 +47,11 @@ class WxOperation extends Auth{
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/setMessageRuld
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/setMessageRuld
      * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param message_rule_id 回复规则id
      * @param key_word 回复关键词
      * @param reply_text 回复文本内容
+     * @param rule_type 响应类型 1文本回复 2接入到指定客服 3接入到指定客服组 4关注自动回复
 	 * @return code 200->成功
 	 */
     public function setMessageRuld(){

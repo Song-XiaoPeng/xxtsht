@@ -14,9 +14,6 @@ class Auth extends Controller{
     protected $expiration_date;
 
     public function __construct() {
-        header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, token");
-
         $this->token = Request::instance()->header('token');
 
         $user_res = Db::name('login_token')->where(['token'=>$this->token])->cache(true,10)->find();
