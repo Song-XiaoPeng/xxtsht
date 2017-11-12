@@ -106,4 +106,17 @@ class UserOperation extends Auth{
         
         return \think\Loader::model('UserOperationModel','logic\v1\user')->setUserState($data);
     }
+
+    /**
+     * 获取我的所有授权公众号或小程序list 及appid
+     * 请求类型 get
+	 * 传入JSON格式: 无
+	 * 返回JSON格式: {"meta":{"code":200,"msg":"success"},"body":[{"appid":"wx52bf4acbefcf4653","logo":"http:\/\/wx.qlogo.cn\/mmopen\/cBkN596BI8KvudqGQDndh8xNPttAoJ7J96PMxfTGPR0j6iaIMGtvopS2LWqhiaUZZ47wZic1S2xPGqLNdChj9j5MvFCzvKQcq4ic\/0","qrcode_url":"http:\/\/mmbiz.qpic.cn\/mmbiz_jpg\/x1g8iaZfs9oByZkPjib3LSW22UoChf6uyEkX0vh84KtdgaHoB1hMxZlpBExYeQs9LjKwaXW3jM8Z1YahuuialfTUg\/0","principal_name":"惠州市利亚方舟科技有限公司","signature":null,"type":1,"nick_name":"利亚方舟软件"}]}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/getWxAuthList
+	 * API_URL_服务器: http://customer.lyfz.net/api/v1/user/UserOperation/getWxAuthList
+	 * @return code 200->成功
+	 */
+    public function getWxAuthList () {
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->getWxAuthList($this->company_id);
+    }
 }

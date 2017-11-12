@@ -191,4 +191,15 @@ class UserOperationModel extends Model {
 
         return json_decode($res->getBody(),true);
     } 
+
+    /**
+     * 获取我的所有授权公众号或小程序list 及appid
+	 * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getWxAuthList($company_id){
+        $res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->field('appid,logo,qrcode_url,principal_name,signature,type,nick_name')->select();
+
+        return msg(200,'success',$res);
+    }
 }

@@ -91,6 +91,7 @@ class BusinessModel extends Model {
         }, false)</script></body></html>';
     }
 
+    //微信公众号事件响应处理
     public function messageEvent($data){
         Log::record(json_encode($data));
 

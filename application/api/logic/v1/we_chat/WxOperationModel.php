@@ -57,4 +57,19 @@ class WxOperationModel extends Model {
 
         return msg(200,'success');
     }
+
+    /**
+     * 设置自动回复关键词
+     * @param appid 公众号或小程序appid
+     * @param key_word 回复关键词
+     * @param reply_text 回复文本内容
+	 * @return code 200->成功
+	 */
+    public function setMessageRuld($data){
+        $company_id = $data['company_id'];
+        $key_word = $data['key_word'];
+        $reply_text = $data['reply_text'];
+
+        $res = Db::name('message_rule')->where(['company_id'=>$comapny_id])->find();
+    }
 }

@@ -38,4 +38,23 @@ class WxOperation extends Auth{
         
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setMenu($data);
     }
+
+    /**
+     * 设置微信回复规则
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","key_word":"测试","reply_text":"测试123123"}
+	 * 返回JSON格式: {"meta":{"code":200,"msg":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/setMessageRuld
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/setMessageRuld
+     * @param appid 公众号或小程序appid
+     * @param key_word 回复关键词
+     * @param reply_text 回复文本内容
+	 * @return code 200->成功
+	 */
+    public function setMessageRuld(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setMessageRuld($data);
+    }
 }
