@@ -16,7 +16,7 @@ class Business {
         if(empty($data['appid'])){
             return;
         }else{
-            // $data['']
+            $data['appid'] = trim($data['appid'],'/');
         }
 
         return \think\Loader::model('BusinessModel','logic\v1\we_chat')->messageEvent($data);

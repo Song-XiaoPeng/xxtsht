@@ -5,6 +5,7 @@ use think\Db;
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\OpenPlatform\Guard;
 use think\Log;
+use app\api\common\Common;
 
 class BusinessModel extends Model {
     //微信授权事件处理
@@ -93,9 +94,16 @@ class BusinessModel extends Model {
     public function messageEvent($data){
         Log::record(json_encode($data));
 
+        $token_info = Common::getRefreshToken($data['appid']);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
         $apc = new Application(wxOptions());
         $openPlatform = $apc->open_platform;
-        $app = $openPlatform->createAuthorizerApplication('wx52bf4acbefcf4653','refreshtoken@@@sxQ17aCMDUABbpCNP2WCMHUgOtMfkGz6d9JUCU3_49c');
+        $app = $openPlatform->createAuthorizerApplication($data['appid'],$refresh_token);
 
         $server = $app->server;
 
