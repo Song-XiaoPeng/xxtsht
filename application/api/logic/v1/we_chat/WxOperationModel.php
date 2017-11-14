@@ -95,15 +95,14 @@ class WxOperationModel extends Model {
                 'appid' => $appid
             ])->update([
                 'key_word' => $key_word,
-                'reply_text' => $reply_text,
+                'reply_text' => emoji_encode($reply_text),
                 'rule_type' => $rule_type
             ]);
         }else{
             $add_time = date('Y-m-d H:i:s');
 
             $res = Db::name('message_rule')->insert([
-                'key_word' => $key_word,
-                'reply_text' => $reply_text,
+                'reply_text' => emoji_encode($reply_text),
                 'key_word' => $key_word,
                 'rule_type' => $rule_type,
                 'company_id' => $company_id,
