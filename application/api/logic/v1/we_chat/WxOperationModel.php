@@ -54,6 +54,7 @@ class WxOperationModel extends Model {
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
         $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+        $menu->add($menu_list);
 
         return msg(200,'success');
     }
@@ -77,7 +78,7 @@ class WxOperationModel extends Model {
         $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
         $message_rule_id = empty($data['message_rule_id']) == true ? '' : $data['message_rule_id'];
         $rule_type = $data['rule_type'];
-        $user_group_id = empty($data['user_group_id']) == true ? '' : $data['message_rule_id'];
+        $user_group_id = empty($data['user_group_id']) == true ? '' : $data['user_group_id'];
         $uid = empty($data['uid']) == true ? '' : $data['uid'];
         $pattern = $data['pattern'] == 2 ? 2 : 1;
 

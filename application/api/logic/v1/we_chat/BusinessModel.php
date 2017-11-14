@@ -8,6 +8,8 @@ use think\Log;
 use app\api\common\Common;
 
 class BusinessModel extends Model {
+    public $default_message = '系统未识别到您的描述，请再描述一次！';
+
     //微信授权事件处理
     public function authCallback(){
         Log::record('收到微信数据------'.date('YmdHis'));
@@ -112,7 +114,7 @@ class BusinessModel extends Model {
         $message = $server->getMessage();
         switch ($message['MsgType']) {
             case 'event':
-                $returnMessage = '收到事件消息';
+                $returnMessage = $this->clickEvent($appid,$message['EventKey']);
                 break;
             case 'text':
                 $returnMessage = $this->textEvent($appid,$message['Content']);
@@ -146,7 +148,7 @@ class BusinessModel extends Model {
     }
 
     /**
-     * 获取关键词回复信息
+     * 文本消息处理
      * @param appid 公众号或小程序appid
      * @param key_word 关键词
 	 * @return code 200->成功
@@ -161,6 +163,22 @@ class BusinessModel extends Model {
             $reply_text = Db::name('message_rule')->where($map)->where($map2)->value('reply_text');
         }
 
-        return empty($reply_text) == true ? '系统未识别到您的描述，请再描述一次！' : emoji_decode($reply_text);
+        return empty($reply_text) == true ? $this->default_message : emoji_decode($reply_text);
+    }
+
+    /**
+     * 菜单点击事件处理
+     * @param appid 公众号或小程序appid
+     * @param event_key 触发下标值
+	 * @return code 200->成功
+	 */
+    private function clickEvent($appid,$event_key){
+        $event_arr = explode('_',$event_key);
+        if($event_arr[0] != 'kf'){
+            return $this->default_message;
+        }
+
+
+        return '系统正在为您转接客服，请稍等！';
     }
 }
