@@ -75,6 +75,7 @@ class WxOperationModel extends Model {
         $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
         $message_rule_id = empty($data['message_rule_id']) == true ? '' : $data['message_rule_id'];
         $rule_type = $data['rule_type'];
+        $pattern = $data['pattern'] == 2 ? 2 : 1;
 
         if($rule_type != 4){
             $rule_res = Db::name('message_rule')->where(['company_id'=>$company_id,'appid'=>$appid,'key_word'=>$key_word])->find();
@@ -96,7 +97,8 @@ class WxOperationModel extends Model {
             ])->update([
                 'key_word' => $key_word,
                 'reply_text' => emoji_encode($reply_text),
-                'rule_type' => $rule_type
+                'rule_type' => $rule_type,
+                'pattern' => $pattern
             ]);
         }else{
             $add_time = date('Y-m-d H:i:s');
@@ -107,6 +109,7 @@ class WxOperationModel extends Model {
                 'rule_type' => $rule_type,
                 'company_id' => $company_id,
                 'appid' => $appid,
+                'pattern' => $pattern,
                 'add_time' => $add_time
             ]);
         }
@@ -115,6 +118,56 @@ class WxOperationModel extends Model {
             return msg(200,'success');
         }else{
             return msg(3001,'数据更新或插入失败');
+        }
+    }
+
+    /**
+     * 获取自动回复关键词列表
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getMessageRuleList($data){
+        $company_id = $data['company_id'];
+        $page = $data['page'];
+        $appid = $data['appid'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $message_rule_res = Db::name('message_rule')->where(['appid'=>$appid,'company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $count = Db::name('message_rule')->where(['appid'=>$appid,'company_id'=>$company_id])->count();
+
+        if(empty($message_rule_res == false)){
+            foreach($message_rule_res as $k=>$v){
+                $message_rule_res[$k]['reply_text'] = emoji_decode($v['reply_text']);
+            }
+        }
+
+        $res['data_list'] = count($message_rule_res) == 0 ? array() : $message_rule_res;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    /**
+     * 删除自动回复关键词
+     * @param message_rule_id 删除的规则od
+	 * @return code 200->成功
+	 */
+    public function delMessageRule($data){
+        $company_id = $data['company_id'];
+        $message_rule_id = $data['message_rule_id'];
+
+        $del_res = Db::name('message_rule')->where(['company_id'=>$company_id,'message_rule_id'=>$message_rule_id])->delete();
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
         }
     }
 }

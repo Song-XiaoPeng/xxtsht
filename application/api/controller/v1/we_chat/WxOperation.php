@@ -60,4 +60,40 @@ class WxOperation extends Auth{
         
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setMessageRuld($data);
     }
+
+    /**
+     * 获取自动回复关键词列表
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","page":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"msg":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMessageRuleList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMessageRuleList
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getMessageRuleList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMessageRuleList($data);
+    }
+
+    /**
+     * 删除自动回复关键词
+	 * 请求类型：post
+	 * 传入JSON格式: {"message_rule_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"msg":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delMessageRule
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delMessageRule
+     * @param message_rule_id 删除的规则od
+	 * @return code 200->成功
+	 */
+    public function delMessageRule(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delMessageRule($data);
+    }
 }

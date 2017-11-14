@@ -95,7 +95,9 @@ class BusinessModel extends Model {
     public function messageEvent($data){
         Log::record(json_encode($data));
 
-        $token_info = Common::getRefreshToken($data['appid']);
+        $appid = $data['appid'];
+
+        $token_info = Common::getRefreshToken($appid);
         if($token_info['meta']['code'] == 200){
             $refresh_token = $token_info['body']['refresh_token'];
         }else{
@@ -104,46 +106,61 @@ class BusinessModel extends Model {
 
         $apc = new Application(wxOptions());
         $openPlatform = $apc->open_platform;
-        $app = $openPlatform->createAuthorizerApplication($data['appid'],$refresh_token);
-
+        $app = $openPlatform->createAuthorizerApplication($appid,$refresh_token);
         $server = $app->server;
 
-        $server->setMessageHandler(function ($message) {
-            Log::record($message->Content);
-            switch ($message->MsgType) {
-                case 'event':
-                    return '收到事件消息';
-                    break;
-                case 'text':
-                    return $message->Content;
-                    break;
-                case 'image':
-                    return '收到图片消息';
-                    break;
-                case 'voice':
-                    return '收到语音消息';
-                    break;
-                case 'video':
-                    return '收到视频消息';
-                    break;
-                case 'location':
-                    return '收到坐标消息';
-                    break;
-                case 'link':
-                    return '收到链接消息';
-                    break;
-                // ... 其它消息
-                default:
-                    return '收到其它消息';
-                    break;
-            }
+        $message = $server->getMessage();
+        switch ($message['MsgType']) {
+            case 'event':
+                $returnMessage = '收到事件消息';
+                break;
+            case 'text':
+                $returnMessage = $this->textEvent($appid,$message['Content']);
+                break;
+            case 'image':
+                $returnMessage = '收到图片消息';
+                break;
+            case 'voice':
+                $returnMessage = '收到语音消息';
+                break;
+            case 'video':
+                $returnMessage = '收到视频消息';
+                break;
+            case 'location':
+                $returnMessage = '收到坐标消息';
+                break;
+            case 'link':
+                $returnMessage = '收到链接消息';
+                break;
+            default:
+                $returnMessage = '您好有什么需要帮助吗？';
+                break;
+        }
 
-            // $message->FromUserName // 用户的 openid
-            // $message->MsgType // 消息类型：event, text....
-            // return "您好！";
+        $server->setMessageHandler(function ($message) use ($returnMessage) {
+            return $returnMessage;
         });
 
         $response = $server->serve();
         return $response->send();
+    }
+
+    /**
+     * 获取关键词回复信息
+     * @param appid 公众号或小程序appid
+     * @param key_word 关键词
+	 * @return code 200->成功
+	 */
+    private function textEvent($appid,$key_word){
+        $map['appid'] = $appid;
+        $map1['pattern'] = 2;
+        $map['key_word'] = array('like',"%$key_word%");
+        $reply_text = Db::name('message_rule')->where($map)->where($map1)->value('reply_text');
+        if(!$reply_text){
+            $map2['pattern'] = 1;
+            $reply_text = Db::name('message_rule')->where($map)->where($map2)->value('reply_text');
+        }
+
+        return empty($reply_text) == true ? '系统未识别到您的描述，请再描述一次！' : emoji_decode($reply_text);
     }
 }
