@@ -111,7 +111,7 @@ class BusinessModel extends Model {
         $server->setMessageHandler(function ($message) {
             // $message->FromUserName // 用户的 openid
             // $message->MsgType // 消息类型：event, text....
-            return "您好！欢迎关注我!侧耳测试";
+            return "您好！";
         });
 
         $response = $server->serve();
