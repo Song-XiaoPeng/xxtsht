@@ -88,7 +88,7 @@ class WxOperation extends Auth{
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delMessageRule
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delMessageRule
-     * @param message_rule_id 删除的规则od
+     * @param message_rule_id 删除的规则id
 	 * @return code 200->成功
 	 */
     public function delMessageRule(){
