@@ -66,6 +66,8 @@ class WxOperationModel extends Model {
      * @param key_word 回复关键词
      * @param reply_text 回复文本内容
      * @param rule_type 响应类型 1文本回复 2接入到指定客服 3接入到指定客服组 4关注自动回复
+     * @param user_group_id 客服分组id rule_type为3必传
+     * @param uid 客服id rule_type为2必传
 	 * @return code 200->成功
 	 */
     public function setMessageRuld($data){
@@ -75,7 +77,21 @@ class WxOperationModel extends Model {
         $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
         $message_rule_id = empty($data['message_rule_id']) == true ? '' : $data['message_rule_id'];
         $rule_type = $data['rule_type'];
+        $user_group_id = empty($data['user_group_id']) == true ? '' : $data['message_rule_id'];
+        $uid = empty($data['uid']) == true ? '' : $data['uid'];
         $pattern = $data['pattern'] == 2 ? 2 : 1;
+
+        if($rule_type == 2){
+            if(!$uid){
+                return msg('客服未选择');
+            }
+        }
+
+        if($rule_type == 3){
+            if(!$user_group_id){
+                return msg('客服分组未选择');
+            }
+        }
 
         if($rule_type != 4){
             $rule_res = Db::name('message_rule')->where(['company_id'=>$company_id,'appid'=>$appid,'key_word'=>$key_word])->find();
@@ -98,7 +114,9 @@ class WxOperationModel extends Model {
                 'key_word' => $key_word,
                 'reply_text' => emoji_encode($reply_text),
                 'rule_type' => $rule_type,
-                'pattern' => $pattern
+                'pattern' => $pattern,
+                'user_group_id' => $user_group_id,
+                'uid' => $uid
             ]);
         }else{
             $add_time = date('Y-m-d H:i:s');
@@ -110,7 +128,9 @@ class WxOperationModel extends Model {
                 'company_id' => $company_id,
                 'appid' => $appid,
                 'pattern' => $pattern,
-                'add_time' => $add_time
+                'add_time' => $add_time,
+                'user_group_id' => $user_group_id,
+                'uid' => $uid
             ]);
         }
 
