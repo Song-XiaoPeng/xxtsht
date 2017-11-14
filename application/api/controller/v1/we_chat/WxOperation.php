@@ -97,4 +97,18 @@ class WxOperation extends Auth{
         
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delMessageRule($data);
     }
+
+    /**
+     * 上传微信永久素材图片
+	 * 请求类型：post
+	 * 传入JSON格式: 
+	 * 返回JSON格式: {"state":"SUCCESS","url":"\/vipimg\/image\/20171114\/1510658446342815.jpg","title":"1510658446342815.jpg","original":"timg[1].jpg","type":".jpg","size":33067}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/uploadSourceMaterial
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/uploadSourceMaterial
+     * @param image 文件下标名称
+	 * @return code 200->成功
+	 */
+    public function uploadSourceMaterial(){
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadSourceMaterial();
+    }
 }

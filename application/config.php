@@ -258,5 +258,8 @@ return [
     'wx_msg_token' => 'WMHEDRD4NWZACPCXZ8JYXOOC',
 
     //第三方平台公众号消息加解密Key
-    'wx_aes_key' => 'BZy405POqT7Jg4QgSyyAEq0Ve4Ih4QyNCSJMswSG6kI'
+    'wx_aes_key' => 'BZy405POqT7Jg4QgSyyAEq0Ve4Ih4QyNCSJMswSG6kI',
+
+    //文件资源外链地址
+    'file_url' => $_SERVER['HTTP_HOST'] == 'localhost:91' ? 'http://'.$_SERVER['HTTP_HOST'] :'http://kf.lyfz.net'
 ];

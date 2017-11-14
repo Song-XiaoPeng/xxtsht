@@ -191,4 +191,57 @@ class WxOperationModel extends Model {
             return msg(3001,'删除失败');
         }
     }
+
+    /**
+     * 上传微信永久素材图片
+	 * @return code 200->成功
+	 */
+    public function uploadSourceMaterial($data){
+        $comapny_id = $data['company_id'];
+        $app_id = $data['app_id'];
+
+        $file = request()->file('image');
+ 
+        if($file){
+            $date = date('Y-m-d');
+            $save_path = '../uploads/source_material';
+
+            $path = '/uploads/source_material';
+            $info = $file->validate(['size'=>3567810,'ext'=>'jpg,png,gif,jpeg'])->rule('uniqid')->move($save_path);
+
+            if($info){
+                $file_name = $info->getFilename();
+
+                $img_url = config('file_url').$path.'/'.$file_name; 
+
+                $del_file = '..'.$path.'/'.$file_name;
+
+                @unlink($del_file);
+
+                return [
+                    'state' => 'SUCCESS',
+                    'url' => $img_url,
+                    'title' => $info->getFilename(),
+                    'original' => $info->getFilename(),
+                    'type' => 'jpg',
+                    'size' => 33067,
+                ];
+            }else{
+                return [
+                    'state' => 'ERROR',
+                    'msg' => $file->getError()
+                ];
+            }
+        } else {
+            return [
+                'state' => 'ERROR',
+                'msg' => '未收到文件'
+            ];
+        }
+    }
+
+    //微信上传图片
+    private function wx_upload_img($img_file){
+
+    }
 }
