@@ -14,7 +14,12 @@ class Auth extends Controller{
     protected $expiration_date;
 
     public function __construct() {
-        $this->token = Request::instance()->header('token');
+        $header_token = Request::instance()->header('token');
+        if(empty($header_token)){
+            $this->token = input('get.token');
+        }else{
+            $this->token = $header_token;
+        }
 
         $user_res = Db::name('login_token')->where(['token'=>$this->token])->cache(true,10)->find();
         if(!$user_res){
