@@ -35,4 +35,11 @@ class Business {
 
         return \think\Loader::model('BusinessModel','logic\v1\we_chat')->authCallbackPage($data);
     }
+
+    //上传微信永久素材图片
+    public function wx_upload_img(){
+        $data = input('get.');
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->wx_upload_img($data);
+    }
 }

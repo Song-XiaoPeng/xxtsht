@@ -105,10 +105,13 @@ class WxOperation extends Auth{
 	 * 返回JSON格式: {"state":"SUCCESS","url":"\/vipimg\/image\/20171114\/1510658446342815.jpg","title":"1510658446342815.jpg","original":"timg[1].jpg","type":".jpg","size":33067}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/uploadSourceMaterial
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/uploadSourceMaterial
-     * @param image 文件下标名称
+     * @param upfile 文件下标名称
 	 * @return code 200->成功
 	 */
     public function uploadSourceMaterial(){
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadSourceMaterial();
+        $data = input('get.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadSourceMaterial($data);
     }
 }
