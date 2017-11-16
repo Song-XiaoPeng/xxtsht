@@ -193,4 +193,48 @@ class WxOperation extends Auth{
             $data['mediaId']
         );
     }
+
+    /**
+     * 创建任务计划
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"appid...","type":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/syncWxUser
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/syncWxUser
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param type 任务类型 1同步粉丝列表 2同步粉丝基本信息
+	 * @return code 200->成功
+	 */
+    public function syncWxUser(){
+        $data = input('put.');
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        ->syncWxUser(
+            $this->company_id,
+            $this->uid,
+            $data['appid'],
+            $data['type']
+        );
+    }
+
+    /**
+     * 获取任务计划列表
+	 * 请求类型：post
+	 * 传入JSON格式: {"page":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"task_id":1,"task_type":1,"state":0,"speed_progress":0,"add_time":"2017-11-16 17:27:46","handle_end_time":null,"appid":"wx52bf4acbefcf4653","company_id":"51454009d703c86c91353f61011ecf2f","uid":98,"extra":null}],"page_data":{"count":1,"rows_num":12,"page":"1"}}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getTaskList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getTaskList
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getTaskList(){
+        $data = input('put.');
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        ->getTaskList(
+            $this->company_id,
+            $data['page']
+        );
+    }
 }

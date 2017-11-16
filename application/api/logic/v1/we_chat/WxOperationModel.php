@@ -308,7 +308,7 @@ class WxOperationModel extends Model {
         $digest = $data['digest'];
         $show_cover_pic = $data['show_cover_pic'];
         $content_source_url = $data['content_source_url'];
-        $mediaId = $data['mediaId'];
+        $mediaId = empty($data['mediaId']) == true ? '' : $data['mediaId'];
 
         if(empty($content)){
             return msg(3001,'content参数不能为空');
@@ -462,7 +462,7 @@ class WxOperationModel extends Model {
         return msg(200,'success',$res);
     }
 
-   /**
+    /**
      * 删除微信永久素材
      * @param company_id 商户company_id
      * @param appid 公众号appid
@@ -487,5 +487,63 @@ class WxOperationModel extends Model {
         }else{
             return msg(3001,$res['errmsg']);
         }
+    }
+
+    /**
+     * 创建任务计划
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param uid 操作人uid
+     * @param type 任务类型 1同步粉丝列表 2同步粉丝基本信息
+	 * @return code 200->成功
+	 */
+    public function syncWxUser($company_id,$uid,$appid,$type){
+        $time = date('Y-m-d H:i:s');
+
+        $map['company_id'] = $company_id;
+        $map['state'] = array('in',[0,1]);
+        $num = Db::name('task')->where($map)->count();
+        if($num >= 1){
+            return msg(3001,'每次执行任务数量不能大于1件');
+        }
+
+        $data = [
+            'company_id' => $company_id,
+            'appid' => $appid,
+            'task_type' => $type,
+            'add_time' => $time,
+            'uid' => $uid,
+            'company_id' => $company_id
+        ];
+
+        $insert_data = Db::name('task')->insert($data);
+    
+        if($insert_data){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'插入数据失败');
+        }
+    }
+
+    /**
+     * 获取任务计划列表
+     * @param company_id 商户company_id
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getTaskList($company_id,$page){
+        //分页
+        $page_count = 12;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('task')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $count = Db::name('task')->where(['company_id'=>$company_id])->count();
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
     }
 }
