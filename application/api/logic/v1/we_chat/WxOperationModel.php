@@ -286,9 +286,10 @@ class WxOperationModel extends Model {
     }
     
     /**
-     * 发布微信图文素材
+     * 发布或更新微信图文素材
      * @param company_id 商户company_id
      * @param appid 公众号appid
+     * @param mediaId mediaId图文素材id 存在则更新
      * @param title 标题
      * @param thumb_media_id 图文消息的封面图片素材id（必须是永久mediaID）
      * @param author 作者
@@ -307,6 +308,7 @@ class WxOperationModel extends Model {
         $digest = $data['digest'];
         $show_cover_pic = $data['show_cover_pic'];
         $content_source_url = $data['content_source_url'];
+        $mediaId = $data['mediaId'];
 
         if(empty($content)){
             return msg(3001,'content参数不能为空');
@@ -336,6 +338,11 @@ class WxOperationModel extends Model {
             $content = str_replace($url, $upload_res['body']['url'], $content);
         }
 
+        if(!empty($mediaId)){
+            $data['content'] = $content;
+            return $this->updateArticle($data);
+        }
+
         $token_info = Common::getRefreshToken($appid,$company_id);
         if($token_info['meta']['code'] == 200){
             $refresh_token = $token_info['body']['refresh_token'];
@@ -348,7 +355,7 @@ class WxOperationModel extends Model {
         $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
 
         $article = new Article([
-            'title' => 'xxx',
+            'title' => $title,
             'thumb_media_id' => $thumb_media_id,
             'author' => $author,
             'digest' => $digest,
@@ -362,6 +369,123 @@ class WxOperationModel extends Model {
             return msg(200,'success',['media_id'=>$article_res['media_id']]);
         }else{
             return msg(3002,'微信服务器故障请重试！');
+        }
+    }
+
+    /**
+     * 更新微信图文素材
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param title 标题
+     * @param thumb_media_id 图文消息的封面图片素材id（必须是永久mediaID）
+     * @param author 作者
+     * @param digest 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空。如果本字段为没有填写，则默认抓取正文前64个字。
+     * @param show_cover_pic 是否显示封面，0为false，即不显示，1为true，即显示
+     * @param content_source_url 图文消息的原文地址，即点击“阅读原文”后的URL
+     * @param mediaId 需要更新的图文素材id
+	 * @return code 200->成功
+	 */
+    public function updateArticle($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $content = $data['content'];
+        $title = $data['title'];
+        $thumb_media_id = $data['thumb_media_id'];
+        $author = $data['author'];
+        $digest = $data['digest'];
+        $show_cover_pic = $data['show_cover_pic'];
+        $content_source_url = $data['content_source_url'];
+        $mediaId = $data['mediaId'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+
+        $article_res = $material->updateArticle(
+            $mediaId,
+            new Article([
+                'title' => $title,
+                'thumb_media_id' => $thumb_media_id,
+                'author' => $author,
+                'digest' => $digest,
+                'show_cover_pic' => $show_cover_pic,
+                'content' => $content,
+                'content_source_url' => $content_source_url
+            ])
+        );
+
+        if($article_res['errcode'] == 0){
+            return msg(200,'success');
+        }else{
+            return msg(3002,$article_res['errmsg']);
+        }
+    }
+
+    /**
+     * 获取微信永久素材列表
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param page 分页参数默认1
+     * @param type 素材的类型，图片（image）、视频（video）、语音 （voice）、图文（news）
+	 * @return code 200->成功
+	 */
+    public function getArticleList($company_id,$appid,$page,$type){
+        //分页
+        $page_count = 12;
+        $show_page = ($page - 1) * $page_count;
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+        
+        $lists = $material->lists($type, $show_page, $page_count);
+        
+        $res['data_list'] = count($lists['item']) == 0 ? array() : $lists['item'];
+        $res['page_data']['count'] = $lists['total_count'];
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+   /**
+     * 删除微信永久素材
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param mediaId 素材id
+	 * @return code 200->成功
+	 */
+    public function delSourceMaterial($company_id,$appid,$mediaId){
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+
+        $res = $material->delete($mediaId);
+        if($res['errcode'] == 0){
+            return msg(200,'success');
+        }else{
+            return msg(3001,$res['errmsg']);
         }
     }
 }

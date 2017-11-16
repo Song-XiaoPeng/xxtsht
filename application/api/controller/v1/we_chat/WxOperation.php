@@ -124,7 +124,7 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 发布微信图文素材
+     * 发布或更新微信图文素材
 	 * 请求类型：post
 	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","title":"测试","author":"作者","digest":"备注测试","show_cover_pic":1,"thumb_media_id":"DK1BXr8UdRlmTE3wPAz4z0U1YSTBpTqY8f8PE1fCZJo","content_source_url":"http://www.lyfz.net","content":"content....."}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"media_id":"DK1BXr8UdRlmTE3wPAz4z4bNO-SoGEEu3yPk-9pd27Q"}}
@@ -132,6 +132,7 @@ class WxOperation extends Auth{
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addArticle
      * @param company_id 商户company_id
      * @param appid 公众号appid
+     * @param mediaId mediaId图文素材id 存在则更新
      * @param title 标题
      * @param thumb_media_id 图文消息的封面图片素材id（必须是永久mediaID）
      * @param author 作者
@@ -145,5 +146,51 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addArticle($data);
+    }
+
+    /**
+     * 获取微信永久素材列表
+	 * 请求类型：post
+	 * 传入JSON格式: {"page":1,"appid":"appid....","type":"news"}
+	 * 返回JSON格式: 
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getArticleList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getArticleList
+     * @param page 分页参数默认1
+     * @param appid 公众号appid
+     * @param type 素材的类型，图片（image）、视频（video）、语音 （voice）、图文（news）
+	 * @return code 200->成功
+	 */
+    public function getArticleList(){
+        $data = input('put.');
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        ->getArticleList(
+            $this->company_id,
+            $data['appid'],
+            $data['page'],
+            $data['type']
+        );
+    }
+
+    /**
+     * 删除微信永久素材
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"appid...","mediaId":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delSourceMaterial
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delSourceMaterial
+     * @param appid 微信公众号appid
+     * @param mediaId 素材id
+	 * @return code 200->成功
+	 */
+    public function delSourceMaterial(){
+        $data = input('put.');
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        ->delSourceMaterial(
+            $this->company_id,
+            $data['appid'],
+            $data['mediaId']
+        );
     }
 }
