@@ -490,6 +490,30 @@ class WxOperationModel extends Model {
     }
 
     /**
+     * 获取微信永久素材详情
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param mediaId 素材id
+	 * @return code 200->成功
+	 */
+    public function getSourceMaterial($company_id,$appid,$mediaId){
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+
+        $res = $material->get($mediaId);
+
+        return msg(200,'success',$res);
+    }
+
+    /**
      * 创建任务计划
      * @param company_id 商户company_id
      * @param appid 公众号appid

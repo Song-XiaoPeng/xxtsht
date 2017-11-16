@@ -195,6 +195,28 @@ class WxOperation extends Auth{
     }
 
     /**
+     * 获取微信永久素材详情
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"appid...","mediaId":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getSourceMaterial
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getSourceMaterial
+     * @param appid 微信公众号appid
+     * @param mediaId 素材id
+	 * @return code 200->成功
+	 */
+    public function getSourceMaterial(){
+        $data = input('put.');
+        
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        ->getSourceMaterial(
+            $this->company_id,
+            $data['appid'],
+            $data['mediaId']
+        );
+    }
+
+    /**
      * 创建任务计划
 	 * 请求类型：post
 	 * 传入JSON格式: {"appid":"appid...","type":"1"}
