@@ -122,4 +122,28 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->wxUploadImg($data);
     }
+
+    /**
+     * 发布微信图文素材
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","title":"测试","author":"作者","digest":"备注测试","show_cover_pic":1,"thumb_media_id":"DK1BXr8UdRlmTE3wPAz4z0U1YSTBpTqY8f8PE1fCZJo","content_source_url":"http://www.lyfz.net","content":"content....."}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"media_id":"DK1BXr8UdRlmTE3wPAz4z4bNO-SoGEEu3yPk-9pd27Q"}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/addArticle
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addArticle
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param title 标题
+     * @param thumb_media_id 图文消息的封面图片素材id（必须是永久mediaID）
+     * @param author 作者
+     * @param digest 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空。如果本字段为没有填写，则默认抓取正文前64个字。
+     * @param show_cover_pic 是否显示封面，0为false，即不显示，1为true，即显示
+     * @param content_source_url 图文消息的原文地址，即点击“阅读原文”后的URL
+	 * @return code 200->成功
+	 */
+    public function addArticle(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addArticle($data);
+    }
 }

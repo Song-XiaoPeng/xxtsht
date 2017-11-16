@@ -5,6 +5,7 @@ use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
 use think\Log;
+use EasyWeChat\Message\Article;
 
 //微信后台操作业务类
 class WxOperationModel extends Model {
@@ -194,6 +195,9 @@ class WxOperationModel extends Model {
 
     /**
      * 上传微信永久素材图片
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param token 登录token
 	 * @return code 200->成功
 	 */
     public function uploadSourceMaterial($data){
@@ -261,5 +265,103 @@ class WxOperationModel extends Model {
         @unlink($relative_path);
         
         return msg(200,'success',['media_id'=>$result['media_id'],'url'=>$result['url']]);
+    }
+
+    //上传微信文章永久图片
+    public function uploadArticleImg($appid,$company_id,$relative_path){
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+        $result = $material->uploadArticleImage($relative_path);
+        @unlink($relative_path);
+        
+        return msg(200,'success',['url'=>$result['url']]);
+    }
+    
+    /**
+     * 发布微信图文素材
+     * @param company_id 商户company_id
+     * @param appid 公众号appid
+     * @param title 标题
+     * @param thumb_media_id 图文消息的封面图片素材id（必须是永久mediaID）
+     * @param author 作者
+     * @param digest 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空。如果本字段为没有填写，则默认抓取正文前64个字。
+     * @param show_cover_pic 是否显示封面，0为false，即不显示，1为true，即显示
+     * @param content_source_url 图文消息的原文地址，即点击“阅读原文”后的URL
+	 * @return code 200->成功
+	 */
+    public function addArticle($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $content = $data['content'];
+        $title = $data['title'];
+        $thumb_media_id = $data['thumb_media_id'];
+        $author = $data['author'];
+        $digest = $data['digest'];
+        $show_cover_pic = $data['show_cover_pic'];
+        $content_source_url = $data['content_source_url'];
+
+        if(empty($content)){
+            return msg(3001,'content参数不能为空');
+        }
+
+        $pattern1 = '/url\(\'{0,1}\"{0,1}(.*?)\'{0,1}\"{0,1}\)/'; 
+        preg_match_all($pattern1,$content,$match1); 
+
+        $pattern2 = '/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg]))[\'|\"].*?[\/]?>/'; 
+        preg_match_all($pattern2,$content,$match2); 
+
+        $img_res = array_merge($match1[1],$match2[1]);
+
+        $save_path = '../uploads/source_material';
+
+        foreach($img_res as $url){
+            $relative_path = getImage($url,$save_path)['save_path'];
+            if(empty($relative_path)){
+                continue;
+            }
+
+            $upload_res = $this->uploadArticleImg($appid,$company_id,$relative_path);
+            if($upload_res['meta']['code'] != 200){
+                continue;
+            }
+
+            $content = str_replace($url, $upload_res['body']['url'], $content);
+        }
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+
+        $article = new Article([
+            'title' => 'xxx',
+            'thumb_media_id' => $thumb_media_id,
+            'author' => $author,
+            'digest' => $digest,
+            'show_cover_pic' => $show_cover_pic,
+            'content' => $content,
+            'content_source_url' => $content_source_url
+        ]);
+        $article_res = $material->uploadArticle($article);
+
+        if(!empty($article_res['media_id'])){
+            return msg(200,'success',['media_id'=>$article_res['media_id']]);
+        }else{
+            return msg(3002,'微信服务器故障请重试！');
+        }
     }
 }
