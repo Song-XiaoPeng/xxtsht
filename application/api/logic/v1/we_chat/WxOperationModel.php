@@ -199,6 +199,7 @@ class WxOperationModel extends Model {
     public function uploadSourceMaterial($data){
         $company_id = $data['company_id'];
         $appid = $data['appid'];
+        $token = $data['token'];
 
         $file = request()->file('file');
  
@@ -215,10 +216,23 @@ class WxOperationModel extends Model {
 
                 $relative_path = '..'.$path.'/'.$file_name;
 
+                $request_data = [
+                    'appid' => $appid,
+                    'relative_path' => $relative_path,
+                ];
 
+                $client = new \GuzzleHttp\Client();
+                $request_res = $client->request(
+                    'PUT',
+                    'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/WxOperation/wxUploadImg?token='.$token,
+                    [
+                        'json' => $request_data,
+                        'timeout' => 10
+                    ]
+                );
 
-
-                return msg(200,'success',['img_url'=>$img_url]);
+                $request_arr = json_decode($request_res->getBody(),true);
+                return msg(200,'success',$request_arr['body']);
             }else{
                 return msg(3001,$file->getError());
             }
@@ -228,11 +242,10 @@ class WxOperationModel extends Model {
     }
 
     //微信上传图片
-    public function wx_upload_img($data){
+    public function wxUploadImg($data){
         $appid = $data['appid'];
         $company_id = $data['company_id'];
         $relative_path = $data['relative_path'];
-        //@unlink($relative_path);
 
         $token_info = Common::getRefreshToken($appid,$company_id);
         if($token_info['meta']['code'] == 200){
@@ -244,8 +257,9 @@ class WxOperationModel extends Model {
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
         $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
-       // $result = @$material->uploadImage('../uploads/source_material/5a0bfe1c5dc39.jpg');
         $result = $material->uploadImage($relative_path);
-        var_dump($result);
+        @unlink($relative_path);
+        
+        return msg(200,'success',['media_id'=>$result['media_id'],'url'=>$result['url']]);
     }
 }

@@ -102,16 +102,24 @@ class WxOperation extends Auth{
      * 上传微信永久素材图片
 	 * 请求类型：post
 	 * 传入JSON格式: 
-	 * 返回JSON格式: {"state":"SUCCESS","url":"\/vipimg\/image\/20171114\/1510658446342815.jpg","title":"1510658446342815.jpg","original":"timg[1].jpg","type":".jpg","size":33067}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"media_id":"DK1BXr8UdRlmTE3wPAz4z8R7eUN8AyM5XzixXwCfQIY","url":"http:\/\/mmbiz.qpic.cn\/mmbiz_jpg\/x1g8iaZfs9oCTJSOViaXKBy1RotY0z5l9roS2VFxib9l7tXRP4GkolYVqFibXmCsQxTaTusZET5mMlmibVWJuOYCAkw\/0?wx_fmt=jpeg"}}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/uploadSourceMaterial
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/uploadSourceMaterial
-     * @param upfile 文件下标名称
+     * @param file 文件下标名称
 	 * @return code 200->成功
 	 */
     public function uploadSourceMaterial(){
         $data = input('get.');
         $data['company_id'] = $this->company_id;
+        $data['token'] = $this->token;
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadSourceMaterial($data);
+    }
+
+    public function wxUploadImg(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->wxUploadImg($data);
     }
 }
