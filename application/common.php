@@ -20,7 +20,11 @@ function wxOptions(){
             'secret' => config('app_secret'),
             'token' => config('wx_msg_token'),
             'aes_key' => config('wx_aes_key')
-        ]
+        ],
+        'guzzle' => [
+            'timeout' => 3.0
+        ],
+        'debug'  => false
     ];
 }
 
