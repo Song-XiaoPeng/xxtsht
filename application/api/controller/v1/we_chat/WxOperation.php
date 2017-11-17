@@ -393,4 +393,40 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setWxIndividualizationMenu($data);
     }
+
+    /**
+     * 获取个性化菜单数据
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"button":[{"type":"click","name":"今日测试","key":"V1001_TODAY_MUSIC","sub_button":[]},{"name":"菜单","sub_button":[{"type":"view","name":"搜索","url":"http:\/\/www.soso.com\/","sub_button":[]},{"type":"view","name":"视频","url":"http:\/\/v.qq.com\/","sub_button":[]},{"type":"click","name":"赞一下我们","key":"V1001_GOOD","sub_button":[]}]}],"matchrule":{"sex":"1","country":"中国","province":"广东","city":"惠州","language":"zh_CN"},"menuid":407336786},{"button":[{"type":"click","name":"今日测试","key":"V1001_TODAY_MUSIC","sub_button":[]},{"name":"菜单","sub_button":[{"type":"view","name":"搜索","url":"http:\/\/www.soso.com\/","sub_button":[]},{"type":"view","name":"视频","url":"http:\/\/v.qq.com\/","sub_button":[]},{"type":"click","name":"赞一下我们","key":"V1001_GOOD","sub_button":[]}]}],"matchrule":{"sex":"1","country":"中国","province":"广东","city":"惠州","language":"zh_CN"},"menuid":407336768}]}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getWxIndividualizationMenu
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getWxIndividualizationMenu
+     * @param appid 微信公众号id
+	 * @return code 200->成功
+	 * 详细设置参数参考微信官方文档https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1434698695
+	 */
+    public function getWxIndividualizationMenu(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxIndividualizationMenu($data);
+    }
+
+    /**
+     * 删除个性化菜单
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","menuId":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delWxIndividualizationMenu
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delWxIndividualizationMenu
+     * @param appid 微信公众号id
+     * @param menuId 菜单id
+	 * @return code 200->成功
+	 */
+    public function delWxIndividualizationMenu(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxIndividualizationMenu($data);
+    }
 }

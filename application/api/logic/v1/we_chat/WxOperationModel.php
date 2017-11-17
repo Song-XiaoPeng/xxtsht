@@ -804,4 +804,56 @@ class WxOperationModel extends Model {
 
         return msg(200,'success');
     }
+
+    /**
+     * 获取个性化菜单数据
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getWxIndividualizationMenu($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+
+        return msg(200,'success',$menu->all()['conditionalmenu']);
+    }
+
+    /**
+     * 删除个性化菜单
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param menuId 菜单id
+	 * @return code 200->成功
+	 */
+    public function delWxIndividualizationMenu($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $menuId = $data['menuId'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+
+        $menu->destroy($menuId);
+
+        return msg(200,'success');
+    }
 }
