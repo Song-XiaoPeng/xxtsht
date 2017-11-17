@@ -729,7 +729,7 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 添加编辑微信用户分组
+     * 添加编辑客户池分组
      * @param company_id 商户company_id 
      * @param group_name 分组名称
      * @param wx_user_group_id 用户分组id 更新时传入
@@ -751,7 +751,6 @@ class WxOperationModel extends Model {
             ]);
         }
 
-
         if($wx_user_group_id){
             return msg(200,'success',['wx_user_group_id'=>$wx_user_group_id]);
         }else{
@@ -760,7 +759,7 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 删除微信用户分组
+     * 删除客户池分组
      * @param wx_user_group_id 删除的分组id
 	 * @return code 200->成功
 	 */
@@ -774,6 +773,26 @@ class WxOperationModel extends Model {
         }else{
             return msg(3001,'删除数据失败');
         }
+    }
+
+    /**
+     * 获取客户池分组list
+     * @param company_id 商户company_id
+     * @param group_name 客户池分组名称
+	 * @return code 200->成功
+	 */
+    public function getCustomerGroupList($data){
+        $company_id = $data['company_id'];
+        $group_name = empty($data['group_name']) == true ? '' : $data['group_name'];
+
+        $map['company_id'] = $company_id;
+        if($group_name){
+            $map['group_name'] = array('like',"%$group_name%");
+        }
+
+        $res = Db::name('wx_user_group')->where($map)->select();
+
+        return msg(200,'success',$res);
     }
 
     /**
@@ -855,5 +874,59 @@ class WxOperationModel extends Model {
         $menu->destroy($menuId);
 
         return msg(200,'success');
+    }
+
+    /**
+     * 获取微信公众号分组
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getWxGroup($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+
+        $res = $group->lists();
+
+        return msg(200,'success',$res['groups']);
+    }
+
+    /**
+     * 创建微信公众号分组
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param name 分组名称
+	 * @return code 200->成功
+	 */
+    public function addWxGroup($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $name = $data['name'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+
+        $res = $group->create($name);
+
+        return msg(200,'success',['group_id'=>$res['group']['id']]);
     }
 }

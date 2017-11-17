@@ -340,7 +340,7 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 添加编辑微信用户分组
+     * 添加编辑客户池分组
 	 * 请求类型：post
 	 * 传入JSON格式: {"group_name":"测试"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"wx_user_group_id":"1"}}
@@ -358,7 +358,7 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 删除微信用户分组
+     * 删除客户池分组
 	 * 请求类型：post
 	 * 传入JSON格式: {"wx_user_group_id":"12"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
@@ -428,5 +428,56 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxIndividualizationMenu($data);
+    }
+
+    /**
+     * 获取客户池分组list
+	 * 请求类型：post
+	 * 传入JSON格式: {"group_name":"测试"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"wx_user_group_id":2,"group_name":"测试","company_id":"51454009d703c86c91353f61011ecf2f"}]}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getCustomerGroupList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getCustomerGroupList
+     * @param group_name 分组名称
+	 * @return code 200->成功
+	 */
+    public function getCustomerGroupList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getCustomerGroupList($data);
+    }
+
+    /**
+     * 获取微信公众号分组
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"id":0,"name":"默认组","count":654},{"id":1,"name":"屏蔽组","count":1},{"id":2,"name":"星标组","count":0},{"id":101,"name":"成交客户","count":4},{"id":103,"name":"同事","count":17},{"id":104,"name":"意向客户","count":49},{"id":105,"name":"其他合作","count":0}]}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getWxGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getWxGroup
+     * @param appid 公众号appid
+	 * @return code 200->成功
+	 */
+    public function getWxGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxGroup($data);
+    }
+
+    /**
+     * 创建微信公众号分组
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","name":"分组名称"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"group_id":108}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/addWxGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addWxGroup
+     * @param appid 公众号appid
+	 * @return code 200->成功
+	 */
+    public function addWxGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addWxGroup($data);
     }
 }
