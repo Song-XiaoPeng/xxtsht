@@ -652,7 +652,7 @@ class WxOperationModel extends Model {
         $contact_address = empty($data['contact_address']) == true ? '' : $data['contact_address'];
 
         if(!$wx_company_id){
-            $wx_company_id = Db::name('wx_user_company_group')->insertGetId([
+            $wx_company_id = Db::name('wx_user_company')->insertGetId([
                 'company_id' => $company_id,
                 'wx_comapny_name' => $wx_comapny_name,
                 'person_charge_phone' => $person_charge_phone,
@@ -662,7 +662,7 @@ class WxOperationModel extends Model {
                 'contact_address' => $contact_address
             ]);
         }else{
-            $wx_company_id = Db::name('wx_user_company_group')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->update([
+            $wx_company_id = Db::name('wx_user_company')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->update([
                 'wx_comapny_name' => $wx_comapny_name,
                 'person_charge_phone' => $person_charge_phone,
                 'person_charge_name' => $person_charge_name,
@@ -699,8 +699,8 @@ class WxOperationModel extends Model {
         if($wx_comapny_name){
             $map['wx_comapny_name'] = array('like',"%$wx_comapny_name%");
         }
-        $list = Db::name('wx_user_company_group')->where($map)->limit($show_page,$page_count)->select();
-        $count = Db::name('wx_user_company_group')->where($map)->count();
+        $list = Db::name('wx_user_company')->where($map)->limit($show_page,$page_count)->select();
+        $count = Db::name('wx_user_company')->where($map)->count();
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
@@ -720,11 +720,42 @@ class WxOperationModel extends Model {
         $company_id = $data['company_id'];
         $wx_company_id = $data['wx_company_id'];
 
-        $del_res = Db::name('wx_user_company_group')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->delete();
+        $del_res = Db::name('wx_user_company')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->delete();
         if($del_res){
             return msg(200,'success');
         }else{
             return msg(3001,'删除数据失败');
+        }
+    }
+
+    /**
+     * 添加编辑用户分组
+     * @param company_id 商户company_id 
+     * @param group_name 分组名称
+     * @param wx_user_group_id 用户分组id 更新时传入
+	 * @return code 200->成功
+	 */
+    public function addCustomerGroup($data){
+        $company_id = $data['company_id'];
+        $group_name = $data['group_name'];
+        $wx_user_group_id = empty($data['wx_user_group_id']) == true ? '' : $data['wx_user_group_id'];
+
+        if(!$wx_user_group_id){
+            $wx_user_group_id = Db::name('wx_user_group')->insertGetId([
+                'company_id'=>$company_id,
+                'group_name'=>$group_name,
+            ]);
+        }else{
+            $wx_user_group_id = Db::name('wx_user_group')->where(['company_id'=>$company_id,'wx_user_group_id'=>$wx_user_group_id])->update([
+                'group_name'=>$group_name
+            ]);
+        }
+
+
+        if($wx_user_group_id){
+            return msg(200,'success',['wx_user_group_id'=>$wx_user_group_id]);
+        }else{
+            return msg(3001,'插入数据失败');
         }
     }
 }

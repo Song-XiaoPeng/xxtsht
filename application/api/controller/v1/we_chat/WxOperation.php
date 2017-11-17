@@ -338,4 +338,22 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxUserComapny($data);
     }
+
+    /**
+     * 添加编辑用户分组
+	 * 请求类型：post
+	 * 传入JSON格式: {"group_name":"测试"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"wx_user_group_id":"1"}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/addCustomerGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addCustomerGroup
+     * @param group_name 分组名称
+     * @param wx_user_group_id 分组id 编辑传入
+	 * @return code 200->成功
+	 */
+    public function addCustomerGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addCustomerGroup($data);
+    }
 }
