@@ -519,4 +519,23 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->moveUserWxGroup($data);
     }
+
+    /**
+     * 添加群发
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","group_id":"108","openid_list":["olKKojmBgaRHV-YZMZNnbojrgqdU","olKKojrzeVC4yujKLL4_pyMnMMMs"]}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/moveUserWxGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/moveUserWxGroup
+     * @param appid 公众号或小程序appid
+     * @param group_id 移到到新的分组id
+     * @param openid_list 移动的用户openid list ["olKKojmBgaRHV-YZMZNnbojrgqdU","olKKojrzeVC4yujKLL4_pyMnMMMs"]
+	 * @return code 200->成功
+	 */
+    public function addMassNews(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addMassNews($data);
+    }
 }
