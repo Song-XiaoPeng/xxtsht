@@ -570,4 +570,97 @@ class WxOperationModel extends Model {
         
         return msg(200,'success',$res);
     }
+
+    /**
+     * 获取微信粉丝用户列表
+     * @param page 分页参数默认1
+     * @param nickname 搜索微信昵称 (选传)
+     * @param real_name 微信用户真实姓名 (选传)
+     * @param real_phone 微信用户真实联系电话 (选传)
+     * @param wx_company_id 微信用户归属公司分组id (选传)
+	 * @return code 200->成功
+     */
+    public function getWxUserList($data){
+        $company_id = $data['company_id'];
+        $page = $data['page'];
+        $appid = empty($data['appid']) == true ? '' : $data['appid'];
+        $nickname = empty($data['nickname']) == true ? '' : $data['nickname'];
+        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
+        $real_phone = empty($data['real_phone']) == true ? '' : $data['real_phone'];
+        $wx_company_id = empty($data['wx_company_id']) == true ? '' : $data['wx_company_id'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        if($appid){
+            $map['appid'] = $appid;
+        }
+        
+        if($nickname){
+            $map['nickname'] = array('like',"%$nickname%");
+        }
+
+        if($real_name){
+            $map['real_name'] = array('like',"%$real_name%");
+        }
+
+        if($real_phone){
+            $map['real_phone'] = array('like',"%$real_phone%");
+        }
+
+        if($wx_company_id){
+            $map['wx_company_id'] = $wx_company_id;
+        }
+
+        $map['company_id'] = $company_id;
+        
+        $wx_user_list = Db::name('wx_user')->where($map)->limit($show_page,$page_count)->select();
+
+        $count = Db::name('wx_user')->where($map)->count();
+    
+        foreach($wx_user_list as $k=>$v){
+            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
+        }
+
+        $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    /**
+     * 创建微信用户公司分组
+     * @param wx_comapny_name 公司名称
+     * @param person_charge_phone 公司负责人联系电话 (选传)
+     * @param person_charge_name 公司负责人联系电话 (选传)
+     * @param person_charge_sex 公司负责人联系电话 (选传)
+     * @param remarks 公司负责人联系电话 (选传)
+	 * @return code 200->成功
+	 */
+    public function addWxUserComapnyGroup($data){
+        $company_id = $data['company_id'];
+        $wx_comapny_name = $data['wx_comapny_name'];
+        $person_charge_phone = empty($data['person_charge_phone']) == true ? '' : $data['person_charge_phone'];
+        $person_charge_name = empty($data['person_charge_name']) == true ? '' : $data['person_charge_name'];
+        $person_charge_sex = empty($data['person_charge_sex']) == true ? '' : $data['person_charge_sex'];
+        $remarks = empty($data['remarks']) == true ? '' : $data['remarks'];
+
+        $wx_company_id = Db::name('wx_user_company_group')->insertGetId([
+            'company_id' => $company_id,
+            'wx_comapny_name' => $wx_comapny_name,
+            'person_charge_phone' => $person_charge_phone,
+            'person_charge_name' => $person_charge_name,
+            'person_charge_sex' => $person_charge_sex,
+            'remarks' => $remarks
+        ]);
+
+        if($wx_company_id){
+            return msg(200,'success',['wx_company_id'=>$wx_company_id]);
+        }else{
+            return msg(3001,'插入数据失败');
+        }
+    }
 }

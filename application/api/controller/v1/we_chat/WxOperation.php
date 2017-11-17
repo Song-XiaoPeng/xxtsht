@@ -259,4 +259,47 @@ class WxOperation extends Auth{
             $data['page']
         );
     }
+
+    /**
+     * 获取微信粉丝用户列表
+	 * 请求类型：post
+	 * 传入JSON格式: {"page":"1"}
+	 * 返回JSON格式: 
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getWxUserList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getWxUserList
+     * @param page 分页参数默认1
+     * @param nickname 搜索微信昵称 (选传)
+     * @param real_name 微信用户真实姓名 (选传)
+     * @param real_phone 微信用户真实联系电话 (选传)
+     * @param wx_company_id 微信用户归属公司分组id (选传)
+	 * @return code 200->成功
+	 */
+    public function getWxUserList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxUserList($data);
+    }
+
+    /**
+     * 创建微信用户公司分组
+	 * 请求类型：post
+	 * 传入JSON格式: {"wx_comapny_name":"利亚方舟","person_charge_phone":"","person_charge_name":"","person_charge_sex":"","remarks":""}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"wx_company_id":"4"}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/addWxUserComapnyGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addWxUserComapnyGroup
+     * @param wx_comapny_name 公司名称
+     * @param person_charge_phone 公司负责人联系电话 (选传)
+     * @param person_charge_name 公司负责人联系电话 (选传)
+     * @param person_charge_sex 公司负责人联系电话 (选传)
+     * @param remarks 公司负责人联系电话 (选传)
+	 * @return code 200->成功
+	 */
+    public function addWxUserComapnyGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addWxUserComapnyGroup($data);
+    }
+    
 }
