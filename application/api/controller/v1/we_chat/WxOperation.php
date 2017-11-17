@@ -282,17 +282,19 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 创建微信用户公司分组
+     * 创建或编辑微信用户公司
 	 * 请求类型：post
-	 * 传入JSON格式: {"wx_comapny_name":"利亚方舟","person_charge_phone":"","person_charge_name":"","person_charge_sex":"","remarks":""}
+	 * 传入JSON格式: {"wx_comapny_name":"利亚方舟","person_charge_phone":"","person_charge_name":"","person_charge_sex":"","remarks":"","contact_address":""}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"wx_company_id":"4"}}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/addWxUserComapnyGroup
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addWxUserComapnyGroup
      * @param wx_comapny_name 公司名称
+     * @param wx_company_id 更新编辑时传入
      * @param person_charge_phone 公司负责人联系电话 (选传)
      * @param person_charge_name 公司负责人联系电话 (选传)
      * @param person_charge_sex 公司负责人联系电话 (选传)
      * @param remarks 公司负责人联系电话 (选传)
+     * @param contact_address 公司联系地址 （选传）
 	 * @return code 200->成功
 	 */
     public function addWxUserComapnyGroup(){
@@ -302,4 +304,38 @@ class WxOperation extends Auth{
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addWxUserComapnyGroup($data);
     }
     
+    /**
+     * 获取微信用户公司List
+	 * 请求类型：post
+	 * 传入JSON格式: {"wx_comapny_name":"利亚方舟","page":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"wx_company_id":4,"wx_comapny_name":"利亚方舟","person_charge_phone":0,"person_charge_name":"","person_charge_sex":0,"remarks":"","company_id":"51454009d703c86c91353f61011ecf2f"}],"page_data":{"count":1,"rows_num":16,"page":"1"}}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getWxUserComapnyGroupList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getWxUserComapnyGroupList
+     * @param page 分页参数默认1
+     * @param wx_comapny_name 公司名称 (搜索选传)
+	 * @return code 200->成功
+	 */
+    public function getWxUserComapnyGroupList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxUserComapnyGroupList($data);
+    }
+
+    /**
+     * 删除微信用户公司
+	 * 请求类型：post
+	 * 传入JSON格式: {"wx_company_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delWxUserComapny
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delWxUserComapny
+     * @param wx_company_id 公司id
+	 * @return code 200->成功
+	 */
+    public function delWxUserComapny(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxUserComapny($data);
+    }
 }

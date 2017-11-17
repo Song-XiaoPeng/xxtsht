@@ -632,35 +632,99 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 创建微信用户公司分组
+     * 创建或编辑微信用户公司分组
      * @param wx_comapny_name 公司名称
+     * @param wx_company_id 更新编辑时传入
      * @param person_charge_phone 公司负责人联系电话 (选传)
      * @param person_charge_name 公司负责人联系电话 (选传)
-     * @param person_charge_sex 公司负责人联系电话 (选传)
+     * @param contact_address 公司联系地址 (选传)
      * @param remarks 公司负责人联系电话 (选传)
 	 * @return code 200->成功
 	 */
     public function addWxUserComapnyGroup($data){
         $company_id = $data['company_id'];
         $wx_comapny_name = $data['wx_comapny_name'];
+        $wx_company_id = empty($data['wx_company_id']) == true ? '' : $data['wx_company_id'];
         $person_charge_phone = empty($data['person_charge_phone']) == true ? '' : $data['person_charge_phone'];
         $person_charge_name = empty($data['person_charge_name']) == true ? '' : $data['person_charge_name'];
         $person_charge_sex = empty($data['person_charge_sex']) == true ? '' : $data['person_charge_sex'];
         $remarks = empty($data['remarks']) == true ? '' : $data['remarks'];
+        $contact_address = empty($data['contact_address']) == true ? '' : $data['contact_address'];
 
-        $wx_company_id = Db::name('wx_user_company_group')->insertGetId([
-            'company_id' => $company_id,
-            'wx_comapny_name' => $wx_comapny_name,
-            'person_charge_phone' => $person_charge_phone,
-            'person_charge_name' => $person_charge_name,
-            'person_charge_sex' => $person_charge_sex,
-            'remarks' => $remarks
-        ]);
+        if(!$wx_company_id){
+            $wx_company_id = Db::name('wx_user_company_group')->insertGetId([
+                'company_id' => $company_id,
+                'wx_comapny_name' => $wx_comapny_name,
+                'person_charge_phone' => $person_charge_phone,
+                'person_charge_name' => $person_charge_name,
+                'person_charge_sex' => $person_charge_sex,
+                'remarks' => $remarks,
+                'contact_address' => $contact_address
+            ]);
+        }else{
+            $wx_company_id = Db::name('wx_user_company_group')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->update([
+                'wx_comapny_name' => $wx_comapny_name,
+                'person_charge_phone' => $person_charge_phone,
+                'person_charge_name' => $person_charge_name,
+                'person_charge_sex' => $person_charge_sex,
+                'remarks' => $remarks,
+                'contact_address' => $contact_address
+            ]);
+        }
 
         if($wx_company_id){
             return msg(200,'success',['wx_company_id'=>$wx_company_id]);
         }else{
             return msg(3001,'插入数据失败');
+        }
+    }
+
+    /**
+     * 获取微信用户公司分组List
+     * @param company_id 商户company_id 
+     * @param page 分页参数默认1 
+     * @param wx_comapny_name 公司名称 (搜索选传)
+	 * @return code 200->成功
+	 */
+    public function getWxUserComapnyGroupList($data){
+        $company_id = $data['company_id'];
+        $page = $data['page'];
+        $wx_comapny_name = empty($data['wx_comapny_name']) == true ? '' : $data['wx_comapny_name'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $map['company_id'] = $company_id;
+        if($wx_comapny_name){
+            $map['wx_comapny_name'] = array('like',"%$wx_comapny_name%");
+        }
+        $list = Db::name('wx_user_company_group')->where($map)->limit($show_page,$page_count)->select();
+        $count = Db::name('wx_user_company_group')->where($map)->count();
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    /**
+     * 删除微信用户公司
+     * @param company_id 商户company_id 
+     * @param wx_company_id 删除的公司id
+	 * @return code 200->成功
+	 */
+    public function delWxUserComapny($data){
+        $company_id = $data['company_id'];
+        $wx_company_id = $data['wx_company_id'];
+
+        $del_res = Db::name('wx_user_company_group')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->delete();
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除数据失败');
         }
     }
 }
