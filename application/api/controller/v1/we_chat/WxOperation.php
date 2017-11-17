@@ -340,7 +340,7 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 添加编辑用户分组
+     * 添加编辑微信用户分组
 	 * 请求类型：post
 	 * 传入JSON格式: {"group_name":"测试"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"wx_user_group_id":"1"}}
@@ -355,5 +355,22 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addCustomerGroup($data);
+    }
+
+    /**
+     * 删除微信用户分组
+	 * 请求类型：post
+	 * 传入JSON格式: {"wx_user_group_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delCustomerGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delCustomerGroup
+     * @param wx_user_group_id 删除的分组id
+	 * @return code 200->成功
+	 */
+    public function delCustomerGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delCustomerGroup($data);
     }
 }

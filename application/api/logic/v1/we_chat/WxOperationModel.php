@@ -729,7 +729,7 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 添加编辑用户分组
+     * 添加编辑微信用户分组
      * @param company_id 商户company_id 
      * @param group_name 分组名称
      * @param wx_user_group_id 用户分组id 更新时传入
@@ -756,6 +756,23 @@ class WxOperationModel extends Model {
             return msg(200,'success',['wx_user_group_id'=>$wx_user_group_id]);
         }else{
             return msg(3001,'插入数据失败');
+        }
+    }
+
+    /**
+     * 删除微信用户分组
+     * @param wx_user_group_id 删除的分组id
+	 * @return code 200->成功
+	 */
+    public function delCustomerGroup($data){
+        $company_id = $data['company_id'];
+        $wx_user_group_id = $data['wx_user_group_id'];
+
+        $del_res = Db::name('wx_user_group')->where(['company_id'=>$company_id,'wx_user_group_id'=>$wx_user_group_id])->delete();
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除数据失败');
         }
     }
 }
