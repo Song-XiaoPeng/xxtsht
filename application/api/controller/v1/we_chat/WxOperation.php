@@ -373,4 +373,24 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delCustomerGroup($data);
     }
+
+    /**
+     * 设置微信个性化菜单
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","menu_list":[{"type":"click","name":"今日测试","key":"V1001_TODAY_MUSIC"},{"name":"菜单","sub_button":[{"type":"view","name":"搜索","url":"http:\/\/www.soso.com\/"},{"type":"view","name":"视频","url":"http:\/\/v.qq.com\/"},{"type":"click","name":"赞一下我们","key":"V1001_GOOD"}]}],"match_rule":{"tag_id":"","sex":"1","country":"中国","province":"广东","city":"惠州","client_platform_type":"","language":"zh_CN"}}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/setWxIndividualizationMenu
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/setWxIndividualizationMenu
+     * @param appid 微信公众号id
+     * @param menu_list 菜单数据
+     * @param match_rule  菜单匹配规则
+	 * @return code 200->成功
+	 * 详细设置参数参考微信官方文档https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1455782296
+	 */
+    public function setWxIndividualizationMenu(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setWxIndividualizationMenu($data);
+    }
 }

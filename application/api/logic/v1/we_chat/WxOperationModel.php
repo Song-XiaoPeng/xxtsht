@@ -775,4 +775,33 @@ class WxOperationModel extends Model {
             return msg(3001,'删除数据失败');
         }
     }
+
+    /**
+     * 设置微信个性化菜单
+     * @param appid 微信公众号id
+     * @param comapny_id 商户company_id
+     * @param menu_list 菜单数据
+     * @param match_rule  菜单匹配规则
+	 * @return code 200->成功
+	 */
+    public function setWxIndividualizationMenu($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $menu_list = $data['menu_list'];
+        $match_rule = $data['match_rule'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+        $menu->add($menu_list, $match_rule);
+
+        return msg(200,'success');
+    }
 }
