@@ -903,7 +903,7 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 创建微信公众号分组
+     * 创建或编辑微信公众号分组
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
      * @param name 分组名称
@@ -913,6 +913,7 @@ class WxOperationModel extends Model {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $name = $data['name'];
+        $group_id = empty($data['group_id']) == true ? '' : $data['group_id'];
 
         $token_info = Common::getRefreshToken($appid,$company_id);
         if($token_info['meta']['code'] == 200){
@@ -925,8 +926,77 @@ class WxOperationModel extends Model {
         $openPlatform = $app->open_platform;
         $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
 
-        $res = $group->create($name);
+        if(!$group_id){
+            $res = $group->create($name);
+            return msg(200,'success',['group_id'=>$res['group']['id']]);
+        }else{
+            $group->update($group_id,$name);
+            return msg(200,'success');
+        }
+    }
 
-        return msg(200,'success',['group_id'=>$res['group']['id']]);
+    /**
+     * 删除微信公众号分组
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param group_id 删除的分组id
+	 * @return code 200->成功
+	 */
+    public function delWxGroup($data){
+        $appid = $data['appid'];
+        $company_id = $data['company_id'];
+        $group_id = $data['group_id'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+
+        $group->delete($group_id);
+        
+        return msg(200,'success');
+    }
+
+    /**
+     * 移动用户到指定微信分组
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param group_id 移到到新的分组id
+     * @param openid_list 移动的用户openid list ['openid...','opneid...']
+	 * @return code 200->成功
+	 */
+    public function moveUserWxGroup($data){
+        $appid = $data['appid'];
+        $company_id = $data['company_id'];
+        $group_id = $data['group_id'];
+        $openid_list = $data['openid_list'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+
+        $res = $group->moveUsers($openid_list,$group_id);
+        if($res['errcode'] == 0){
+            foreach($openid_list as $openid){
+                Db::name('wx_user')->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])->update(['groupid'=>$group_id]);
+            }
+
+            return msg(200,'success');
+        }else{
+            return msg(3001,$res['errmsg']);
+        }
     }
 }

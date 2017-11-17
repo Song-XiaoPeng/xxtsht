@@ -26,8 +26,8 @@ class WxOperation extends Auth{
 	 * 请求类型：post
 	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","menu_list":[{"type":"click","name":"今日测试","key":"V1001_TODAY_MUSIC"},{"name":"菜单","sub_button":[{"type":"view","name":"搜索","url":"http:\/\/www.soso.com\/"},{"type":"view","name":"视频","url":"http:\/\/v.qq.com\/"},{"type":"click","name":"赞一下我们","key":"V1001_GOOD"}]}]}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
-	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMenuList
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMenuList
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/setMenu
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/setMenu
      * @param appid 公众号或小程序appid
      * @param menu_list 菜单数据
 	 * @return code 200->成功
@@ -465,13 +465,15 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 创建微信公众号分组
+     * 创建或编辑微信公众号分组
 	 * 请求类型：post
-	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","name":"分组名称"}
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","name":"分组名称","group_id":"123"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"group_id":108}}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/addWxGroup
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addWxGroup
      * @param appid 公众号appid
+     * @param name 分组名称
+     * @param group_id 分组id 更新传入
 	 * @return code 200->成功
 	 */
     public function addWxGroup(){
@@ -479,5 +481,42 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addWxGroup($data);
+    }
+
+    /**
+     * 删除微信公众号分组
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","group_id":"123"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delWxGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delWxGroup
+     * @param appid 公众号appid
+     * @param group_id 删除的分组id
+	 * @return code 200->成功
+	 */
+    public function delWxGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxGroup($data);
+    }
+
+    /**
+     * 移动用户到指定微信分组
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","group_id":"108","openid_list":["olKKojmBgaRHV-YZMZNnbojrgqdU","olKKojrzeVC4yujKLL4_pyMnMMMs"]}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/moveUserWxGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/moveUserWxGroup
+     * @param appid 公众号或小程序appid
+     * @param group_id 移到到新的分组id
+     * @param openid_list 移动的用户openid list ["olKKojmBgaRHV-YZMZNnbojrgqdU","olKKojrzeVC4yujKLL4_pyMnMMMs"]
+	 * @return code 200->成功
+	 */
+    public function moveUserWxGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->moveUserWxGroup($data);
     }
 }
