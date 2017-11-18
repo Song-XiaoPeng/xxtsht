@@ -16,4 +16,11 @@ class AautoMatic {
 
         return \think\Loader::model('AautoMaticModel','logic\v1\task')->syncWxUserDetails($type);
     }
+
+    //群发消息任务处理 url: http://kf.lyfz.net/api/v1/task/AautoMatic/massNews
+    public function massNews(){
+        $type = input('get.type');
+
+        return \think\Loader::model('AautoMaticModel','logic\v1\task')->massNews();
+    }
 }

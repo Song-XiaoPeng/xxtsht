@@ -194,4 +194,22 @@ class AautoMaticModel extends Model {
 
         Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>2,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
     }
+
+    //群发消息任务处理
+    public function massNews(){
+        $time = date('Y-m-d H:i:s');
+
+        $map['state'] = 0;
+        $res = Db::name('mass_news')->where($map)->select();
+
+        foreach($res as $item){
+            if($item['send_type'] == 1){
+
+            }
+
+            if($item['send_type'] == 2 && strtotime($time) > strtotime($item['strtotime'])){
+
+            }
+        }
+    }
 }

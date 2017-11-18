@@ -1026,7 +1026,7 @@ class WxOperationModel extends Model {
         $text = empty($data['text']) == true ? '' : $data['text'];
         $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
 
-        $add_res = Db::name('mass_news')->insert([
+        $news_id = Db::name('mass_news')->insertGetId([
             'company_id' => $company_id,
             'appid' => $appid,
             'type' => $type,
@@ -1040,9 +1040,34 @@ class WxOperationModel extends Model {
         ]);
 
         if($add_res){
-            return msg(200,'success');
+            return msg(200,'success',['news_id'=>$news_id]);
         }else{
             return msg(3001,'插入数据失败');
+        }
+    }
+    
+    /**
+     * 删除群发消息
+     * @param appid 公众号或小程序appid
+     * @param news_id 删除的群发id
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function delMassNews($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $news_id = $data['news_id'];
+    
+        $del_res = Db::name('mass_news')->where([
+            'news_id' => $news_id,
+            'appid' => $appid,
+            'company_id' => $company_id
+        ])->delete();
+    
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
         }
     }
 }

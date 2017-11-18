@@ -544,4 +544,24 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addMassNews($data);
     }
+
+    /**
+     * 删除群发消息
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","news_id":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delMassNews
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delMassNews
+     * @param appid 公众号appid
+     * @param news_id 删除的群发id
+	 * @return code 200->成功
+	 */
+    public function delMassNews(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delMassNews($data);
+    }
+
+    
 }
