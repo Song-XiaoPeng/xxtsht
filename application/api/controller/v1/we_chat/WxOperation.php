@@ -534,7 +534,6 @@ class WxOperation extends Auth{
      * @param openid_list 发送指定的用户openid list (选传)
      * @param group_id 发送指定的微信分组id (选传)
      * @param send_message_type 群发消息类型 1文字 2图文消息 3图片
-     * @param send_message_type 群发消息类型 1文字 2图文消息 3图片
      * @param media_id 群发的图文信息id (选传)
      * @param text 群发文字 (选传)
 	 * @return code 200->成功
