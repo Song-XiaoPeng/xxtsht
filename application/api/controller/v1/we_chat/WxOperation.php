@@ -523,13 +523,20 @@ class WxOperation extends Auth{
     /**
      * 添加群发
 	 * 请求类型：post
-	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","group_id":"108","openid_list":["olKKojmBgaRHV-YZMZNnbojrgqdU","olKKojrzeVC4yujKLL4_pyMnMMMs"]}
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","type":"1","send_type":"1","send_time":"","openid_list":"","group_id":"","send_message_type":"1","media_id":"","text":"测试"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
-	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/moveUserWxGroup
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/moveUserWxGroup
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/addMassNews
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/addMassNews
      * @param appid 公众号或小程序appid
-     * @param group_id 移到到新的分组id
-     * @param openid_list 移动的用户openid list ["olKKojmBgaRHV-YZMZNnbojrgqdU","olKKojrzeVC4yujKLL4_pyMnMMMs"]
+     * @param type 群发类型 1全部 2按分组 3指定用户
+     * @param send_type 发送时效 1立即发送 2定时发送
+     * @param send_time 定时群发时间 (选传)
+     * @param openid_list 发送指定的用户openid list (选传)
+     * @param group_id 发送指定的微信分组id (选传)
+     * @param send_message_type 群发消息类型 1文字 2图文消息 3图片
+     * @param send_message_type 群发消息类型 1文字 2图文消息 3图片
+     * @param media_id 群发的图文信息id (选传)
+     * @param text 群发文字 (选传)
 	 * @return code 200->成功
 	 */
     public function addMassNews(){

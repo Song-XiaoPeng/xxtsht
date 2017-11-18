@@ -999,4 +999,50 @@ class WxOperationModel extends Model {
             return msg(3001,$res['errmsg']);
         }
     }
+
+    /**
+     * 添加群发
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户id
+     * @param type 群发类型 1全部 2按分组 3指定用户
+     * @param send_type 发送时效 1立即发送 2定时发送
+     * @param send_time 定时群发时间(选传)
+     * @param openid_list 发送指定的用户openid list(选传)
+     * @param group_id 发送指定的微信分组id(选传)
+     * @param send_message_type 群发消息类型 1文字 2图文消息 3图片
+     * @param media_id 群发的图文信息id(选传)
+     * @param text 群发文字(选传)
+	 * @return code 200->成功
+	 */
+    public function addMassNews($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $type = $data['type'];
+        $send_type = $data['send_type'];
+        $send_time = empty($data['send_time']) == true ? '' : $data['send_time'];
+        $openid_list = empty($data['openid_list']) == true ? '' : $data['openid_list'];
+        $group_id = empty($data['group_id']) == true ? '' : $data['group_id'];
+        $send_message_type = $data['send_message_type'];
+        $text = empty($data['text']) == true ? '' : $data['text'];
+        $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
+
+        $add_res = Db::name('mass_news')->insert([
+            'company_id' => $company_id,
+            'appid' => $appid,
+            'type' => $type,
+            'send_type' => $send_type,
+            'send_time' => $send_time,
+            'openid_list' => $openid_list,
+            'group_id' => $group_id,
+            'send_message_type' => $send_message_type,
+            'text' => $text,
+            'media_id' => $media_id
+        ]);
+
+        if($add_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'插入数据失败');
+        }
+    }
 }
