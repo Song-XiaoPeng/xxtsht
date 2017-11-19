@@ -28,6 +28,7 @@ class WxOperationModel extends Model {
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
+
         $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
 
         return msg(200,'success',$menu->all()['menu']['button']);
@@ -560,7 +561,7 @@ class WxOperationModel extends Model {
         $page_count = 12;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('task')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $list = Db::name('task')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->order('add_time desc')->select();
         $count = Db::name('task')->where(['company_id'=>$company_id])->count();
 
         foreach($list as $k=>$v){
@@ -619,7 +620,7 @@ class WxOperationModel extends Model {
 
         $map['company_id'] = $company_id;
         
-        $wx_user_list = Db::name('wx_user')->where($map)->limit($show_page,$page_count)->select();
+        $wx_user_list = Db::name('wx_user')->where($map)->limit($show_page,$page_count)->order('wx_user_id desc')->select();
 
         $count = Db::name('wx_user')->where($map)->count();
     
@@ -1108,7 +1109,7 @@ class WxOperationModel extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $list = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->limit($show_page,$page_count)->order('add_time desc')->select();
         $count = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->count();
         
         foreach($list as $k=>$v){
