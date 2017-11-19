@@ -203,13 +203,83 @@ class AautoMaticModel extends Model {
         $res = Db::name('mass_news')->where($map)->select();
 
         foreach($res as $item){
+            Db::name('mass_news')->where(['news_id'=>$item['news_id']])->update(['state'=>1]);
+
+            //立即发送
             if($item['send_type'] == 1){
-
+                $this->massSendHandle($item);
             }
 
-            if($item['send_type'] == 2 && strtotime($time) > strtotime($item['strtotime'])){
-
+            //定时发送
+            if($item['send_type'] == 2 && strtotime($time) >= strtotime($item['strtotime'])){
+                $this->massSendHandle($item);
             }
+        }
+    }
+
+    //群发发送操作
+    private function massSendHandle($item){
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+
+            $token_info = Common::getRefreshToken($item['appid'],$item['company_id']);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return;
+            }
+
+            $broadcast  = $openPlatform->createAuthorizerApplication($item['appid'],$refresh_token)->broadcast;
+
+            //按群发类型 1全部 2按分组 3指定用户
+            switch($item['type']){
+                case 1:
+                    if ($item['send_message_type'] == 1) {
+                        $broadcast->sendText($item['text']);
+                    }
+
+                    if ($item['send_message_type'] == 2) {
+                        $broadcast->sendNews($item['media_id']);
+                    }
+
+                    if ($item['send_message_type'] == 3) {
+                        $broadcast->sendImage($item['media_id']);
+                    }
+                    break;
+                case 2:
+                    if ($item['send_message_type'] == 1) {
+                        $broadcast->sendText($item['text'], $item['group_id']);
+                    }
+
+                    if ($item['send_message_type'] == 2) {
+                        $broadcast->sendNews($item['media_id'], $item['group_id']);
+                    }
+
+                    if ($item['send_message_type'] == 3) {
+                        $broadcast->sendImage($item['media_id'], $item['group_id']);
+                    }
+                    break;
+                case 3:
+                    $openid_list = json_decode($item['openid_list'],true);
+
+                    if ($item['send_message_type'] == 1) {
+                        $broadcast->sendText($item['text'], $openid_list);
+                    }
+
+                    if ($item['send_message_type'] == 2) {
+                        $broadcast->sendNews($item['media_id'], $openid_list);
+                    }
+
+                    if ($item['send_message_type'] == 3) {
+                        $broadcast->sendImage($item['media_id'], $openid_list);
+                    }
+                    break;
+            }
+
+            Db::name('mass_news')->where(['news_id'=>$item['news_id']])->update(['state'=>2]);
+        }catch (\Exception $e) {
+            Db::name('mass_news')->where(['news_id'=>$item['news_id']])->update(['state'=>-1]);
         }
     }
 }
