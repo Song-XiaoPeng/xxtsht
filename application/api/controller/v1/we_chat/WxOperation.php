@@ -656,4 +656,42 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getArticleTotal($data);
     }
+
+    /**
+     * 获取图文分享转发数据(最大时间跨度：7)
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","start_date":"2017-11-07","end_date":"2017-11-07"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"ref_date":"2017-11-10","user_source":0,"share_scene":1,"share_count":1,"share_user":1},{"ref_date":"2017-11-10","user_source":0,"share_scene":2,"share_count":1,"share_user":1}]}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getUserShareSummary
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getUserShareSummary
+     * @param appid 公众号appid
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUserShareSummary(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUserShareSummary($data);
+    }
+
+    /**
+     * 获取消息发送概况数据(最大时间跨度：7)
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","start_date":"2017-11-07","end_date":"2017-11-13"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"ref_date":"2017-11-08","user_source":0,"msg_type":1,"msg_user":1,"msg_count":1},{"ref_date":"2017-11-10","user_source":0,"msg_type":1,"msg_user":1,"msg_count":1},{"ref_date":"2017-11-11","user_source":0,"msg_type":1,"msg_user":1,"msg_count":33}]}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getUpstreamMessageSummary
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getUpstreamMessageSummary
+     * @param appid 公众号appid
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUpstreamMessageSummary(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUpstreamMessageSummary($data);
+    }
 }

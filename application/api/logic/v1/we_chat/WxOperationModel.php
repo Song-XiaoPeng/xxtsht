@@ -1240,4 +1240,72 @@ class WxOperationModel extends Model {
         
         return msg(200,'success',$articleTotal['list']);
     }
+
+    /**
+     * 获取图文分享转发数据(最大时间跨度：7)
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUserShareSummary($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $start_date = $data['start_date'];
+        $end_date = $data['end_date'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+
+        try{
+            $userShareSummary = $stats->userShareSummary($start_date, $end_date);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+        
+        return msg(200,'success',$userShareSummary['list']);
+    }
+
+    /**
+     * 获取消息发送概况数据(最大时间跨度：7)
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUpstreamMessageSummary($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $start_date = $data['start_date'];
+        $end_date = $data['end_date'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+
+        try{
+            $upstreamMessageSummary = $stats->upstreamMessageSummary($start_date, $end_date);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+        
+        return msg(200,'success',$upstreamMessageSummary['list']);
+    }
 }
