@@ -1015,6 +1015,8 @@ class WxOperationModel extends Model {
 	 * @return code 200->成功
 	 */
     public function addMassNews($data){
+        $time = date('Y-m-d H:i:s');
+
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $type = $data['type'];
@@ -1036,10 +1038,11 @@ class WxOperationModel extends Model {
             'group_id' => $group_id,
             'send_message_type' => $send_message_type,
             'text' => $text,
-            'media_id' => $media_id
+            'media_id' => $media_id,
+            'add_time' => $time,
         ]);
 
-        if($add_res){
+        if($news_id){
             return msg(200,'success',['news_id'=>$news_id]);
         }else{
             return msg(3001,'插入数据失败');
@@ -1069,5 +1072,28 @@ class WxOperationModel extends Model {
         }else{
             return msg(3001,'删除失败');
         }
+    }
+
+    /**
+     * 获取群发消息列表
+     * @param appid 公众号或小程序appid
+     * @param company_id 商户company_id
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getMassNewsList($appid,$company_id,$page){
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $count = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->count();
+        
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
     }
 }

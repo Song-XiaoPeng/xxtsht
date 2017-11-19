@@ -563,5 +563,21 @@ class WxOperation extends Auth{
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delMassNews($data);
     }
 
-    
+    /**
+     * 获取群发消息列表
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","page":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"news_id":3,"type":1,"send_type":1,"send_time":"0000-00-00 00:00:00","state":0,"openid_list":"","group_id":0,"send_message_type":1,"media_id":"","text":"测试","appid":"wx52bf4acbefcf4653","company_id":"51454009d703c86c91353f61011ecf2f","add_time":"0000-00-00 00:00:00"},{"news_id":4,"type":1,"send_type":1,"send_time":"0000-00-00 00:00:00","state":0,"openid_list":"","group_id":0,"send_message_type":1,"media_id":"","text":"测试","appid":"wx52bf4acbefcf4653","company_id":"51454009d703c86c91353f61011ecf2f","add_time":"2017-11-18 16:26:51"},{"news_id":5,"type":1,"send_type":1,"send_time":"0000-00-00 00:00:00","state":0,"openid_list":"","group_id":0,"send_message_type":1,"media_id":"","text":"测试","appid":"wx52bf4acbefcf4653","company_id":"51454009d703c86c91353f61011ecf2f","add_time":"2017-11-18 16:27:06"}],"page_data":{"count":3,"rows_num":16,"page":"1"}}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMassNewsList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMassNewsList
+     * @param appid 公众号appid
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getMassNewsList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMassNewsList($data['appid'],$data['company_id'],$data['page']);
+    }
 }
