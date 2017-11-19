@@ -928,13 +928,28 @@ class WxOperationModel extends Model {
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+
+        try{
+            $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
 
         if(!$group_id){
-            $res = $group->create($name);
+            try{
+                $res = $group->create($name);
+            }catch (\Exception $e) {
+                return msg(3001,$e->getMessage());
+            }
+
             return msg(200,'success',['group_id'=>$res['group']['id']]);
         }else{
-            $group->update($group_id,$name);
+            try{
+                $group->update($group_id,$name);
+            }catch (\Exception $e) {
+                return msg(3001,$e->getMessage());
+            }
+            
             return msg(200,'success');
         }
     }
@@ -960,9 +975,12 @@ class WxOperationModel extends Model {
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
-
-        $group->delete($group_id);
+        try{
+            $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+            $group->delete($group_id);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
         
         return msg(200,'success');
     }
