@@ -580,4 +580,80 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMassNewsList($data['appid'],$data['company_id'],$data['page']);
     }
+
+    /**
+     * 获取用户增减数据(最大时间跨度：7)
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","start_date":"2017-11-07","end_date":"2017-11-13"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getUserSummary
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getUserSummary
+     * @param appid 公众号appid
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUserSummary(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUserSummary($data);
+    }
+
+    /**
+     * 获取累计用户数据(最大时间跨度：7)
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","start_date":"2017-11-07","end_date":"2017-11-13"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"ref_date":"2017-11-07","user_source":0,"cumulate_user":725},{"ref_date":"2017-11-08","user_source":0,"cumulate_user":725},{"ref_date":"2017-11-09","user_source":0,"cumulate_user":725},{"ref_date":"2017-11-10","user_source":0,"cumulate_user":725},{"ref_date":"2017-11-11","user_source":0,"cumulate_user":725},{"ref_date":"2017-11-12","user_source":0,"cumulate_user":725},{"ref_date":"2017-11-13","user_source":0,"cumulate_user":725}]}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getUserCumulate
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getUserCumulate
+     * @param appid 公众号appid
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUserCumulate(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUserCumulate($data);
+    }
+
+    /**
+     * 获取图文群发每日数据(最大时间跨度：1)
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","start_date":"2017-11-07","end_date":"2017-11-07"}
+	 * 返回JSON格式: 
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getArticleSummary
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getArticleSummary
+     * @param appid 公众号appid
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getArticleSummary(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getArticleSummary($data);
+    }
+
+    /**
+     * 获取图文群发总数据(最大时间跨度：1)
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","start_date":"2017-11-07","end_date":"2017-11-07"}
+	 * 返回JSON格式: 
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getArticleTotal
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getArticleTotal
+     * @param appid 公众号appid
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getArticleTotal(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getArticleTotal($data);
+    }
 }

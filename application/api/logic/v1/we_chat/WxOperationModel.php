@@ -563,6 +563,10 @@ class WxOperationModel extends Model {
         $list = Db::name('task')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->select();
         $count = Db::name('task')->where(['company_id'=>$company_id])->count();
 
+        foreach($list as $k=>$v){
+            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+        }
+
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
@@ -1089,11 +1093,151 @@ class WxOperationModel extends Model {
         $list = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->limit($show_page,$page_count)->select();
         $count = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->count();
         
+        foreach($list as $k=>$v){
+            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+        }
+
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
         
         return msg(200,'success',$res);
+    }
+
+    /**
+     * 获取用户增减数据(最大时间跨度：7)
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUserSummary($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $start_date = $data['start_date'];
+        $end_date = $data['end_date'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+
+        try{
+            $userSummary = $stats->userSummary($start_date, $end_date);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+
+        return msg(200,'success',$userSummary['list']);
+    }
+
+    /**
+     * 获取累计用户数据(最大时间跨度：7)
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getUserCumulate($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $start_date = $data['start_date'];
+        $end_date = $data['end_date'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+
+        try{
+            $userCumulate = $stats->userCumulate($start_date, $end_date);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+        
+        return msg(200,'success',$userCumulate['list']);
+    }
+
+    /**
+     * 获取图文群发每日数据(最大时间跨度：1)
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getArticleSummary($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $start_date = $data['start_date'];
+        $end_date = $data['end_date'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+
+        try{
+            $articleSummary = $stats->articleSummary($start_date, $end_date);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+        
+        return msg(200,'success',$articleSummary['list']);
+    }
+
+    /**
+     * 获取图文群发总数据(最大时间跨度：1)
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param start_date 查询开始日期
+     * @param end_date 查询结束日期
+	 * @return code 200->成功
+	 */
+    public function getArticleTotal($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $start_date = $data['start_date'];
+        $end_date = $data['end_date'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+
+        try{
+            $articleTotal = $stats->articleTotal($start_date, $end_date);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+        
+        return msg(200,'success',$articleTotal['list']);
     }
 }
