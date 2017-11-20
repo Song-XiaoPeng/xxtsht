@@ -206,7 +206,47 @@ class UserOperationModel extends Model {
     }
 
     /**
-     * 设置账户成微信客服账号
+     * 删除子账号客服权限
+	 * @param company_id 商户company_id
+	 * @param appid 微信公众号appid
+	 * @param uid 账户uid
+	 * @return code 200->成功
+	 */
+    public function delUserCustomerService($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $uid = $data['uid'];
+
+        $res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])->find();
+        if(!$res){
+            return msg('客户账户权限配置信息不存在');
+        }
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+
+        try{
+            $wx_sign = "lyfzkf@$uid";
+            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+            $staff->delete($wx_sign);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+
+        Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])->delete();
+
+        return msg(200,'success');
+    }
+
+    /**
+     * 设置子账户为微信客服账号
 	 * @param company_id 商户company_id
 	 * @param appid 微信公众号appid
 	 * @param uid 账户uid
@@ -214,6 +254,115 @@ class UserOperationModel extends Model {
 	 * @return code 200->成功
 	 */
     public function setUserCustomerService($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $uid = $data['uid'];
+        $user_name = $data['user_name'];
+        $token = $data['token'];
+
+        $request_data = [
+            'uid' => $uid,
+            'company_id' => $company_id
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request(
+            'POST', 
+            combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
+            [
+                'json' => $request_data,
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        $user_info = json_decode($res->getBody(),true);
+        if($user_info['meta']['code'] != 200){
+            return $user_info;
+        }
+
+        $user_info = $user_info['body'];
+
+        if($user_info['company_id'] !== $company_id){
+            return msg(3003,'账户不存在');
+        }
+
+        $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$appid,'uid'=>$uid])->find();
+        if($customer_service_res){
+            return msg(3004,'账户已成为微信客服账号');
+        }
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+
+        try{
+            $wx_sign = "lyfzkf@$uid";
+            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+            $staff->create($wx_sign, $user_name);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+
+        Db::name('customer_service')->insert([
+            'name' => $user_name,
+            'wx_sign' => $wx_sign,
+            'appid' => $appid,
+            'uid' => $uid,
+            'company_id' => $company_id
+        ]);
+
+        return msg(200,'success');
+    }
+
+    /**
+     * 获取微信客服账号列表
+	 * @param company_id 商户company_id
+	 * @param appid 微信公众号appid (选传)
+	 * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getCustomerServiceList($data){
+        $company_id = $data['company_id'];
+        $appid = empty($data['appid']) == true ? '' : $data['appid'];
+        $page = $data['page'];
+        
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+        
+        $list = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$appid])->limit($show_page,$page_count)->select();
+        $count = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$appid])->count();
+    
+        foreach($list as $k=>$v){
+            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+        }
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    /**
+     * 修改微信客服名称
+	 * @param company_id 商户company_id
+	 * @param appid 微信公众号appid
+	 * @param uid 账户uid
+	 * @param user_name 客服名称
+	 * @return code 200->成功
+	 */
+    public function updateCustomerServiceName($data){
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $uid = $data['uid'];
@@ -262,17 +411,13 @@ class UserOperationModel extends Model {
         try{
             $wx_sign = "lyfzkf@$uid";
             $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
-            $staff->create($wx_sign, $user_name);
+            $staff->update($wx_sign, $user_name);
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }
 
-        Db::name('customer_service')->insert([
+        Db::name('customer_service')->where(['appid'=>$appid,'company_id'=>$company_id,'uid'=>$uid])->update([
             'name' => $user_name,
-            'wx_sign' => $wx_sign,
-            'appid' => $appid,
-            'uid' => $uid,
-            'company_id' => $company_id
         ]);
 
         return msg(200,'success');

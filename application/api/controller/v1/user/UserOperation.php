@@ -121,10 +121,10 @@ class UserOperation extends Auth{
     }
 
     /**
-     * 设置账户成微信客服账号
+     * 设置子账户为微信客服账号
      * 请求类型 post
-	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","uid":"lyfzkf@2","user_name":"客服二"}
-	 * 返回JSON格式: 
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","uid":"6092","user_name":"客服二"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
 	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/setUserCustomerService
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/setUserCustomerService
 	 * @param appid 微信公众号appid
@@ -138,5 +138,60 @@ class UserOperation extends Auth{
         $data['token'] = $this->token;
         
         return \think\Loader::model('UserOperationModel','logic\v1\user')->setUserCustomerService($data);
+    }
+
+    /**
+     * 删除子账号客服权限
+     * 请求类型 post
+	 * 传入JSON格式: {"uid":"6092","appid":"wx52bf4acbefcf4653"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/delUserCustomerService
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/delUserCustomerService
+	 * @param appid 微信公众号appid
+	 * @param uid 账户uid
+	 * @return code 200->成功
+	 */
+    public function delUserCustomerService () {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->delUserCustomerService($data);
+    }
+
+    /**
+     * 获取微信客服账号列表
+     * 请求类型 post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","page":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/getCustomerServiceList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/getCustomerServiceList
+	 * @param appid 微信公众号appid (选传)
+	 * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getCustomerServiceList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->getCustomerServiceList($data);
+    }
+
+    /**
+     * 修改微信客服名称
+     * 请求类型 post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","uid":"6092","user_name":"客服二"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/updateCustomerServiceName
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/updateCustomerServiceName
+	 * @param appid 微信公众号appid (选传)
+	 * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function updateCustomerServiceName(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['token'] = $this->token;
+
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->updateCustomerServiceName($data);
     }
 }
