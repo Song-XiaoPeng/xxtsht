@@ -2,10 +2,12 @@
 namespace app\api\logic\v1\user;
 use think\Model;
 use think\Db;
+use EasyWeChat\Foundation\Application;
+use app\api\common\Common;
 
 class UserOperationModel extends Model {
     /**
-     * 添加客服账号
+     * 添加子账号
 	 * @param user_group_id 权限分组id
 	 * @param phone_no 子账号手机(账号)
 	 * @param password 子账号登录密码md5值
@@ -47,7 +49,7 @@ class UserOperationModel extends Model {
     }
 
     /**
-     * 获取客服子账号列表
+     * 获取子账号列表
 	 * @param user_group_id 分组id(选传)
 	 * @param page 分页参数默认1
 	 * @param token 账号登录token
@@ -201,5 +203,78 @@ class UserOperationModel extends Model {
         $res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->field('appid,logo,qrcode_url,principal_name,signature,type,nick_name')->select();
 
         return msg(200,'success',$res);
+    }
+
+    /**
+     * 设置账户成微信客服账号
+	 * @param company_id 商户company_id
+	 * @param appid 微信公众号appid
+	 * @param uid 账户uid
+	 * @param user_name 客服名称
+	 * @return code 200->成功
+	 */
+    public function setUserCustomerService($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $uid = $data['uid'];
+        $user_name = $data['user_name'];
+        $token = $data['token'];
+
+        $request_data = [
+            'uid' => $uid,
+            'company_id' => $company_id
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request(
+            'POST', 
+            combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
+            [
+                'json' => $request_data,
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        $user_info = json_decode($res->getBody(),true);
+        if($user_info['meta']['code'] != 200){
+            return $user_info;
+        }
+
+        $user_info = $user_info['body'];
+
+        if($user_info['company_id'] !== $company_id){
+            return msg(3003,'账户不存在');
+        }
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+
+        try{
+            $wx_sign = "lyfzkf@$uid";
+            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+            $staff->create($wx_sign, $user_name);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+
+        Db::name('customer_service')->insert([
+            'name' => $user_name,
+            'wx_sign' => $wx_sign,
+            'appid' => $appid,
+            'uid' => $uid,
+            'company_id' => $company_id
+        ]);
+
+        return msg(200,'success');
     }
 }
