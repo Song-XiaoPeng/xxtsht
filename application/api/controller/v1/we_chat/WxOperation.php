@@ -714,8 +714,4 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->sendMessage($data);
     }
-
-    public function test(){
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->test();
-    }
 }
