@@ -172,6 +172,7 @@ class UserOperation extends Auth{
     public function getCustomerServiceList(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
+        $data['token'] = $this->token;
         
         return \think\Loader::model('UserOperationModel','logic\v1\user')->getCustomerServiceList($data);
     }
