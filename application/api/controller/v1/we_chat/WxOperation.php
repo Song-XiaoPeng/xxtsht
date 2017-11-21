@@ -694,4 +694,28 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUpstreamMessageSummary($data);
     }
+
+    /**
+     * 获取累计用户数据(最大时间跨度：7)
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","openid":"olKKojskJPK46Q8m4pXWo6pcLr20","message":"测试","type":"1"}
+	 * 返回JSON格式: 
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/sendMessage
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/sendMessage
+     * @param appid 公众号appid
+     * @param openid 接收用户openid
+     * @param message 消息内容
+     * @param type 1文字 2图片 3文件 4视频  5声音
+	 * @return code 200->成功
+	 */
+    public function sendMessage(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->sendMessage($data);
+    }
+
+    public function test(){
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->test();
+    }
 }

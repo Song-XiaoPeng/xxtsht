@@ -6,6 +6,7 @@ use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
 use think\Log;
 use EasyWeChat\Message\Article;
+use EasyWeChat\Message\Text;
 
 //微信后台操作业务类
 class WxOperationModel extends Model {
@@ -1317,14 +1318,124 @@ class WxOperationModel extends Model {
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
 
         try{
+            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
             $upstreamMessageSummary = $stats->upstreamMessageSummary($start_date, $end_date);
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }
         
         return msg(200,'success',$upstreamMessageSummary['list']);
+    }
+
+    /**
+     * 发送客服信息
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param openid 接收用户openid
+     * @param message 消息内容
+     * @param type 1文字 2图片 3文件 4视频  5声音
+	 * @return code 200->成功
+	 */
+    public function sendMessage($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+        $message = $data['message'];
+        $type = $data['type'];
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+
+        try{
+            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+            //$session = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->session;
+
+            $message = new Text(['content' => $message]);
+            //$staff->message($message)->to($openid)->send();    
+            
+            //$staff->message($message)->by('lyfzkf@6092')->to($openid)->send();            
+
+            $staff->records('2015-06-07', $endTime, $pageIndex, $pageSize);
+
+            //dump($session->get($openid));
+            
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
+    }
+
+    public function test(){
+        $customer_service_id = '51454009d703c86c91353f61011ecf2f';
+        $data = [
+            [
+                'wx_user_id' => md5(uniqid()),
+                'openid' => md5(uniqid()),
+                'appid' => 'wx321313123123',
+                'company_id' => '33',
+                'add_time' => date('Y-m-d H:i:s')
+            ],
+            [
+                'wx_user_id' => md5(uniqid()),
+                'openid' => md5(uniqid()),
+                'appid' => 'wx321313123123',
+                'company_id' => '123',
+                'add_time' => date('Y-m-d H:i:s')
+            ],
+            [
+                'wx_user_id' => md5(uniqid()),
+                'openid' => md5(uniqid()),
+                'appid' => 'wx321313122141',
+                'company_id' => '32424',
+                'add_time' => date('Y-m-d H:i:s')
+            ],
+            [
+                'wx_user_id' => md5(uniqid()),
+                'openid' => md5(uniqid()),
+                'appid' => 'wx321313123123',
+                'company_id' => '32424',
+                'add_time' => date('Y-m-d H:i:s')
+            ],
+            [
+                'wx_user_id' => md5(uniqid()),
+                'openid' => 123,
+                'appid' => 'wx321313123123',
+                'company_id' => '87634535',
+                'add_time' => date('Y-m-d H:i:s')
+            ],
+            [
+                'wx_user_id' => md5(uniqid()),
+                'openid' => 6666666,
+                'appid' => 'wx321313123123',
+                'company_id' => '87634535',
+                'add_time' => date('Y-m-d H:i:s')
+            ]
+        ];
+        
+        $rule = [
+            'type' => 'md5', // 分表方式
+            'num'  => 5    // 分表数量
+        ];
+
+        Db::name('wx_user')
+            ->partition(['customer_service_id'=>$customer_service_id], "customer_service_id", $rule)
+            ->insertAll($data);
+
+        // $wx_user_id = md5(uniqid());
+
+        // $res = Db::name('wx_user')
+        //     ->partition(['wx_user_id'=>$wx_user_id], 'wx_user_id', $rule)
+        //     ->where(['wx_user_id'=>'0151f6ed9a4573672bf841f2123c06f9'])
+        //     ->update(['nickname'=>4213123]);
+
+        // dump($res);
     }
 }
