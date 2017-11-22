@@ -27,12 +27,18 @@ class WxOperationModel extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+    
+            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
 
-        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+            $menu_data = $menu->all()['menu']['button'];
+        }catch (\Exception $e) {
+            return msg(200,'success',[]);
+        }
 
-        return msg(200,'success',$menu->all()['menu']['button']);
+        return msg(200,'success',$menu_data);
     }
 
     /**

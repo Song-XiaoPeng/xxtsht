@@ -120,7 +120,7 @@ class BusinessModel extends Model {
                 $returnMessage = $this->clickEvent($appid,$openid,$message['EventKey']);
                 break;
             case 'text':
-                $returnMessage = $this->textEvent($appid,$message['Content']);
+                $returnMessage = $this->textEvent($appid,$openid,$message['Content']);
                 break;
             case 'image':
                 $returnMessage = '收到图片消息';
@@ -156,7 +156,7 @@ class BusinessModel extends Model {
      * @param key_word 关键词
 	 * @return code 200->成功
 	 */
-    private function textEvent($appid,$key_word){
+    private function textEvent($appid,$openid,$key_word){
         $map['appid'] = $appid;
         $map1['pattern'] = 2;
         $map['key_word'] = array('like',"%$key_word%");
@@ -167,7 +167,7 @@ class BusinessModel extends Model {
         }
 
         return empty($reply_text) == true ? $this->default_message : emoji_decode($reply_text);
-    }
+    } 
 
     /**
      * 菜单点击事件处理
