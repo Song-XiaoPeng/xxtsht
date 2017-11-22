@@ -8,7 +8,9 @@ use think\Log;
 use app\api\common\Common;
 
 class BusinessModel extends Model {
-    public $default_message = '系统未识别到您的描述，请再描述一次！';
+    private $default_message = '系统未识别到您的描述，请再描述一次！';
+
+    private $wx_user_partition_num = 5;
 
     //微信授权事件处理
     public function authCallback(){
@@ -98,6 +100,7 @@ class BusinessModel extends Model {
         Log::record(json_encode($data));
 
         $appid = $data['appid'];
+        $openid = $data['openid'];
 
         $token_info = Common::getRefreshToken($appid);
         if($token_info['meta']['code'] == 200){
@@ -114,7 +117,7 @@ class BusinessModel extends Model {
         $message = $server->getMessage();
         switch ($message['MsgType']) {
             case 'event':
-                $returnMessage = $this->clickEvent($appid,$message['EventKey']);
+                $returnMessage = $this->clickEvent($appid,$openid,$message['EventKey']);
                 break;
             case 'text':
                 $returnMessage = $this->textEvent($appid,$message['Content']);
@@ -169,16 +172,151 @@ class BusinessModel extends Model {
     /**
      * 菜单点击事件处理
      * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
      * @param event_key 触发下标值
 	 * @return code 200->成功
 	 */
-    private function clickEvent($appid,$event_key){
+    private function clickEvent($appid,$openid,$event_key){
         $event_arr = explode('_',$event_key);
         if($event_arr[0] != 'kf'){
             return $this->default_message;
         }
 
+        return $this->createSession($appid,$openid,$event_arr[1],$event_arr[2]);
+    }
 
-        return '系统正在为您转接客服，请稍等！';
+    /**
+     * 创建客服会话
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+     * @param type 分配类型 user->指定到具体的客服 group->指定到具体的客服分组
+     * @param id 分配的客服id或客服分组id
+     * @param event_key 触发下标值
+	 * @return code 200->成功
+	 */
+    private function createSession($appid,$openid,$type,$id){
+        $session_res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1])])->find();
+        if($session_res){
+            $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->value('name');
+
+            if($session_res['state'] == 1){
+                return '客服'.$customer_service_name.'正在为您服务！';
+            }else{
+                return '正在为您接入客服'.$customer_service_name.'请稍等！';
+            }
+        }
+
+        switch($type){
+            case 'user':
+                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1])->find();
+                if(!empty($customer_service_res)){
+                    $customer_service_id = $customer_service_res['customer_service_id'];
+                    $customer_service_uid = $customer_service_res['uid'];
+                    $company_id = $customer_service_res['company_id'];
+                    $customer_service_name = $customer_service_res['name'];
+                }else{
+                    return '暂无可分配的客服！';
+                }
+                break;
+
+            case 'group':
+                break;
+
+            default:
+                return $this->default_message;
+        }
+
+        $wx_info = $this->addWxUserInfo($appid,$openid);
+        if(!empty($wx_info)){
+            $add_res = Db::name('message_session')->insert([
+                'session_id' => md5(uniqid()),
+                'customer_service_id' => $customer_service_id,
+                'customer_wx_openid' => $openid,
+                'add_time' => date('Y-m-d H:i:s'),
+                'uid' => $customer_service_uid,
+                'appid' => $appid,
+                'company_id' => $company_id,
+                'customer_wx_nickname' => $wx_info['nickname']
+            ]);
+    
+            if($add_res){
+                return '正在为您接入客服'.$customer_service_name.'请稍等！';
+            }else{
+                return '系统繁忙';
+            }
+        }else{
+            return '系统繁忙';
+        }
+    }
+
+    /**
+     * 添加微信用户信息
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+	 * @return code 200->成功
+	 */
+    private function addWxUserInfo($appid,$openid){
+        $time = date('Y-m-d H:i:s');
+
+        $authinfo_res = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->find();
+        if(empty($authinfo_res)){
+            return;
+        }
+
+        $company_id = $authinfo_res['company_id'];
+
+        try{
+            $token_info = Common::getRefreshToken($appid,$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return;
+            }
+
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            
+            $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
+            $wx_info = $userService->get($openid);
+        }catch (\Exception $e) {
+            return;
+        }
+
+        $wx_user_count = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+        ->where(['unionid'=>$wx_info['unionid']])
+        ->count();
+
+        if($wx_user_count >= 1){
+            return $wx_info;
+        }
+
+        $wx_user_count = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+        ->where(['unionid'=>$wx_info['unionid']])
+        ->insert([
+            'wx_user_id' => md5(uniqid()),
+            'nickname' => $wx_info['nickname'],
+            'portrait' => $wx_info['headimgurl'],
+            'gender' => $wx_info['sex'],
+            'city' => $wx_info['city'],
+            'province' => $wx_info['province'],
+            'language' => $wx_info['language'],
+            'country' => $wx_info['country'],
+            'groupid' => $wx_info['groupid'],
+            'subscribe_time' => $wx_info['subscribe_time'],
+            'openid' => $openid,
+            'add_time' => $time,
+            'appid' => $appid,
+            'desc' => $wx_info['remark'],
+            'company_id' => $company_id,
+            'tagid_list' => $wx_info['tagid_list'],
+            'unionid' => $wx_info['unionid'],
+            'is_sync' => 1,
+            'subscribe' => $wx_info['subscribe'],
+            'update_time' => $time
+        ]);
+
+        return $wx_info;
     }
 }

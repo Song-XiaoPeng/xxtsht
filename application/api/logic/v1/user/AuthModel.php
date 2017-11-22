@@ -104,7 +104,7 @@ class AuthModel extends Model {
 
         $count = Db::name('login_token')->where(['company_id'=>$company_id])->count();
         if($count > 1){
-            Db::name('login_token')->where(['company_id'=>$company_id])->save(['expiration_date'=>$expiration_date]);
+            Db::name('login_token')->where(['company_id'=>$company_id])->update(['expiration_date'=>$expiration_date]);
         }
 
         return msg(200,'success');

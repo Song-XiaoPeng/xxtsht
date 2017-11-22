@@ -696,7 +696,7 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 获取累计用户数据(最大时间跨度：7)
+     * 发送客服信息
 	 * 请求类型：post
 	 * 传入JSON格式: {"appid":"wx52bf4acbefcf4653","openid":"olKKojskJPK46Q8m4pXWo6pcLr20","message":"测试","type":"1"}
 	 * 返回JSON格式: 
@@ -713,5 +713,41 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->sendMessage($data);
+    }
+
+    /**
+     * 会话接入
+	 * 请求类型：post
+	 * 传入JSON格式: {"session_id":"38a3843d6d2c733e5b7212f993af453e"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/sessionAccess
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/sessionAccess
+     * @param session_id 会话id
+	 * @return code 200->成功
+	 */
+    public function sessionAccess(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->sessionAccess($data['company_id'],$data['session_id']);
+    }
+
+    /**
+     * 获取会话列表
+	 * 请求类型：post
+	 * 传入JSON格式: {"type":1,"page":1}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"session_id":"38a3843d6d2c733e5b7212f993af453e","customer_service_id":91601557,"customer_wx_openid":"olKKojskJPK46Q8m4pXWo6pcLr20","add_time":"2017-11-22 13:17:47","state":1,"uid":6452,"appid":"wx52bf4acbefcf4653","company_id":"51454009d703c86c91353f61011ecf2f","previous_customer_service_id":null,"customer_wx_nickname":"Junwen"}],"page_data":{"count":1,"rows_num":16,"page":1}}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getSessionList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getSessionList
+     * @param type 会话类型 -2接待超时关闭 -1会话关闭 0等待接入会话 1会话中
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function  getSessionList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getSessionList($data);
     }
 }

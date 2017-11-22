@@ -1356,20 +1356,119 @@ class WxOperationModel extends Model {
         $openPlatform = $app->open_platform;
 
         try{
-            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
-            //$session = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->session;
-
-            $message = new Text(['content' => $message]);
+            //$staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+            $session = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff_session;
+            $session->create('lyfzkf@6454', $openid);
+            
+            //$message = new Text(['content' => $message]);
             //$staff->message($message)->to($openid)->send();    
             
             //$staff->message($message)->by('lyfzkf@6092')->to($openid)->send();            
 
-            $staff->records('2015-06-07', $endTime, $pageIndex, $pageSize);
+           // $staff->records('2015-06-07', $endTime, $pageIndex, $pageSize);
 
             //dump($session->get($openid));
             
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }
+    }
+
+    /**
+     * 会话接入
+     * @param company_id 商户id
+     * @param session_id 待接入的会话id
+	 * @return code 200->成功
+	 */
+    public function sessionAccess($company_id,$session_id){
+        $session_res = Db::name('message_session')
+        ->join('tb_customer_service','tb_customer_service.customer_service_id = tb_message_session.customer_service_id')
+        ->where([
+            'tb_message_session.company_id' => $company_id,
+            'tb_message_session.session_id' => $session_id,
+            'tb_message_session.state' => 0,
+        ])->find();
+        if(!$session_res){
+            return msg(3001,'会话不可接入');
+        }
+
+        $token_info = Common::getRefreshToken($session_res['appid'],$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
+
+            $message = new Text(['content' => '您好，我是客服'.$session_res['name'].'请问有什么需要帮助吗？']);
+            $staff->message($message)->by($session_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();            
+        }catch (\Exception $e) {
+            return msg(3002,$e->getMessage());
+        }
+
+        $update_res = Db::name('message_session')
+        ->where([
+            'session_id' => $session_id,
+            'company_id' => $company_id
+        ])
+        ->update([
+            'state' => 1
+        ]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'接入失败');
+        }
+    }
+
+    /**
+     * 获取会话列表
+     * @param company_id 商户id
+     * @param type 会话类型 -2接待超时关闭 -1会话关闭 0等待接入会话 1会话中
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getSessionList($data){
+        $company_id = $data['company_id'];
+        $type = $data['type'];
+        $page = $data['page'];
+        $uid = $data['uid'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;       
+        
+        $session_res = Db::name('message_session')
+        ->where([
+            'uid' => $uid,
+            'company_id' => $company_id,
+            'state' => $type
+        ])
+        ->limit($show_page,$page_count)
+        ->select();
+
+        $count = $count = Db::name('message_session')
+        ->where([
+            'uid' => $uid,
+            'company_id' => $company_id,
+            'state' => $type
+        ])
+        ->count();
+
+        foreach($session_res as $k=>$v){
+            $session_res[$k]['nick_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+        }
+
+        $res['data_list'] = count($session_res) == 0 ? array() : $session_res;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
     }
 }

@@ -334,6 +334,7 @@ class UserOperationModel extends Model {
         $company_id = $data['company_id'];
         $appid = empty($data['appid']) == true ? '' : $data['appid'];
         $page = $data['page'];
+        $token = $data['token'];
         
         //分页
         $page_count = 16;
@@ -343,7 +344,22 @@ class UserOperationModel extends Model {
         $count = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$appid])->count();
     
         foreach($list as $k=>$v){
-            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+            $v['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            $client = new \GuzzleHttp\Client();
+            $request_res = $client->request(
+                'POST', 
+                combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
+                [
+                    'json' => ['uid'=>$v['uid'],'company_id'=>$company_id],
+                    'timeout' => 3,
+                    'headers' => [
+                        'token' => $token
+                    ]
+                ]
+            );
+
+            $list[$k] = array_merge($v,json_decode($request_res->getBody(),true)['body']);
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
