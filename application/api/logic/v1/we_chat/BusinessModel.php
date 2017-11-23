@@ -169,7 +169,7 @@ class BusinessModel extends Model {
         //判断是否存在客服会话
         $session_res = $this->getSession($appid,$openid);
         if($session_res){
-            if(Common::addMessagge($appid,$openid,$session_res['session_id'],$session_res['customer_service_id'],$session_res['uid'],1,['text'=>$key_word])){
+            if(Common::addMessagge($appid,$openid,$session_res['session_id'],$session_res['customer_service_id'],$session_res['uid'],1,2,['text'=>$key_word])){
                 return '';
             }else{
                 return '系统繁忙请稍候重试!';
@@ -307,7 +307,7 @@ class BusinessModel extends Model {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
             
-            $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
+            $userService = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
             $wx_info = $userService->get($openid);
         }catch (\Exception $e) {
             return;

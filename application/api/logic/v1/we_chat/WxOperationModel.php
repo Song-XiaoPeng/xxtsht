@@ -1337,21 +1337,38 @@ class WxOperationModel extends Model {
 
     /**
      * 发送客服信息
-     * @param appid 公众号appid
      * @param company_id 商户company_id
-     * @param openid 接收用户openid
+     * @param uid 客服uid
+     * @param session_id 会话id
      * @param message 消息内容
      * @param type 1文字 2图片 3文件 4视频  5声音
+     * @param file_route 文件路径 选传
 	 * @return code 200->成功
 	 */
     public function sendMessage($data){
         $company_id = $data['company_id'];
-        $appid = $data['appid'];
-        $openid = $data['openid'];
-        $message = $data['message'];
+        $content = $data['message'];
         $type = $data['type'];
+        $uid = $data['uid'];
+        $session_id = $data['session_id'];
+        $file_route = empty($data['file_route']) == true ? '' : $data['file_route'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
+        $session_res = Db::name('message_session')->where([
+            'uid' => $uid,
+            'company_id' => $company_id,
+            'session_id' => $session_id,
+            'state' => 1,
+        ])->cache(true,10)->find();
+
+        if(empty($session_res)){
+            return msg(3001,'会话不存在');
+        }
+
+        $customer_service_res = Db::name('customer_service')->where([
+            'customer_service_id' => $session_res['customer_service_id']
+        ])->cache(true,60)->find();
+
+        $token_info = Common::getRefreshToken($session_res['appid'],$company_id);
         if($token_info['meta']['code'] == 200){
             $refresh_token = $token_info['body']['refresh_token'];
         }else{
@@ -1362,22 +1379,17 @@ class WxOperationModel extends Model {
         $openPlatform = $app->open_platform;
 
         try{
-            //$staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
-            $session = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff_session;
-            $session->create('lyfzkf@6454', $openid);
+            $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
             
-            //$message = new Text(['content' => $message]);
-            //$staff->message($message)->to($openid)->send();    
-            
-            //$staff->message($message)->by('lyfzkf@6092')->to($openid)->send();            
-
-           // $staff->records('2015-06-07', $endTime, $pageIndex, $pageSize);
-
-            //dump($session->get($openid));
-            
+            $message = new Text(['content' => $content]);
+            $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send(); 
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }
+
+        Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],1,1,['text'=>$content]);
+
+        return msg(200,'success');
     }
 
     /**
@@ -1386,12 +1398,13 @@ class WxOperationModel extends Model {
      * @param session_id 待接入的会话id
 	 * @return code 200->成功
 	 */
-    public function sessionAccess($company_id,$session_id){
+    public function sessionAccess($company_id,$uid,$session_id){
         $session_res = Db::name('message_session')
         ->join('tb_customer_service','tb_customer_service.customer_service_id = tb_message_session.customer_service_id')
         ->where([
             'tb_message_session.company_id' => $company_id,
             'tb_message_session.session_id' => $session_id,
+            'tb_message_session.uid' => $uid,
             'tb_message_session.state' => 0,
         ])->find();
         if(!$session_res){
@@ -1433,18 +1446,26 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 获取会话列表
+     * 获取历史会话列表
      * @param company_id 商户id
      * @param uid 客服uid
-     * @param type 会话类型 -2接待超时关闭 -1会话关闭 0等待接入会话 1会话中
+     * @param type 会话类型 1接待超时关闭 2会话关闭
      * @param page 分页参数默认1
 	 * @return code 200->成功
 	 */
-    public function getSessionList($data){
+    public function getSessionHistoryList($data){
         $company_id = $data['company_id'];
         $type = $data['type'];
         $page = $data['page'];
         $uid = $data['uid'];
+
+        if($type == 1){
+            $type = -2;
+        }
+
+        if($type == 2){
+            $type = -1;
+        }
 
         //分页
         $page_count = 16;
@@ -1468,7 +1489,9 @@ class WxOperationModel extends Model {
         ->count();
 
         foreach($session_res as $k=>$v){
-            $session_res[$k]['nick_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+            
+            $session_res[$k]['nick_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
         }
 
         $res['data_list'] = count($session_res) == 0 ? array() : $session_res;
@@ -1477,6 +1500,39 @@ class WxOperationModel extends Model {
         $res['page_data']['page'] = $page;
         
         return msg(200,'success',$res);
+    }
+
+    /**
+     * 获取会话列表
+     * @param company_id 商户id
+     * @param uid 客服uid
+	 * @return code 200->成功
+	 */
+    public function getSessionList($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+
+        $session_res = Db::name('message_session')->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>array('in',[0,1])])->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,state')->select();
+
+
+        $pending_access_session = [];
+        $contacting_session = [];
+
+        foreach($session_res as $v){
+            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            $v['nick_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+
+            if($v['state'] == 0){
+                array_push($pending_access_session,$v);
+            }
+
+            if($v['state'] == 1){
+                array_push($contacting_session,$v);
+            }
+        }
+
+        return msg(200,'success',['pending_access_session'=>$pending_access_session,'contacting_session'=>$contacting_session]);
     }
 
     /**
@@ -1499,8 +1555,10 @@ class WxOperationModel extends Model {
                 'session_id' => $v,
                 'uid' => $uid,
                 'is_read' => -1,
+                'opercode' => 2,
             ])
             ->field('text,opercode,file_url,lng,lat,is_read,session_id,add_time,message_type')
+            ->order('add_time asc')
             ->select();
 
             foreach($content as $i=>$c){
@@ -1508,7 +1566,7 @@ class WxOperationModel extends Model {
             }
 
             if($content){
-                $arr[$k] = $content;
+                $arr[$v] = $content;
             }
 
             Db::name('message_data')
@@ -1520,5 +1578,74 @@ class WxOperationModel extends Model {
         }
 
         return msg(200,'success',$arr);
+    }
+
+    /**
+     * 结束会话
+     * @param company_id 商户company_id
+     * @param uid 客服uid
+     * @param session_list 结束的会话id list
+	 * @return code 200->成功
+	 */
+    public function closeSession($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $session_list = $data['session_list'];
+        
+        $success_close_session = [];
+        $error_close_session = [];
+
+        foreach($session_list as $k=>$v){
+            $session_res = Db::name('message_session')
+            ->where([
+                'session_id' => $v,
+                'company_id' => $company_id,
+                'state' => 1,
+            ])->find();
+
+            if(empty($session_res)){
+                array_push($error_close_session,$v);
+                continue;
+            }
+
+            $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->cache(true,60)->value('name');
+            if(empty($customer_service_name)){
+                array_push($error_close_session,$v);
+                continue;
+            }
+
+            $token_info = Common::getRefreshToken($session_res['appid'],$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                array_push($error_close_session,$v);
+                continue;
+            }
+    
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+    
+            try{
+                $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
+                
+                $message = new Text(['content' => '客服'.$customer_service_name.'已结束与您的会话，感谢您的支持！']);
+                $staff->message($message)->to($session_res['customer_wx_openid'])->send();
+            }catch (\Exception $e) {
+                array_push($error_close_session,$v);
+                continue;
+            }   
+
+            Db::name('message_session')
+            ->where([
+                'session_id' => $v
+            ])
+            ->update([
+                'state' => -1
+            ]);
+
+            array_push($success_close_session,$v);
+        }
+
+        return msg(200,'success',['success_close_session'=>$success_close_session,'error_close_session'=>$error_close_session]);
     }
 }

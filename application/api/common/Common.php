@@ -25,10 +25,11 @@ class Common {
      * @param session_id 会话id
      * @param customer_service_id 客服id
      * @param type 消息类型 0其他 1文本 2图片 3语音 4视频 5坐标 6链接
+     * @param opercode 操作码 1客服发送信息 2客服接收消息
      * @param data_obj 数据对象
 	 * @return code 200->成功
 	 */
-    public static function addMessagge($appid,$openid,$session_id,$customer_service_id,$uid,$type,$data_obj){
+    public static function addMessagge($appid,$openid,$session_id,$customer_service_id,$uid,$type,$opercode,$data_obj){
         $time = date('Y-m-d H:i:s');
 
         switch($type){
@@ -64,7 +65,7 @@ class Common {
             'customer_service_id' => $customer_service_id,
             'customer_wx_openid' => $openid,
             'add_time' => $time,
-            'opercode' => 2,
+            'opercode' => $opercode,
             'message_type' => $type,
             'session_id' => $session_id,
             'uid' => $uid,
