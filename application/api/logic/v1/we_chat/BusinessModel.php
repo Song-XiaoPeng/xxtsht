@@ -166,8 +166,38 @@ class BusinessModel extends Model {
             $reply_text = Db::name('message_rule')->where($map)->where($map2)->value('reply_text');
         }
 
+        //判断是否存在客服会话
+        $session_res = $this->getSession($appid,$openid);
+        if($session_res){
+            if(Common::addMessagge($appid,$openid,$session_res['session_id'],$session_res['customer_service_id'],$session_res['uid'],1,['text'=>$key_word])){
+                return '';
+            }else{
+                return '系统繁忙请稍候重试!';
+            }
+        }
+
         return empty($reply_text) == true ? $this->default_message : emoji_decode($reply_text);
-    } 
+    }
+
+    /**
+     * 获取用户会话
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+	 * @return code 200->成功
+	 */
+    private function getSession($appid,$openid){
+        $res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>1])->find();
+
+        if($res){
+            return [
+                'session_id'=>$res['session_id'],
+                'uid'=>$res['uid'],
+                'customer_service_id'=>$res['customer_service_id']
+            ];
+        }else{
+            return false;
+        }
+    }
 
     /**
      * 菜单点击事件处理

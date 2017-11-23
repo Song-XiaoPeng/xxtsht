@@ -750,4 +750,22 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getSessionList($data);
     }
+
+    /**
+     * 获取会话消息
+	 * 请求类型：post
+	 * 传入JSON格式: {"uid":"6454","session_list":["294bbb5b94de0c044e66f6caec067856","b2fe3202dff09473cf9aa2b9f15ad79f"]}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMessage
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMessage
+     * @param uid 客服uid
+     * @param session_list 查询的会话id list
+	 * @return code 200->成功
+	 */
+    public function getMessage(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMessage($data);
+    }
 }

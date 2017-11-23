@@ -1435,6 +1435,7 @@ class WxOperationModel extends Model {
     /**
      * 获取会话列表
      * @param company_id 商户id
+     * @param uid 客服uid
      * @param type 会话类型 -2接待超时关闭 -1会话关闭 0等待接入会话 1会话中
      * @param page 分页参数默认1
 	 * @return code 200->成功
@@ -1476,5 +1477,47 @@ class WxOperationModel extends Model {
         $res['page_data']['page'] = $page;
         
         return msg(200,'success',$res);
+    }
+
+    /**
+     * 获取会话消息
+     * @param company_id 商户company_id
+     * @param uid 客服uid
+     * @param session_list 查询的会话id list
+	 * @return code 200->成功
+	 */
+    public function getMessage($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $session_list = $data['session_list'];
+        
+        $arr = array();
+
+        foreach($session_list as $k=>$v){
+            $content = Db::name('message_data')
+            ->where([
+                'session_id' => $v,
+                'uid' => $uid,
+                'is_read' => -1,
+            ])
+            ->select();
+
+            foreach($content as $i=>$c){
+                $content[$i]['text'] = emoji_decode($c['text']);
+            }
+
+            if($content){
+                $arr[$k] = $content;
+            }
+
+            Db::name('message_data')
+            ->where([
+                'session_id' => $v,
+                'uid' => $uid
+            ])
+            ->update(['is_read'=>1]);
+        }
+
+        return msg(200,'success',$arr);
     }
 }
