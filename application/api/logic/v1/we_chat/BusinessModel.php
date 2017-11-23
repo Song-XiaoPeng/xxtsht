@@ -266,7 +266,8 @@ class BusinessModel extends Model {
                 'uid' => $customer_service_uid,
                 'appid' => $appid,
                 'company_id' => $company_id,
-                'customer_wx_nickname' => $wx_info['nickname']
+                'customer_wx_nickname' => $wx_info['nickname'],
+                'customer_wx_portrait' => $wx_info['headimgurl'],
             ]);
     
             if($add_res){

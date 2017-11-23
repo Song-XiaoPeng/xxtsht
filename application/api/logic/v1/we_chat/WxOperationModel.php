@@ -1500,6 +1500,7 @@ class WxOperationModel extends Model {
                 'uid' => $uid,
                 'is_read' => -1,
             ])
+            ->field('text,opercode,file_url,lng,lat,is_read,session_id,add_time,message_type')
             ->select();
 
             foreach($content as $i=>$c){
