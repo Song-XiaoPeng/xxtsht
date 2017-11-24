@@ -699,7 +699,7 @@ class WxOperation extends Auth{
      * 发送客服信息
 	 * 请求类型：post
 	 * 传入JSON格式: {"session_id":"4f56b7fd6021401b5b476c4e4eab9200","message":"测试","type":"1"}
-	 * 返回JSON格式: 
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/sendMessage
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/sendMessage
      * @param session_id 会话id
@@ -757,7 +757,7 @@ class WxOperation extends Auth{
      * 获取会话消息
 	 * 请求类型：post
 	 * 传入JSON格式: {"session_list":["294bbb5b94de0c044e66f6caec067856","b2fe3202dff09473cf9aa2b9f15ad79f"]}
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"bdff9bb74cab59e104fa035a881c203b":[{"text":"5555","opercode":2,"file_url":null,"lng":null,"lat":null,"add_time":"2017-11-24 19:58:39","message_type":1,"page_title":null,"page_desc":null,"map_scale":null,"map_label":null,"map_img":null,"media_id":null}]}}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMessage
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMessage
      * @param uid 客服uid
