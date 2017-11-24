@@ -551,12 +551,13 @@ class BusinessModel extends Model {
             
             $content = $temporary->getStream($media_id);
 
+            //语音amr转mp3
             if($type == 3){
                 $audio_name = md5(uniqid());
                 if(!file_put_contents('../uploads/source_material/'.$audio_name.'.amr', $content, true)){
                     return msg(3005,'file_error');
                 }
-                
+
                 $amr_file = "../uploads/source_material/$audio_name.amr";
 
                 $mp3_file = "../uploads/source_material/$audio_name.mp3";
