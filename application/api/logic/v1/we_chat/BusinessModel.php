@@ -126,10 +126,10 @@ class BusinessModel extends Model {
                 $returnMessage = $this->imgEvent($appid,$openid,$message);
                 break;
             case 'voice':
-                $returnMessage = '收到语音消息';
+                $returnMessage = $this->voiceEvent($appid,$openid,$message);
                 break;
             case 'video':
-                $returnMessage = '收到视频消息';
+                $returnMessage = $this->videoEvent($appid,$openid,$message);
                 break;
             case 'location':
                 $returnMessage = $this->locationEvent($appid,$openid,$message);
@@ -148,6 +148,66 @@ class BusinessModel extends Model {
 
         $response = $server->serve();
         return $response->send();
+    }
+
+    /**
+     * 视频消息处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param message_arr 消息数据
+	 * @return code 200->成功
+	 */
+    private function videoEvent($appid,$openid,$message_arr){
+        //判断是否存在客服会话
+        $session_res = $this->getSession($appid,$openid);
+        if($session_res){
+            $add_res = Common::addMessagge(
+                $appid,
+                $openid,
+                $session_res['session_id'],
+                $session_res['customer_service_id'],
+                $session_res['uid'],
+                4,
+                2,
+                ['media_id'=>$message_arr['ThumbMediaId']]
+            );
+
+            if($add_res){
+                return '';
+            }else{
+                return '系统繁忙请稍候重试!';
+            }
+        }
+    }
+
+    /**
+     * 语音消息处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param message_arr 消息数据
+	 * @return code 200->成功
+	 */
+    private function voiceEvent($appid,$openid,$message_arr){
+        //判断是否存在客服会话
+        $session_res = $this->getSession($appid,$openid);
+        if($session_res){
+            $add_res = Common::addMessagge(
+                $appid,
+                $openid,
+                $session_res['session_id'],
+                $session_res['customer_service_id'],
+                $session_res['uid'],
+                3,
+                2,
+                ['media_id'=>$message_arr['MediaId']]
+            );
+
+            if($add_res){
+                return '';
+            }else{
+                return '系统繁忙请稍候重试!';
+            }
+        }
     }
 
     /**

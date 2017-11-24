@@ -1557,7 +1557,7 @@ class WxOperationModel extends Model {
                 'is_read' => -1,
                 'opercode' => 2,
             ])
-            ->field('text,opercode,file_url,lng,lat,add_time,message_type,page_title,page_desc,map_scale,map_label,map_img')
+            ->field('text,opercode,file_url,lng,lat,add_time,message_type,page_title,page_desc,map_scale,map_label,map_img,media_id')
             ->order('add_time asc')
             ->select();
 

@@ -41,10 +41,10 @@ class Common {
                 $arr['media_id'] = $data_obj['media_id'];
                 break;
             case '3':
-                $arr['file_url'] = $data_obj['file_url'];
+                $arr['media_id'] = $data_obj['media_id'];
                 break;
             case '4':
-                $arr['file_url'] = $data_obj['file_url'];
+                $arr['media_id'] = $data_obj['media_id'];
                 break;
             case '5':
                 $arr['lng'] = $data_obj['lng'];
