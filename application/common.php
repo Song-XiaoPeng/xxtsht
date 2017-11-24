@@ -97,4 +97,10 @@ function getImage($url,$save_dir='',$filename='',$type=0){
     unset($img,$url); 
 
     return array('file_name'=>$filename,'save_path'=>$save_dir.$filename,'error'=>0); 
-} 
+}
+
+//获取网页标题
+function get_title($html){
+    preg_match("/<title>(.*)<\/title>/i",$html,$title);
+    return empty($title[1]) == true ? '无法获取标题' : $title[1];
+}

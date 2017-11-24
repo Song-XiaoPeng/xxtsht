@@ -38,6 +38,7 @@ class Common {
                 break;
             case '2':
                 $arr['file_url'] = $data_obj['file_url'];
+                $arr['media_id'] = $data_obj['media_id'];
                 break;
             case '3':
                 $arr['file_url'] = $data_obj['file_url'];
@@ -48,9 +49,14 @@ class Common {
             case '5':
                 $arr['lng'] = $data_obj['lng'];
                 $arr['lat'] = $data_obj['lat'];
+                $arr['map_scale'] = $data_obj['map_scale'];
+                $arr['map_label'] = $data_obj['map_label'];
+                $arr['map_img'] = $data_obj['map_img'];
                 break;
             case '6':
                 $arr['text'] = $data_obj['text'];
+                $arr['page_title'] = $data_obj['page_title'];
+                $arr['page_desc'] = $data_obj['page_desc'];
                 break;
             default:
                 return false;

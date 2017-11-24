@@ -123,7 +123,7 @@ class BusinessModel extends Model {
                 $returnMessage = $this->textEvent($appid,$openid,$message['Content']);
                 break;
             case 'image':
-                $returnMessage = '收到图片消息';
+                $returnMessage = $this->imgEvent($appid,$openid,$message);
                 break;
             case 'voice':
                 $returnMessage = '收到语音消息';
@@ -132,10 +132,10 @@ class BusinessModel extends Model {
                 $returnMessage = '收到视频消息';
                 break;
             case 'location':
-                $returnMessage = '收到坐标消息';
+                $returnMessage = $this->locationEvent($appid,$openid,$message);
                 break;
             case 'link':
-                $returnMessage = '收到链接消息';
+                $returnMessage = $this->linkEvent($appid,$openid,$message['Url']);
                 break;
             default:
                 $returnMessage = '您好有什么需要帮助吗？';
@@ -153,6 +153,7 @@ class BusinessModel extends Model {
     /**
      * 文本消息处理
      * @param appid 公众号或小程序appid
+     * @param openid 用户openid
      * @param key_word 关键词
 	 * @return code 200->成功
 	 */
@@ -177,6 +178,108 @@ class BusinessModel extends Model {
         }
 
         return empty($reply_text) == true ? $this->default_message : emoji_decode($reply_text);
+    }
+
+    /**
+     * 位置消息处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param message_arr 消息内容
+	 * @return code 200->成功
+	 */
+    private function locationEvent($appid,$openid,$message_arr){
+        //判断是否存在客服会话
+        $session_res = $this->getSession($appid,$openid);
+        if($session_res){
+            $add_res = Common::addMessagge(
+                $appid,
+                $openid,
+                $session_res['session_id'],
+                $session_res['customer_service_id'],
+                $session_res['uid'],
+                5,
+                2,
+                ['map_scale'=>$message_arr['Scale'],'map_label'=>$message_arr['Label'],'map_img'=>'','lng'=>$message_arr['Location_Y'],'lat'=>$message_arr['Location_X']]
+            );
+
+            if($add_res){
+                return '';
+            }else{
+                return '系统繁忙请稍候重试!';
+            }
+        }
+    }
+
+    /**
+     * 链接消息处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param key_word 关键词
+	 * @return code 200->成功
+	 */
+    private function linkEvent($appid,$openid,$key_word){
+        //判断是否存在客服会话
+        $session_res = $this->getSession($appid,$openid);
+        if($session_res){
+            $client = new \GuzzleHttp\Client();
+            $request_res = $client->request('GET', $key_word, [
+                'timeout' => 3,
+            ]);
+            $html = $request_res->getBody();
+
+            if(!empty($html)){
+                $page_title = get_title($html);
+            }else{
+                $page_title = '无法获取标题';
+            }
+
+            $add_res = Common::addMessagge(
+                $appid,
+                $openid,
+                $session_res['session_id'],
+                $session_res['customer_service_id'],
+                $session_res['uid'],
+                6,
+                2,
+                ['text'=>$key_word,'page_title'=>$page_title,'page_desc'=>'暂无页面描述']
+            );
+
+            if($add_res){
+                return '';
+            }else{
+                return '系统繁忙请稍候重试!';
+            }
+        }
+    }
+
+    /**
+     * 图片消息处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param message_arr 消息数据
+	 * @return code 200->成功
+	 */
+    private function imgEvent($appid,$openid,$message_arr){
+        //判断是否存在客服会话
+        $session_res = $this->getSession($appid,$openid);
+        if($session_res){
+            $add_res = Common::addMessagge(
+                $appid,
+                $openid,
+                $session_res['session_id'],
+                $session_res['customer_service_id'],
+                $session_res['uid'],
+                2,
+                2,
+                ['file_url'=>$message_arr['PicUrl'],'media_id'=>$message_arr['MediaId']]
+            );
+
+            if($add_res){
+                return '';
+            }else{
+                return '系统繁忙请稍候重试!';
+            }
+        }
     }
 
     /**
