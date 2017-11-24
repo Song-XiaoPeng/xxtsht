@@ -169,7 +169,7 @@ class BusinessModel extends Model {
                 $session_res['uid'],
                 4,
                 2,
-                ['media_id'=>$message_arr['ThumbMediaId']]
+                ['media_id'=>$message_arr['MediaId']]
             );
 
             if($add_res){
@@ -512,5 +512,75 @@ class BusinessModel extends Model {
         ]);
 
         return $wx_info;
+    }
+
+    /**
+     * 获取素材内容
+     * @param company_id 商户company_id
+     * @param appid 公众号或小程序appid
+     * @param media_id 素材id
+     * @param type 素材类型 1图片 2视频 3语音
+	 * @return code 200->成功
+	 */
+    public function getMaterial($appid,$company_id,$media_id,$type){
+        switch($type){
+            case 1:
+                $content_type = 'image/png';
+                break;
+            case 2:
+                $content_type = 'video/mp4';
+                break;
+            case 3:
+                $content_type = 'audio/mp3';
+                break; 
+            default:
+                return msg(3003,'type参数错误');
+        }
+
+        $token_info = Common::getRefreshToken($appid,$company_id);
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
+
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $temporary = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material_temporary;
+            
+            $content = $temporary->getStream($media_id);
+
+            if($type == 3){
+                $audio_name = md5(uniqid());
+                if(!file_put_contents('../uploads/source_material/'.$audio_name.'.amr', $content, true)){
+                    return msg(3005,'file_error');
+                }
+                
+                $amr_file = "../uploads/source_material/$audio_name.amr";
+
+                $mp3_file = "../uploads/source_material/$audio_name.mp3";
+
+                $command = "/usr/local/bin/ffmpeg -i $amr_file $mp3_file";
+
+                exec($command, $log, $status);
+
+                if(!file_exists($mp3_file)){
+                    return msg(3004,'file_error');
+                }
+
+                $PSize = filesize($mp3_file);
+                $picture_data = fread(fopen($mp3_file, "r"), $PSize);
+
+                unlink($amr_file);
+                unlink($mp3_file);
+
+                return response($picture_data)->contentType($content_type);
+            }
+
+            return response($content)->contentType($content_type);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
     }
 }

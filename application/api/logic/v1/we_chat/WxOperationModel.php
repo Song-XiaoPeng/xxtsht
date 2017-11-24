@@ -1514,7 +1514,6 @@ class WxOperationModel extends Model {
 
         $session_res = Db::name('message_session')->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>array('in',[0,1])])->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,state')->select();
 
-
         $pending_access_session = [];
         $contacting_session = [];
 
