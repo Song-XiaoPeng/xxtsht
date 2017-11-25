@@ -1512,7 +1512,7 @@ class WxOperationModel extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
 
-        $session_res = Db::name('message_session')->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>array('in',[0,1])])->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,state')->select();
+        $session_res = Db::name('message_session')->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>array('in',[0,1])])->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,state,customer_wx_openid')->select();
 
         $pending_access_session = [];
         $contacting_session = [];
@@ -1521,6 +1521,10 @@ class WxOperationModel extends Model {
             $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
 
             $v['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+
+            $v['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
+
+            $v['invitation_frequency'] = 0;
 
             if($v['state'] == 0){
                 array_push($pending_access_session,$v);
@@ -1647,4 +1651,6 @@ class WxOperationModel extends Model {
 
         return msg(200,'success',['success_close_session'=>$success_close_session,'error_close_session'=>$error_close_session]);
     }
+
+
 }
