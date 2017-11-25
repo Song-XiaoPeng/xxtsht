@@ -1710,7 +1710,7 @@ class WxOperationModel extends Model {
                     'video/x-msvideo'
                 ]),
             
-                new \Upload\Validation\Size('10M')
+                new \Upload\Validation\Size('5M')
             ));
         } catch (\Exception $e) {
             return msg(3006,$e->getMessage());
