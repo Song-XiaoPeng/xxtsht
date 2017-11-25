@@ -604,7 +604,11 @@ class BusinessModel extends Model {
         $file_ize = filesize('..'.$res['resources_route']);
         $picture_data = fread(fopen('..'.$res['resources_route'], "r"), $file_ize);
 
-        return response($picture_data)->contentType('image/'.$res['file_suffix_name']);
+        $repository = new \Dflydev\ApacheMimeTypes\JsonRepository;
+        
+        $type = $repository->findType($res['file_suffix_name']);
+
+        return response($picture_data)->contentType($type);
     }
 
     /**
