@@ -93,14 +93,26 @@ class AuthModel extends Model {
         $time = date('Y-m-d H:i:s');
 
         if($auth_res){
-            Db::name('login_token')->where(['tid'=>$auth_res['tid']])->update(['token'=>$token,'add_time'=>$time,'expiration_date'=>$expiration_date]);
+            Db::name('login_token')
+            ->where(['tid'=>$auth_res['tid']])
+            ->update([
+                'token'=>$token,
+                'add_time'=>$time,
+                'expiration_date'=>$expiration_date,
+                'phone_no'=>$phone_no,
+                'user_type'=>$user_type,
+                'user_group_id'=>$user_group_id
+            ]);
         }else{
             Db::name('login_token')->insert([
                 'token'=>$token,
                 'company_id'=>$company_id,
                 'uid'=>$uid,
                 'add_time'=>$time,
-                'expiration_date'=>$expiration_date
+                'expiration_date'=>$expiration_date,
+                'phone_no'=>$phone_no,
+                'user_type'=>$user_type,
+                'user_group_id'=>$user_group_id,
             ]);
         }
 

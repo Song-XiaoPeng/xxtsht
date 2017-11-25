@@ -1520,7 +1520,7 @@ class WxOperationModel extends Model {
         foreach($session_res as $v){
             $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
 
-            $v['nick_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+            $v['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
             if($v['state'] == 0){
                 array_push($pending_access_session,$v);
