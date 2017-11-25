@@ -1652,5 +1652,90 @@ class WxOperationModel extends Model {
         return msg(200,'success',['success_close_session'=>$success_close_session,'error_close_session'=>$error_close_session]);
     }
 
+    /**
+     * 上传文件
+     * @param company_id 商户company_id
+     * @param uid 客服uid
+     * @param file 文件流字段名称
+	 * @return code 200->成功
+	 */
+    public function uploadResources($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
 
+        $catalog_name = date('Ymd');
+        $save_catalog = "../uploads/message/$catalog_name";
+        if(!file_exists($save_catalog)){
+            mkdir($save_catalog,0766);
+            chmod($save_catalog,0766);
+        }
+
+        try {
+            $storage = new \Upload\Storage\FileSystem($save_catalog);
+            $file = new \Upload\File('file', $storage);
+        } catch (\Exception $e) {
+            return msg(3003,$e->getMessage());
+        }
+
+        $new_filename = uniqid();
+        $file->setName($new_filename);
+
+        try {
+            $file->addValidations(array(
+                new \Upload\Validation\Mimetype([
+                    'image/png',
+                    'image/gif',
+                    'image/jpg',
+                    'image/jpeg',
+                    'image/bmp',
+                    'audio/mpeg'
+                ]),
+            
+                new \Upload\Validation\Size('10M')
+            ));
+        } catch (\Exception $e) {
+            return msg(3006,$e->getMessage());
+        }
+
+        $data = array(
+            'name'       => $file->getNameWithExtension(),
+            'extension'  => $file->getExtension(),
+            'mime'       => $file->getMimetype(),
+            'size'       => $file->getSize(),
+            'md5'        => $file->getMd5(),
+            'dimensions' => $file->getDimensions()
+        );
+
+        $resources_id = Db::name('resources')->where(['resources_md5'=>$data['md5'],'company_id'=>$company_id])->value('resources_id');
+        if($resources_id){
+            return msg(200,'messgae',['resources_id'=>$resources_id]);
+        }
+
+        try {
+            $file->upload();
+
+            $resources_id = md5(uniqid());
+
+            Db::name('resources')->insert([
+                'resources_id' => $resources_id,
+                'resources_md5' => $data['md5'],
+                'resources_size' => $data['size'],
+                'add_time' => date('Y-m-d H:i:s'),
+                'uid' => $uid,
+                'company_id' => $company_id,
+                'file_suffix_name' => $data['extension'],
+                'file_name' => $data['name'],
+                'name' => $_FILES['file']['name'],
+                'resources_route' => substr($save_catalog,2).'/'.$data['name'],
+            ]);
+            
+            return msg(200,'messgae',['resources_id'=>$resources_id]);
+        } catch (\Exception $e) {
+            if(empty($file->getErrors()[0])){
+                return msg(3003,$e->getMessage());
+            }else{
+                return msg(3002,$file->getErrors()[0]);
+            }
+        }
+    }
 }

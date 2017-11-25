@@ -584,4 +584,45 @@ class BusinessModel extends Model {
             return msg(3001,$e->getMessage());
         }
     }
+
+    /**
+     * 获取上传的图片资源流数据
+     * @param resources_id 资源id
+	 * @return code 200->成功
+	 */
+    public function getImg($resources_id){
+        $res = Db::name('resources')->where([
+            'resources_id'=>$resources_id
+        ])->find();
+        if(!$res){
+            $file_ize = filesize('../uploads/static/img/no_picture.gif');
+            $picture_data = fread(fopen('../uploads/static/img/no_picture.gif', "r"), $file_ize);
+
+            return response($picture_data)->contentType('image/gif');
+        }
+
+        $file_ize = filesize('..'.$res['resources_route']);
+        $picture_data = fread(fopen('..'.$res['resources_route'], "r"), $file_ize);
+
+        return response($picture_data)->contentType('image/'.$res['file_suffix_name']);
+    }
+
+    /**
+     * 获取上传的资源流数据
+     * @param resources_id 资源id
+	 * @return code 200->成功
+	 */
+    public function getFile($resources_id){
+        $res = Db::name('resources')->where([
+            'resources_id'=>$resources_id
+        ])->find();
+        if(!$res){
+            return msg(3001,'not_file');
+        }
+
+        $file_ize = filesize('..'.$res['resources_route']);
+        $picture_data = fread(fopen('..'.$res['resources_route'], "r"), $file_ize);
+
+        return response($picture_data)->contentType('audio/'.$res['file_suffix_name']);
+    }
 }

@@ -58,4 +58,32 @@ class Business {
         
         return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getMaterial($data['appid'],$data['company_id'],$data['media_id'],$data['type']);
     }
+
+    /**
+     * 获取上传的图片资源流数据
+	 * 请求类型：get
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/Business/getImg?resources_id=0ed69889e33fc63bd3687e376df20035
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/Business/getImg?resources_id=0ed69889e33fc63bd3687e376df20035
+     * @param resources_id 资源id
+	 * @return code 200->成功
+	 */
+    public function getImg(){
+        $resources_id = input('get.resources_id');
+
+        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getImg($resources_id);
+    }
+
+    /**
+     * 获取上传的资源流数据
+	 * 请求类型：get
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/Business/getFile?resources_id=e706f7e4a604a2bec041455108e5c6fd
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/Business/getFile?resources_id=e706f7e4a604a2bec041455108e5c6fd
+     * @param resources_id 资源id
+	 * @return code 200->成功
+	 */
+    public function getFile(){
+        $resources_id = input('get.resources_id');
+
+        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getFile($resources_id);
+    }
 }

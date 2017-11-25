@@ -805,4 +805,21 @@ class WxOperation extends Auth{
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getSessionList($data);
     }
+
+    /**
+     * 上传文件
+	 * 请求类型：post
+	 * 返回JSON格式: {"meta":{"code":200,"message":"messgae"},"body":{"name":"5a18e57837a68.jpg","extension":"jpg","mime":"image\/jpeg","size":33067,"md5":"11999a05ab49ddbc7574bc4531c471ea","dimensions":{"width":800,"height":533}}}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/uploadResources
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/uploadResources
+     * @param file 文件流字段名称
+	 * @return code 200->成功
+	 */
+    public function uploadResources(){
+        $data = input('post.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadResources($data);
+    }
 }
