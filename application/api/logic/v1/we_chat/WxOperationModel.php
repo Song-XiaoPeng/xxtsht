@@ -1728,6 +1728,7 @@ class WxOperationModel extends Model {
                 'file_name' => $data['name'],
                 'name' => $_FILES['file']['name'],
                 'resources_route' => substr($save_catalog,2).'/'.$data['name'],
+                'mime_type' => $data['mime']
             ]);
             
             return msg(200,'messgae',['resources_id'=>$resources_id]);
