@@ -51,12 +51,13 @@ class AuthModel extends Model {
         $phone_no = $body['body']['phone_no'];
         $group_name = $body['body']['group_name'];
         $user_group_id = $body['body']['user_group_id'];
+        $user_type = $body['body']['user_type'];
 
         if(strtotime($time) > strtotime($expiration_date)){
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
         }
 
-        $this->addAuthCache($uid,$login_token,$company_id,$expiration_date);
+        $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date);
 
         return msg(
             200,
@@ -72,6 +73,7 @@ class AuthModel extends Model {
                 'phone_no' => $phone_no,
                 'user_group_id' => $user_group_id,
                 'group_name' => $group_name,
+                'user_type' => $user_type,
                 'uid' => $uid
             ]
         );
@@ -85,7 +87,7 @@ class AuthModel extends Model {
 	 * @param expiration_date 模块到期时间
 	 * @return code 200->成功
 	 */
-    private function addAuthCache ($uid,$token,$company_id,$expiration_date) {
+    private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date) {
         $auth_res = Db::name('login_token')->where(['uid'=>$uid])->find();
 
         $time = date('Y-m-d H:i:s');
