@@ -1688,7 +1688,8 @@ class WxOperationModel extends Model {
                     'image/jpg',
                     'image/jpeg',
                     'image/bmp',
-                    'audio/mpeg'
+                    'audio/mpeg',
+                    'video/x-msvideo'
                 ]),
             
                 new \Upload\Validation\Size('10M')
