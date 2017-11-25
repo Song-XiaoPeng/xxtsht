@@ -705,7 +705,7 @@ class WxOperation extends Auth{
      * @param session_id 会话id
      * @param message 消息内容
      * @param type 1文字 2图片 3文件 4视频  5声音
-     * @param file_route 文件路径 选传
+     * @param resources_id 资源id
 	 * @return code 200->成功
 	 */
     public function sendMessage(){

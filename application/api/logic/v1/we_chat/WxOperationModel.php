@@ -7,6 +7,7 @@ use app\api\common\Common;
 use think\Log;
 use EasyWeChat\Message\Article;
 use EasyWeChat\Message\Text;
+use EasyWeChat\Message\Image;
 
 //微信后台操作业务类
 class WxOperationModel extends Model {
@@ -1342,16 +1343,16 @@ class WxOperationModel extends Model {
      * @param session_id 会话id
      * @param message 消息内容
      * @param type 1文字 2图片 3文件 4视频  5声音
-     * @param file_route 文件路径 选传
+     * @param resources_id 资源id
 	 * @return code 200->成功
 	 */
     public function sendMessage($data){
         $company_id = $data['company_id'];
-        $content = $data['message'];
+        $content = empty($data['message']) === true ? '' : $data['message'];
         $type = $data['type'];
         $uid = $data['uid'];
         $session_id = $data['session_id'];
-        $file_route = empty($data['file_route']) == true ? '' : $data['file_route'];
+        $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
 
         $session_res = Db::name('message_session')->where([
             'uid' => $uid,
@@ -1379,10 +1380,27 @@ class WxOperationModel extends Model {
         $openPlatform = $app->open_platform;
 
         try{
+            switch($type){
+                case 1:
+                    $message = new Text(['content' => $content]);
+                    break;
+                case 2:
+                    $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
+
+                    if(!$resources_res){return msg(3005,'资源不存在');}
+
+                    $temporary = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->material_temporary;
+
+                    $upload_res = $temporary->uploadImage('..'.$resources_res['resources_route']);
+                    $message = new Image(['media_id' => $upload_res['media_id']]);
+                    break;
+                default:
+                    return msg(3006,'type参数错误');
+            }
+
+
             $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
-            
-            $message = new Text(['content' => $content]);
-            $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send(); 
+            $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }
