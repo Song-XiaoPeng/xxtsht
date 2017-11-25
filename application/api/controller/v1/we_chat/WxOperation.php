@@ -704,7 +704,7 @@ class WxOperation extends Auth{
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/sendMessage
      * @param session_id 会话id
      * @param message 消息内容
-     * @param type 1文字 2图片 3文件 4视频  5声音
+     * @param type 1文字 2图片 3文件 4视频  5声音 5图文信息素材
      * @param resources_id 资源id
 	 * @return code 200->成功
 	 */

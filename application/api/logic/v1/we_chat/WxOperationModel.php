@@ -8,6 +8,8 @@ use think\Log;
 use EasyWeChat\Message\Article;
 use EasyWeChat\Message\Text;
 use EasyWeChat\Message\Image;
+use EasyWeChat\Message\Voice;
+use EasyWeChat\Message\Video;
 
 //微信后台操作业务类
 class WxOperationModel extends Model {
@@ -1380,19 +1382,29 @@ class WxOperationModel extends Model {
         $openPlatform = $app->open_platform;
 
         try{
+            if($type !== 1){
+                $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
+                
+                if(!$resources_res){return msg(3005,'资源不存在');}
+
+                $temporary = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->material_temporary;
+            }
+
             switch($type){
                 case 1:
                     $message = new Text(['content' => $content]);
                     break;
                 case 2:
-                    $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
-
-                    if(!$resources_res){return msg(3005,'资源不存在');}
-
-                    $temporary = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->material_temporary;
-
                     $upload_res = $temporary->uploadImage('..'.$resources_res['resources_route']);
                     $message = new Image(['media_id' => $upload_res['media_id']]);
+                    break;
+                case 4:
+                    $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
+                    $message = new Video(['media_id' => $upload_res['media_id']]);
+                    break;
+                case 5:
+                    $upload_res = $temporary->uploadVoice('..'.$resources_res['resources_route']);
+                    $message = new Voice(['media_id' => $upload_res['media_id']]);
                     break;
                 default:
                     return msg(3006,'type参数错误');
@@ -1707,10 +1719,11 @@ class WxOperationModel extends Model {
                     'image/jpeg',
                     'image/bmp',
                     'audio/mpeg',
-                    'video/x-msvideo'
+                    'video/x-msvideo',
+                    'video/mp4'
                 ]),
             
-                new \Upload\Validation\Size('5M')
+                new \Upload\Validation\Size('10M')
             ));
         } catch (\Exception $e) {
             return msg(3006,$e->getMessage());
