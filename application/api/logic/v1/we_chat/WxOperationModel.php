@@ -1344,8 +1344,9 @@ class WxOperationModel extends Model {
      * @param uid 客服uid
      * @param session_id 会话id
      * @param message 消息内容
-     * @param type 1文字 2图片 3文件 4视频  5声音
+     * @param type 1文字 2图片 3文件 4视频  5声音 6图文信息素材 7链接
      * @param resources_id 资源id
+     * @param media_id 素材id
 	 * @return code 200->成功
 	 */
     public function sendMessage($data){
@@ -1354,6 +1355,7 @@ class WxOperationModel extends Model {
         $type = $data['type'];
         $uid = $data['uid'];
         $session_id = $data['session_id'];
+        $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
 
         $session_res = Db::name('message_session')->where([
@@ -1382,7 +1384,7 @@ class WxOperationModel extends Model {
         $openPlatform = $app->open_platform;
 
         try{
-            if($type !== 1){
+            if($type == 2 || $type == 4 || $type == 5){
                 $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
                 
                 if(!$resources_res){return msg(3005,'资源不存在');}
@@ -1539,33 +1541,41 @@ class WxOperationModel extends Model {
 	 * @return code 200->成功
 	 */
     public function getSessionList($data){
+        set_time_limit(60);
+
         $company_id = $data['company_id'];
         $uid = $data['uid'];
 
-        $session_res = Db::name('message_session')->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>array('in',[0,1])])->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,state,customer_wx_openid')->select();
+        try{
+            while (true) {
+                $map['company_id'] = $company_id;
+                $map['uid'] = $uid;
+                $map['is_get'] = -1;
+                $map['state'] = 0;
 
-        $pending_access_session = [];
-        $contacting_session = [];
+                $arr = Db::name('message_session')->where($map)->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,customer_wx_openid')->select();
 
-        foreach($session_res as $v){
-            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+                Db::name('message_session')->where($map)->update(['is_get'=>1]);
 
-            $v['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+                foreach($arr as $v){
+                    $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
 
-            $v['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
+                    $v['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
-            $v['invitation_frequency'] = 0;
+                    $v['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
 
-            if($v['state'] == 0){
-                array_push($pending_access_session,$v);
+                    $v['invitation_frequency'] = 0;
+                }
+
+                if(count($arr) != 0){
+                    return msg(200,'success',$arr);
+                }
+
+                sleep(2);
             }
-
-            if($v['state'] == 1){
-                array_push($contacting_session,$v);
-            }
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
         }
-
-        return msg(200,'success',['pending_access_session'=>$pending_access_session,'contacting_session'=>$contacting_session]);
     }
 
     /**
@@ -1576,41 +1586,53 @@ class WxOperationModel extends Model {
 	 * @return code 200->成功
 	 */
     public function getMessage($data){
+        set_time_limit(60);
+
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $session_list = $data['session_list'];
-        
-        $arr = array();
 
-        foreach($session_list as $k=>$v){
-            $content = Db::name('message_data')
-            ->where([
-                'session_id' => $v,
-                'uid' => $uid,
-                'is_read' => -1,
-                'opercode' => 2,
-            ])
-            ->field('text,opercode,file_url,lng,lat,add_time,message_type,page_title,page_desc,map_scale,map_label,map_img,media_id')
-            ->order('add_time asc')
-            ->select();
-
-            foreach($content as $i=>$c){
-                $content[$i]['text'] = emoji_decode($c['text']);
+        try{
+            while (true) {
+                $arr = [];
+    
+                foreach($session_list as $k=>$v){
+                    $content = Db::name('message_data')
+                    ->where([
+                        'session_id' => $v,
+                        'uid' => $uid,
+                        'is_read' => -1,
+                        'opercode' => 2,
+                    ])
+                    ->field('text,opercode,file_url,lng,lat,add_time,message_type,page_title,page_desc,map_scale,map_label,map_img,media_id')
+                    ->order('add_time asc')
+                    ->select();
+    
+                    foreach($content as $i=>$c){
+                        $content[$i]['text'] = emoji_decode($c['text']);
+                    }
+    
+                    if($content){
+                        $arr[$v] = $content;
+                    }
+    
+                    Db::name('message_data')
+                    ->where([
+                        'session_id' => $v,
+                        'uid' => $uid
+                    ])
+                    ->update(['is_read'=>1]);
+                }
+    
+                if(count($arr) != 0){
+                    return msg(200,'success',$arr);
+                }
+    
+                sleep(2);
             }
-
-            if($content){
-                $arr[$v] = $content;
-            }
-
-            Db::name('message_data')
-            ->where([
-                'session_id' => $v,
-                'uid' => $uid
-            ])
-            ->update(['is_read'=>1]);
+        }catch (\Exception $e) {
+            return msg(200,'success',[]);
         }
-
-        return msg(200,'success',$arr);
     }
 
     /**
@@ -1633,7 +1655,7 @@ class WxOperationModel extends Model {
             ->where([
                 'session_id' => $v,
                 'company_id' => $company_id,
-                'state' => 1,
+                'state' => array('in',[0,1]),
             ])->find();
 
             if(empty($session_res)){
