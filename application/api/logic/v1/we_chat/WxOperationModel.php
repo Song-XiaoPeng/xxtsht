@@ -1557,14 +1557,14 @@ class WxOperationModel extends Model {
 
                 Db::name('message_session')->where($map)->update(['is_get'=>1]);
 
-                foreach($arr as $v){
+                foreach($arr as $k=>$v){
                     $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
 
-                    $v['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+                    $arr[$k]['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
-                    $v['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
+                    $arr[$k]['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
 
-                    $v['invitation_frequency'] = 0;
+                    $arr[$k]['invitation_frequency'] = 0;
                 }
 
                 if(count($arr) != 0){
