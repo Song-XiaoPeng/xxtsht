@@ -1554,7 +1554,6 @@ class WxOperationModel extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
 
-   
         while (true) {
             $map['company_id'] = $company_id;
             $map['uid'] = $uid;
@@ -1574,11 +1573,30 @@ class WxOperationModel extends Model {
             }
 
             if(count($arr) != 0){
-                Db::name('message_session')->where($map)->update(['is_get'=>1]);
                 return msg(200,'success',$arr);
             }
 
             sleep(2);
+        }
+    }
+
+    /**
+     * 将会话设为已读
+     * @param company_id 商户id
+     * @param session_list 会话列表
+	 * @return code 200->成功
+	 */
+    public function setSessionReceive($company_id,$uid,$session_list){
+        $map['company_id'] = $company_id;
+        $map['uid'] = $uid;
+        $map['session_list'] = array('in',$session_list);
+
+        $update_res = Db::name('message_session')->where($map)->update(['is_get'=>1]);
+   
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
         }
     }
 
