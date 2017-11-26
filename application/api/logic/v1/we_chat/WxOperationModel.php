@@ -10,6 +10,7 @@ use EasyWeChat\Message\Text;
 use EasyWeChat\Message\Image;
 use EasyWeChat\Message\Voice;
 use EasyWeChat\Message\Video;
+use EasyWeChat\Message\Material;
 
 //微信后台操作业务类
 class WxOperationModel extends Model {
@@ -1345,8 +1346,10 @@ class WxOperationModel extends Model {
      * @param session_id 会话id
      * @param message 消息内容
      * @param type 1文字 2图片 3文件 4视频  5声音 6图文信息素材 7链接
-     * @param resources_id 资源id
-     * @param media_id 素材id
+     * @param resources_id 资源id (图片 视频 声音)
+     * @param media_id 素材id (图文素材)
+     * @param link_url 链接 (链接)
+     * @param link_name 链接名称 (链接)
 	 * @return code 200->成功
 	 */
     public function sendMessage($data){
@@ -1357,6 +1360,8 @@ class WxOperationModel extends Model {
         $session_id = $data['session_id'];
         $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
+        $link_url = empty($data['link_url']) == true ? '' : $data['link_url'];
+        $link_name = empty($data['link_name']) == true ? '' : $data['link_name'];
 
         $session_res = Db::name('message_session')->where([
             'uid' => $uid,
@@ -1407,6 +1412,9 @@ class WxOperationModel extends Model {
                 case 5:
                     $upload_res = $temporary->uploadVoice('..'.$resources_res['resources_route']);
                     $message = new Voice(['media_id' => $upload_res['media_id']]);
+                    break;
+                case 6:
+                    $message = new Material(['media_id' => $media_id]);
                     break;
                 default:
                     return msg(3006,'type参数错误');
