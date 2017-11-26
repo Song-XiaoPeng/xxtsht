@@ -117,7 +117,7 @@ class BusinessModel extends Model {
         $message = $server->getMessage();
         switch ($message['MsgType']) {
             case 'event':
-                $returnMessage = $this->clickEvent($appid,$openid,$message['EventKey']);
+                $returnMessage = $this->clickEvent($appid,$openid,$message);
                 break;
             case 'text':
                 $returnMessage = $this->textEvent($appid,$openid,$message['Content']);
@@ -363,19 +363,46 @@ class BusinessModel extends Model {
     }
 
     /**
-     * 菜单点击事件处理
+     * 事件消息处理
      * @param appid 公众号或小程序appid
      * @param openid 用户微信openid
-     * @param event_key 触发下标值
+     * @param message 消息对象
 	 * @return code 200->成功
 	 */
-    private function clickEvent($appid,$openid,$event_key){
-        $event_arr = explode('_',$event_key);
-        if($event_arr[0] != 'kf'){
-            return $this->default_message;
+    private function clickEvent($appid,$openid,$message){
+        if(!empty($message['EventKey'])){
+            $event_arr = explode('_',$message['EventKey']);
+            switch($event_arr[0]){
+                case 'kf':
+                    return $this->createSession($appid,$openid,$event_arr[1],$event_arr[2]);
+                    break;
+                case 'qrscene':
+                    return $this->qrcodeEvent($appid,$openid,$event_arr[1]);
+                    break;
+                default:
+                    return $this->default_message;
+                    break;
+            }
+        }else{
+            return '';
+        }
+    }
+
+    /**
+     * 二维码来源用户处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+     * @param qrcode_id 二维码id
+	 * @return code 200->成功
+	 */
+    private function qrcodeEvent($appid,$openid,$qrcode_id){
+        $info = $this->addWxUserInfo($appid,$openid,$qrcode_id);
+
+        if(!$info['is_update']){
+            Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id])->setInc('attention');
         }
 
-        return $this->createSession($appid,$openid,$event_arr[1],$event_arr[2]);
+        return '欢迎关注！';
     }
 
     /**
@@ -447,9 +474,10 @@ class BusinessModel extends Model {
      * 添加微信用户信息
      * @param appid 公众号或小程序appid
      * @param openid 用户微信openid
+     * @param qrcode_id 二维码id
 	 * @return code 200->成功
 	 */
-    private function addWxUserInfo($appid,$openid){
+    private function addWxUserInfo($appid,$openid,$qrcode_id = ''){
         $time = date('Y-m-d H:i:s');
 
         $authinfo_res = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->find();
@@ -478,16 +506,45 @@ class BusinessModel extends Model {
 
         $wx_user_count = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
-        ->where(['unionid'=>$wx_info['unionid']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
         ->count();
 
         if($wx_user_count >= 1){
+            $update_map = [
+                'nickname' => $wx_info['nickname'],
+                'portrait' => $wx_info['headimgurl'],
+                'gender' => $wx_info['sex'],
+                'city' => $wx_info['city'],
+                'province' => $wx_info['province'],
+                'language' => $wx_info['language'],
+                'country' => $wx_info['country'],
+                'groupid' => $wx_info['groupid'],
+                'subscribe_time' => date("Y-m-d H:i:s",$wx_info['subscribe_time']),
+                'desc' => $wx_info['remark'],
+                'company_id' => $company_id,
+                'tagid_list' => $wx_info['tagid_list'],
+                'unionid' => $wx_info['unionid'],
+                'is_sync' => 1,
+                'subscribe' => $wx_info['subscribe'],
+                'update_time' => $time
+            ];
+
+            if(!empty($qrcode_id)){
+                $update_map['qrcode_id'] = $qrcode_id;
+            }
+
+            Db::name('wx_user')
+            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+            ->where(['appid'=>$appid,'openid'=>$openid])
+            ->update($update_map);
+
+            $wx_info['is_update'] = true;
+
             return $wx_info;
         }
 
         $wx_user_count = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
-        ->where(['unionid'=>$wx_info['unionid']])
         ->insert([
             'wx_user_id' => md5(uniqid()),
             'nickname' => $wx_info['nickname'],
@@ -498,7 +555,7 @@ class BusinessModel extends Model {
             'language' => $wx_info['language'],
             'country' => $wx_info['country'],
             'groupid' => $wx_info['groupid'],
-            'subscribe_time' => $wx_info['subscribe_time'],
+            'subscribe_time' => date("Y-m-d H:i:s",$wx_info['subscribe_time']),
             'openid' => $openid,
             'add_time' => $time,
             'appid' => $appid,
@@ -508,9 +565,12 @@ class BusinessModel extends Model {
             'unionid' => $wx_info['unionid'],
             'is_sync' => 1,
             'subscribe' => $wx_info['subscribe'],
-            'update_time' => $time
+            'update_time' => $time,
+            'qrcode_id' => $qrcode_id
         ]);
 
+        $wx_info['is_update'] = false;
+        
         return $wx_info;
     }
 

@@ -217,7 +217,7 @@ class AautoMaticModel extends Model {
                     'language' => $value['language'],
                     'country' => $value['country'],
                     'groupid' => $value['groupid'],
-                    'subscribe_time' => $value['subscribe_time'],
+                    'subscribe_time' => date("Y-m-d H:i:s",$value['subscribe_time']),
                     'tagid_list' => $value['tagid_list'],
                     'is_sync' => 1,
                     'unionid' => $value['unionid'],

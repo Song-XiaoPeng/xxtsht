@@ -56,7 +56,7 @@ class ExtensionModel extends Model {
             $openPlatform = $app->open_platform;
             $qrcode = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->qrcode;
     
-            $qrcode_data = json_encode(['extension_qrcode_id'=>$qrcode_id]);
+            $qrcode_data = 'qrscene_'.$qrcode_id;
 
             if($type == 1){
                 $qrcode_result = $qrcode->forever($qrcode_data);
