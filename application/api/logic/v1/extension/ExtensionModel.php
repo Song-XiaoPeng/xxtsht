@@ -189,4 +189,77 @@ class ExtensionModel extends Model {
 
         return msg(200,'success',$list);
     }
+
+    /**
+     * 获取推广二维码list
+	 * @param company_id 商户company_id
+	 * @param type 类型 1渠道 2限时推广
+	 * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getQrcodList($data){
+        $company_id = $data['company_id'];
+        $type = $data['type'] == 1 ? 1:2;
+        $page = $data['page'];
+        $token = $data['token'];
+    
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $map['company_id'] = $company_id;
+        $map['type'] = $type;
+        $map['is_del'] = -1;
+
+        $list = Db::name('extension_qrcode')
+        ->where($map)
+        ->limit($show_page,$page_count)
+        ->select();
+
+        $count = Db::name('extension_qrcode')
+        ->where($map)
+        ->count();
+
+        foreach($list as $k=>$v){
+            $list[$k]['nick_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            $list[$k]['qrcode_group_name'] = Db::name('extension_qrcode_group')->where(['qrcode_group_id'=>$v['qrcode_group_id']])->cache(true,60)->value('qrcode_group_name');
+
+            $list[$k]['attention_num'] = 0;
+            $list[$k]['label'] = json_decode($v['label']);
+
+            $request_data = [
+                'uid' => $v['create_uid'],
+                'company_id' => $company_id
+            ];
+
+            $client = new \GuzzleHttp\Client();
+            $request_res = $client->request(
+                'POST', 
+                combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
+                [
+                    'json' => $request_data,
+                    'timeout' => 3,
+                    'headers' => [
+                        'token' => $token
+                    ]
+                ]
+            );
+    
+            $user_info = json_decode($request_res->getBody(),true);
+            if($user_info['meta']['code'] != 200){
+                return $user_info;
+            }
+    
+            $list[$k]['create_user_name'] = $user_info['body']['user_name'];
+            $list[$k]['create_user_group_name'] = $user_info['body']['user_group_name'];
+        }
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
 }

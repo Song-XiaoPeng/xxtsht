@@ -100,4 +100,23 @@ class Handle extends Auth{
         
         return \think\Loader::model('ExtensionModel','logic\v1\extension')->getQrcodeGroupList($data);
     }
+
+    /**
+     * 获取推广二维码list
+     * 请求类型 post
+	 * 传入JSON格式: {"page":1,"type":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"qrcode_id":"a8ec8596f9fbad831595718dd618eaf6","company_id":"51454009d703c86c91353f61011ecf2f","appid":"wx88c6052d06eaaf7d","type":1,"invalid_time":"0000-00-00 00:00:00","activity_name":"测试推广","create_time":"2017-11-26 14:30:10","qrcode_url":"https:\/\/mp.weixin.qq.com\/cgi-bin\/showqrcode?ticket=gQG-8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyYzAyZVJSRDBmNTExMDAwMHcwN0gAAgRyXxpaAwQAAAAA","label":["集团用户","新服务"],"attention":0,"canel_attention":0,"create_uid":6454,"customer_service_id":4,"customer_service_group_id":"","qrcode_group_id":2,"is_del":-1,"nick_name":"网鱼服务营销平台","qrcode_group_name":"测试123123123","attention_num":0,"create_user_name":"地方","create_user_group_name":"技师"}],"page_data":{"count":1,"rows_num":16,"page":1}}}
+	 * API_URL_本地: http://localhost:91/api/v1/extension/Handle/getQrcodList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/getQrcodList
+	 * @param page 分页参数默认1
+	 * @param type 类型 1渠道 2限时推广
+	 * @return code 200->成功
+	 */
+    public function getQrcodList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['token'] = $this->token;
+        
+        return \think\Loader::model('ExtensionModel','logic\v1\extension')->getQrcodList($data);
+    }
 }
