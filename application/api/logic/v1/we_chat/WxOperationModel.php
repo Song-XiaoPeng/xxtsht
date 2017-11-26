@@ -1589,7 +1589,7 @@ class WxOperationModel extends Model {
     public function setSessionReceive($company_id,$uid,$session_list){
         $map['company_id'] = $company_id;
         $map['uid'] = $uid;
-        $map['session_list'] = array('in',$session_list);
+        $map['session_id'] = array('in',$session_list);
 
         $update_res = Db::name('message_session')->where($map)->update(['is_get'=>1]);
    
