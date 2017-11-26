@@ -1554,35 +1554,31 @@ class WxOperationModel extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
 
-        try{
-            while (true) {
-                $map['company_id'] = $company_id;
-                $map['uid'] = $uid;
-                $map['is_get'] = -1;
-                $map['state'] = 0;
+   
+        while (true) {
+            $map['company_id'] = $company_id;
+            $map['uid'] = $uid;
+            $map['is_get'] = -1;
+            $map['state'] = 0;
 
-                $arr = Db::name('message_session')->where($map)->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,customer_wx_openid')->select();
+            $arr = Db::name('message_session')->where($map)->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,customer_wx_openid')->select();
 
-                Db::name('message_session')->where($map)->update(['is_get'=>1]);
+            foreach($arr as $k=>$v){
+                $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
 
-                foreach($arr as $k=>$v){
-                    $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+                $arr[$k]['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
-                    $arr[$k]['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+                $arr[$k]['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
 
-                    $arr[$k]['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
-
-                    $arr[$k]['invitation_frequency'] = 0;
-                }
-
-                if(count($arr) != 0){
-                    return msg(200,'success',$arr);
-                }
-
-                sleep(2);
+                $arr[$k]['invitation_frequency'] = 0;
             }
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+
+            if(count($arr) != 0){
+                Db::name('message_session')->where($map)->update(['is_get'=>1]);
+                return msg(200,'success',$arr);
+            }
+
+            sleep(2);
         }
     }
 
@@ -1600,46 +1596,42 @@ class WxOperationModel extends Model {
         $uid = $data['uid'];
         $session_list = $data['session_list'];
 
-        try{
-            while (true) {
-                $arr = [];
-    
-                foreach($session_list as $k=>$v){
-                    $content = Db::name('message_data')
-                    ->where([
-                        'session_id' => $v,
-                        'uid' => $uid,
-                        'is_read' => -1,
-                        'opercode' => 2,
-                    ])
-                    ->field('text,opercode,file_url,lng,lat,add_time,message_type,page_title,page_desc,map_scale,map_label,map_img,media_id')
-                    ->order('add_time asc')
-                    ->select();
-    
-                    foreach($content as $i=>$c){
-                        $content[$i]['text'] = emoji_decode($c['text']);
-                    }
-    
-                    if($content){
-                        $arr[$v] = $content;
-                    }
-    
-                    Db::name('message_data')
-                    ->where([
-                        'session_id' => $v,
-                        'uid' => $uid
-                    ])
-                    ->update(['is_read'=>1]);
+        while (true) {
+            $arr = [];
+
+            foreach($session_list as $k=>$v){
+                $content = Db::name('message_data')
+                ->where([
+                    'session_id' => $v,
+                    'uid' => $uid,
+                    'is_read' => -1,
+                    'opercode' => 2,
+                ])
+                ->field('text,opercode,file_url,lng,lat,add_time,message_type,page_title,page_desc,map_scale,map_label,map_img,media_id')
+                ->order('add_time asc')
+                ->select();
+
+                foreach($content as $i=>$c){
+                    $content[$i]['text'] = emoji_decode($c['text']);
                 }
-    
-                if(count($arr) != 0){
-                    return msg(200,'success',$arr);
+
+                if($content){
+                    $arr[$v] = $content;
                 }
-    
-                sleep(2);
+
+                Db::name('message_data')
+                ->where([
+                    'session_id' => $v,
+                    'uid' => $uid
+                ])
+                ->update(['is_read'=>1]);
             }
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+
+            if(count($arr) != 0){
+                return msg(200,'success',$arr);
+            }
+
+            sleep(2);
         }
     }
 
