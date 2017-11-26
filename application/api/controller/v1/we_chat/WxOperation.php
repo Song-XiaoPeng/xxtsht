@@ -792,7 +792,7 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 获取会话列表
+     * 获取待接入会话列表
 	 * 请求类型：get
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getSessionList

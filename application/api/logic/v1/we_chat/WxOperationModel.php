@@ -1535,7 +1535,7 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 获取会话列表
+     * 获取待接入会话列表
      * @param company_id 商户id
      * @param uid 客服uid
 	 * @return code 200->成功
@@ -1631,7 +1631,7 @@ class WxOperationModel extends Model {
                 sleep(2);
             }
         }catch (\Exception $e) {
-            return msg(200,'success',[]);
+            return msg(3001,$e->getMessage());
         }
     }
 
