@@ -10,9 +10,29 @@ class Common {
             $map['company_id'] = $company_id;
         }
 
-        $refresh_token = Db::name('openweixin_authinfo')->where($map)->cache(true,120)->value('refresh_token');
-        if(!$refresh_token){
+        $openweixin_authinfo_res = Db::name('openweixin_authinfo')->where($map)->cache(true,120)->find();
+        if(!$openweixin_authinfo_res){
             return msg(3001,'appid不存在');
+        }
+
+
+        $time = time();
+
+        $days = round(($time - $openweixin_authinfo_res['refresh_time'])/3600/24);
+        if($days >= 3){
+            try {
+                $app = new Application(wxOptions());
+                $openPlatform = $app->open_platform;
+                $auth_res = $openPlatform->getAuthorizerInfo($appid);
+            } catch (\Exception $e) {
+                return msg(3003,$e->getMessage());
+            }
+            
+            $refresh_token = $auth_res['authorization_info']['authorizer_refresh_token'];
+
+            Db::name('openweixin_authinfo')->where($map)->update(['refresh_time'=>$time,'refresh_token'=>$refresh_token]);
+        }else{
+            $refresh_token = $openweixin_authinfo_res['refresh_token'];
         }
     
         return msg(200,'success',['refresh_token'=>$refresh_token]);
