@@ -487,6 +487,7 @@ class BusinessModel extends Model {
                 'company_id' => $company_id,
                 'customer_wx_nickname' => $wx_info['nickname'],
                 'customer_wx_portrait' => $wx_info['headimgurl'],
+                'state' => 0,
             ];
 
             $add_res = $redis->sAdd($company_id, json_encode($insert_data));

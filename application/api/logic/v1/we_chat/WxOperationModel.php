@@ -1554,35 +1554,36 @@ class WxOperationModel extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
 
-        while (true) {
-            $map['company_id'] = $company_id;
-            $map['uid'] = $uid;
-            $map['is_get'] = -1;
-            $map['state'] = array('in',[0,3]);
+        $redis = Common::createRedis();
+        $redis->select(0); 
 
-            $arr = Db::name('message_session')->where($map)->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,customer_wx_openid,state')->select();
+        while (true) {
+            $arr = $redis->sMembers($company_id);
 
             $waiting = [];
             $queue_up = [];
 
             foreach($arr as $k=>$v){
-                $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+                $session_data = json_decode($v,true);
+
+                $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$session_data['appid']])->cache(true,60)->value('nick_name');
                 
-                $v['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+                $session_data['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
-                $v['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
+                $session_data['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$session_data['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
 
-                $v['invitation_frequency'] = 0;
+                $session_data['invitation_frequency'] = 0;
 
-                if($v['state'] = 0){
-                    array_push($waiting,$v);
+                $session_data['row'] = $k;
+
+                if(!empty($session_data['customer_service_id'])){
+                    array_push($waiting,$session_data);
                 }else{
-                    array_push($queue_up,$v);
+                    array_push($queue_up,$session_data);
                 }
             }
 
             if(count($waiting) != 0 || count($queue_up) != 0){
-                Db::name('message_session')->where($map)->update(['is_get'=>1]);
                 return msg(200,'success',['waiting'=>$waiting,'queue_up'=>$queue_up]);
             }
 
