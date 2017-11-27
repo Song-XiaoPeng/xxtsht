@@ -1420,7 +1420,6 @@ class WxOperationModel extends Model {
                     return msg(3006,'type参数错误');
             }
 
-
             $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
             $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();
         }catch (\Exception $e) {
@@ -1559,23 +1558,32 @@ class WxOperationModel extends Model {
             $map['company_id'] = $company_id;
             $map['uid'] = $uid;
             $map['is_get'] = -1;
-            $map['state'] = 0;
+            $map['state'] = array('in',[0,3]);
 
-            $arr = Db::name('message_session')->where($map)->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,customer_wx_openid')->select();
+            $arr = Db::name('message_session')->where($map)->field('session_id,add_time,appid,customer_wx_nickname,customer_wx_portrait,customer_wx_openid,state')->select();
+
+            $waiting = [];
+            $queue_up = [];
 
             foreach($arr as $k=>$v){
                 $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+                
+                $v['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
-                $arr[$k]['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+                $v['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
 
-                $arr[$k]['session_frequency'] = Db::name('message_session')->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
+                $v['invitation_frequency'] = 0;
 
-                $arr[$k]['invitation_frequency'] = 0;
+                if($v['state'] = 0){
+                    array_push($waiting,$v);
+                }else{
+                    array_push($queue_up,$v);
+                }
             }
 
-            if(count($arr) != 0){
+            if(count($waiting) != 0 || count($queue_up) != 0){
                 Db::name('message_session')->where($map)->update(['is_get'=>1]);
-                return msg(200,'success',$arr);
+                return msg(200,'success',['waiting'=>$waiting,'queue_up'=>$queue_up]);
             }
 
             sleep(2);
@@ -1816,23 +1824,12 @@ class WxOperationModel extends Model {
     }
 
     public function test(){
-        $redis = new \Predis\Client([
-            'scheme' => 'tcp',
-            'host'   => '127.0.0.1',
-            'port'   => 6379,
-            'password'   => '556ca120',
-        ]);
+        $redis = Common::createRedis();
 
 
-        $redis->set('foo', 'bar');
+        $redis->setex('foo', 10,'bar');
 
 
-
-
-
-
-
-        exit;
-        $redis = Common::createReadis();
+        echo $redis->get('foo');
     }
 }

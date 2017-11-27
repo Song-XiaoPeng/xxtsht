@@ -107,8 +107,9 @@ class Common {
         }
     }
 
-    public static function createReadis(){
-        $redis = new Redis([
+    //创建redis连接
+    public static function createRedis(){
+        $redis = new \Predis\Client([
             'host' => config('redis_host'),
             'port' => config('redis_port'),
             'password' => config('redis_password'),
