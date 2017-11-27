@@ -1827,25 +1827,9 @@ class WxOperationModel extends Model {
         try{
             $redis = Common::createRedis();
             
-            $redis->select(333); 
+            $redis->select(0); 
     
-            $arr = [
-                'session_id' => md5(uniqid()),
-                'customer_service_id' => 5,
-                'customer_wx_openid' => 'ed112ace4826075039fb174fe5576e61',
-                'add_time' => date('Y-m-d H:i:s'),
-                'uid' => 12,
-                'appid' => 'wx88c6052d06eaaf7d',
-                'company_id' => '28317f1f63e7e539be317d3c824bac98',
-                'customer_wx_nickname' => 'Junwen',
-                'customer_wx_portrait' => 'http://www.babidu.com',
-            ];
-    
-            $data = json_encode($arr);
-    
-            dump($redis->sAdd('28317f1f63e7e539be317d3c824bac98' , $data));
-    
-            dump($redis->sMembers('28317f1f63e7e539be317d3c824bac98'));
+            dump($redis->sMembers('51454009d703c86c91353f61011ecf2f'));
         } catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }

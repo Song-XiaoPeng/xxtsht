@@ -415,15 +415,40 @@ class BusinessModel extends Model {
 	 * @return code 200->成功
 	 */
     private function createSession($appid,$openid,$type,$id){
-        $session_res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1])])->find();
+        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,120)->value('company_id');
+        if(empty($company_id)){
+            return '公众号未绑定第三方平台';
+        }
+
+        //匹配是否存在待接入或排队中会话数据
+        try {
+            $redis = Common::createRedis();
+            $redis->select(0);
+
+            $line_session_list = $redis->sMembers($company_id);
+            foreach($line_session_list as $v){
+                $session_data = json_decode($v,true);
+
+                if($session_data['customer_wx_openid'] == $openid && $session_data['appid'] == $appid){
+                    if(empty($session_data['customer_service_id'])){
+                        return '正在为您分配客服';
+                    }
+
+                    $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_data['customer_service_id']])->value('name');
+                    
+                    return '正在为您接入客服'.$customer_service_name.'请稍等！';
+                }
+            }
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        //匹配是否存在正在会话中数据
+        $session_res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',1)])->find();
         if($session_res){
             $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->value('name');
 
-            if($session_res['state'] == 1){
-                return '客服'.$customer_service_name.'正在为您服务！';
-            }else{
-                return '正在为您接入客服'.$customer_service_name.'请稍等！';
-            }
+            return '客服'.$customer_service_name.'正在为您服务！';
         }
 
         switch($type){
@@ -447,8 +472,12 @@ class BusinessModel extends Model {
         }
 
         $wx_info = $this->addWxUserInfo($appid,$openid);
-        if(!empty($wx_info)){
-            $add_res = Db::name('message_session')->insert([
+        if(empty($wx_info)){
+            return '系统繁忙';
+        }
+
+        try{
+            $insert_data = [
                 'session_id' => md5(uniqid()),
                 'customer_service_id' => $customer_service_id,
                 'customer_wx_openid' => $openid,
@@ -458,15 +487,17 @@ class BusinessModel extends Model {
                 'company_id' => $company_id,
                 'customer_wx_nickname' => $wx_info['nickname'],
                 'customer_wx_portrait' => $wx_info['headimgurl'],
-            ]);
-    
+            ];
+
+            $add_res = $redis->sAdd($company_id, json_encode($insert_data));
+
             if($add_res){
                 return '正在为您接入客服'.$customer_service_name.'请稍等！';
             }else{
                 return '系统繁忙';
             }
-        }else{
-            return '系统繁忙';
+        } catch (\Exception $e) {
+            return $e->getMessage();
         }
     }
 
