@@ -106,4 +106,14 @@ class Common {
             return false;
         }
     }
+
+    public static function createReadis(){
+        $redis = new Redis([
+            'host' => config('redis_host'),
+            'port' => config('redis_port'),
+            'password' => config('redis_password'),
+        ]);
+
+        return $redis;
+    }
 }

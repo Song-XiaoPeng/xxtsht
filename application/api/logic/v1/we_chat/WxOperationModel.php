@@ -39,7 +39,7 @@ class WxOperationModel extends Model {
 
             $menu_data = $menu->all()['menu']['button'];
         }catch (\Exception $e) {
-            return msg(200,'success',[]);
+            return msg(3001,$e->getMessage());
         }
 
         return msg(200,'success',$menu_data);
@@ -1550,6 +1550,7 @@ class WxOperationModel extends Model {
 	 */
     public function getSessionList($data){
         set_time_limit(60);
+        ignore_user_abort(false);
 
         $company_id = $data['company_id'];
         $uid = $data['uid'];
@@ -1573,6 +1574,7 @@ class WxOperationModel extends Model {
             }
 
             if(count($arr) != 0){
+                Db::name('message_session')->where($map)->update(['is_get'=>1]);
                 return msg(200,'success',$arr);
             }
 
@@ -1604,23 +1606,24 @@ class WxOperationModel extends Model {
      * 获取会话消息
      * @param company_id 商户company_id
      * @param uid 客服uid
-     * @param session_list 查询的会话id list
+     * @param openid_list 用户的openid list
 	 * @return code 200->成功
 	 */
     public function getMessage($data){
         set_time_limit(60);
+        ignore_user_abort(false);
 
         $company_id = $data['company_id'];
         $uid = $data['uid'];
-        $session_list = $data['session_list'];
+        $openid_list = $data['openid_list'];
 
         while (true) {
             $arr = [];
 
-            foreach($session_list as $k=>$v){
+            foreach($openid_list as $k=>$v){
                 $content = Db::name('message_data')
                 ->where([
-                    'session_id' => $v,
+                    'customer_wx_openid' => $v,
                     'uid' => $uid,
                     'is_read' => -1,
                     'opercode' => 2,
@@ -1810,5 +1813,26 @@ class WxOperationModel extends Model {
                 return msg(3002,$file->getErrors()[0]);
             }
         }
+    }
+
+    public function test(){
+        $redis = new \Predis\Client([
+            'scheme' => 'tcp',
+            'host'   => '127.0.0.1',
+            'port'   => 6379,
+            'password'   => '556ca120',
+        ]);
+
+
+        $redis->set('foo', 'bar');
+
+
+
+
+
+
+
+        exit;
+        $redis = Common::createReadis();
     }
 }

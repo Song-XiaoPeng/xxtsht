@@ -261,5 +261,14 @@ return [
     'wx_aes_key' => 'BZy405POqT7Jg4QgSyyAEq0Ve4Ih4QyNCSJMswSG6kI',
 
     //文件资源外链地址
-    'file_url' => $_SERVER['HTTP_HOST'] == 'localhost:91' ? 'http://'.$_SERVER['HTTP_HOST'] :'http://kf.lyfz.net'
+    'file_url' => $_SERVER['HTTP_HOST'] == 'localhost:91' ? 'http://'.$_SERVER['HTTP_HOST'] :'http://kf.lyfz.net',
+
+    //redis host
+    'redis_host' => '127.0.0.1',
+
+    //redis port
+    'redis_port' => 6379,
+
+    //redis password
+    'redis_password' => '556ca120',
 ];

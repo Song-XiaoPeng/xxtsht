@@ -762,7 +762,7 @@ class WxOperation extends Auth{
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMessage
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMessage
      * @param uid 客服uid
-     * @param session_list 查询的会话id list
+     * @param openid_list 用户的openid list
 	 * @return code 200->成功
 	 */
     public function getMessage(){
@@ -838,5 +838,9 @@ class WxOperation extends Auth{
         $data['uid'] = $this->uid;
 
         return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadResources($data);
+    }
+
+    public function test(){
+        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->test();
     }
 }

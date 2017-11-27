@@ -501,6 +501,7 @@ class BusinessModel extends Model {
             $userService = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
             $wx_info = $userService->get($openid);
         }catch (\Exception $e) {
+            Log::record($e->getMessage());
             return;
         }
 
