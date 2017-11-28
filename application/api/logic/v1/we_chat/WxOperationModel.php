@@ -1553,7 +1553,6 @@ class WxOperationModel extends Model {
 	 */
     public function getSessionList($data){
         set_time_limit(60);
-        ignore_user_abort(false);
 
         $company_id = $data['company_id'];
         $uid = $data['uid'];
@@ -1613,11 +1612,14 @@ class WxOperationModel extends Model {
 	 */
     public function getMessage($data){
         set_time_limit(60);
-        ignore_user_abort(false);
 
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $openid_list = $data['openid_list'];
+
+        if(count($openid_list) == 0){
+            return msg(3003,'openid_list参数为空');
+        }
 
         $redis = Common::createRedis();
         $redis->select(1); 
