@@ -444,27 +444,28 @@ class BusinessModel extends Model {
         }
 
         //匹配是否存在正在会话中数据
-        $session_res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',1)])->find();
+        $session_res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1,3])])->find();
         if($session_res){
             $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->value('name');
 
-            return '客服'.$customer_service_name.'正在为您服务！';
+            return '正在为您接入客服'.$customer_service_name.'请稍等！';
         }
 
         switch($type){
             case 'user':
                 $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1])->find();
-                if(!empty($customer_service_res)){
-                    $customer_service_id = $customer_service_res['customer_service_id'];
-                    $customer_service_uid = $customer_service_res['uid'];
-                    $company_id = $customer_service_res['company_id'];
-                    $customer_service_name = $customer_service_res['name'];
-                }else{
+                if(empty($customer_service_res)){
                     return '暂无可分配的客服！';
                 }
+
+                $customer_service_id = $customer_service_res['customer_service_id'];
+                $customer_service_uid = $customer_service_res['uid'];
+                $company_id = $customer_service_res['company_id'];
+                $customer_service_name = $customer_service_res['name'];
                 break;
 
             case 'group':
+                
                 break;
 
             default:

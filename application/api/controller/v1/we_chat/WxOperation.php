@@ -792,22 +792,6 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 将会话设为已读
-	 * 请求类型：post
-	 * 传入JSON格式: {"session_list":["294bbb5b94de0c044e66f6caec067856","b2fe3202dff09473cf9aa2b9f15ad79f"]}
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
-	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/setSessionReceive
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/setSessionReceive
-     * @param session_list 结束的会话id list
-	 * @return code 200->成功
-	 */
-    public function setSessionReceive(){
-        $data = input('put.');
-        
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setSessionReceive($this->company_id,$this->uid,$data['session_list']);
-    }
-
-    /**
      * 获取待接入会话列表
 	 * 请求类型：get
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}

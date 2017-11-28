@@ -438,4 +438,61 @@ class UserOperationModel extends Model {
 
         return msg(200,'success');
     }
+
+    /**
+     * 设置子账号分组
+	 * @param company_id 商户company_id
+	 * @param uid 操作人uid
+	 * @param set_uid 设置的账号uid
+	 * @param user_group_id 账户分组id
+	 * @return code 200->成功
+	 */
+    public function setUserGroup($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $set_uid = $data['set_uid'];
+        $user_group_id = $data['user_group_id'];
+        $token = $data['token'];
+        
+        $login_res = Db::name('login_token')->where(['uid'=>$uid])->find();
+        if($login_res['user_type'] != 3){
+            return msg(3001,'非管理员无权设置账户分组');
+        }
+
+        $request_data = [
+            'uid' => $set_uid,
+            'user_group_id' => $user_group_id
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $request_res = $client->request(
+            'POST', 
+            combinationApiUrl('/api.php/IvisionBackstage/setUserGroup'), 
+            [
+                'json' => $request_data,
+                'timeout' => 3,
+                'headers' => [
+                    'token' => $token
+                ]
+            ]
+        );
+
+        $request_res = json_decode($request_res->getBody(),true);
+        if($request_res['meta']['code'] != 200){
+            return $user_info;
+        }
+
+        $update_res = Db::name('login_token')->where(['uid'=>$set_uid])->update(['user_group_id'=>$user_group_id]);
+        if($update_res === false){
+            return msg(3001,'更新数据失败');
+        }   
+    
+        $customer_service_update_res = Db::name('customer_service')->where(['uid'=>$set_uid])->update(['user_group_id'=>$user_group_id]);
+    
+        if($customer_service_update_res === false){
+            return msg(3002,'更新数据失败');
+        }
+
+        return msg(200,'success');
+    }
 }

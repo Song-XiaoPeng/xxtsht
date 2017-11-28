@@ -195,4 +195,24 @@ class UserOperation extends Auth{
 
         return \think\Loader::model('UserOperationModel','logic\v1\user')->updateCustomerServiceName($data);
     }
+
+    /**
+     * 设置子账号分组
+     * 请求类型 post
+	 * 传入JSON格式: {"set_uid":"6454","user_group_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/setUserGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/setUserGroup
+	 * @param set_uid 设置的uid
+	 * @param user_group_id 设置的新分组id
+	 * @return code 200->成功
+	 */
+    public function setUserGroup(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['token'] = $this->token;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->setUserGroup($data);
+    }
 }
