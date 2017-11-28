@@ -317,7 +317,8 @@ class UserOperationModel extends Model {
             'wx_sign' => $wx_sign,
             'appid' => $appid,
             'uid' => $uid,
-            'company_id' => $company_id
+            'company_id' => $company_id,
+            'user_group_id' => $user_info['user_group_id']
         ]);
 
         return msg(200,'success');
