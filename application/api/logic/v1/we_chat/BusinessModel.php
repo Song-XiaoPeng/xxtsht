@@ -376,7 +376,9 @@ class BusinessModel extends Model {
             $event_arr = explode('_',$message['EventKey']);
             switch($event_arr[0]){
                 case 'kf':
-                    return $this->createSession($appid,$openid,$event_arr[1],$event_arr[2]);
+                    $id = empty($event_arr[2]) == true ? '' :  $event_arr[2];
+
+                    return $this->createSession($appid,$openid,$event_arr[1],$id);
                     break;
                 case 'qrscene':
                     return $this->qrcodeEvent($appid,$openid,$event_arr[1]);

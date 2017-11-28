@@ -1615,20 +1615,21 @@ class WxOperationModel extends Model {
         $uid = $data['uid'];
         $openid_list = $data['openid_list'];
 
+        $redis = Common::createRedis();
+        $redis->select(1); 
+
         while (true) {
             $arr = [];
 
             foreach($openid_list as $k=>$v){
-                $content = Db::name('message_data')
-                ->where([
-                    'customer_wx_openid' => $v,
-                    'uid' => $uid,
-                    'is_read' => -1,
-                    'opercode' => 2,
-                ])
-                ->field('text,opercode,file_url,lng,lat,add_time,message_type,page_title,page_desc,map_scale,map_label,map_img,media_id')
-                ->order('add_time asc')
-                ->select();
+                $raw_data = $redis->zRange($v, 0, -1);
+                if(empty($raw_data)){
+                    continue;
+                }
+
+                foreach($raw_data as $z=>$c){
+                    $content[$z] = json_decode($c,true);
+                }
 
                 foreach($content as $i=>$c){
                     $content[$i]['text'] = emoji_decode($c['text']);
@@ -1638,12 +1639,11 @@ class WxOperationModel extends Model {
                     $arr[$v] = $content;
                 }
 
+                $redis->del($v);
+
                 Db::name('message_data')
-                ->where([
-                    'session_id' => $v,
-                    'uid' => $uid
-                ])
-                ->update(['is_read'=>1]);
+                ->partition(['customer_wx_openid'=>$v], "customer_wx_openid", ['type'=>'md5','num'=>10])
+                ->insertAll($content);
             }
 
             if(count($arr) != 0){

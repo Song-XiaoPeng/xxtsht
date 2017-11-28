@@ -102,7 +102,7 @@ class Common {
         $redis = self::createRedis();
         $redis->select(1);
 
-        $insert_res = $redis->sAdd($openid,json_encode($add_data));
+        $insert_res = $redis->zAdd($openid,time(),json_encode($add_data));
         if($insert_res){
             return true;
         }else{
