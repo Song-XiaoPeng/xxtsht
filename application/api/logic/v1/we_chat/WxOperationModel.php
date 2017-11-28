@@ -1438,13 +1438,17 @@ class WxOperationModel extends Model {
 	 * @return code 200->成功
 	 */
     public function sessionAccess($company_id,$uid,$session_id){
+        if(empty($session_id)){
+            return msg(3003,'session_id参数为空');
+        }
+
         $session_res = Db::name('message_session')
         ->join('tb_customer_service','tb_customer_service.customer_service_id = tb_message_session.customer_service_id')
         ->where([
             'tb_message_session.company_id' => $company_id,
             'tb_message_session.session_id' => $session_id,
             'tb_message_session.uid' => $uid,
-            'tb_message_session.state' => 0,
+            'tb_message_session.state' => ['in',[0,3]],
         ])->find();
         if(!$session_res){
             return msg(3001,'会话不可接入');
@@ -1595,6 +1599,8 @@ class WxOperationModel extends Model {
 
                 return msg(200,'success',['waiting'=>$waiting,'queue_up'=>$queue_up]);
             }
+
+            session_commit();
 
             sleep(2);
         }
