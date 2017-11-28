@@ -1600,8 +1600,6 @@ class WxOperationModel extends Model {
                 return msg(200,'success',['waiting'=>$waiting,'queue_up'=>$queue_up]);
             }
 
-            session_commit();
-
             sleep(2);
         }
     }
