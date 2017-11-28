@@ -462,7 +462,7 @@ class BusinessModel extends Model {
             case 'group':
                 $list = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'user_group_id'=>$id])->select();
                 if(empty($list)){
-                    return '暂无可分配的客服！123123';    
+                    return '暂无可分配的客服！';    
                 }
 
                 $customer_service_res = array_rand($list);
