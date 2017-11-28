@@ -99,7 +99,10 @@ class Common {
 
         $add_data = array_merge($arr,$insert_arr);
 
-        $insert_res = Db::name('message_data')->insert($add_data);
+        $redis = self::createRedis();
+        $redis->select(1);
+
+        $insert_res = $redis->sAdd($openid,json_encode($add_data));
         if($insert_res){
             return true;
         }else{

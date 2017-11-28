@@ -218,15 +218,6 @@ class BusinessModel extends Model {
 	 * @return code 200->成功
 	 */
     private function textEvent($appid,$openid,$key_word){
-        $map['appid'] = $appid;
-        $map1['pattern'] = 2;
-        $map['key_word'] = array('like',"%$key_word%");
-        $reply_text = Db::name('message_rule')->where($map)->where($map1)->value('reply_text');
-        if(!$reply_text){
-            $map2['pattern'] = 1;
-            $reply_text = Db::name('message_rule')->where($map)->where($map2)->value('reply_text');
-        }
-
         //判断是否存在客服会话
         $session_res = $this->getSession($appid,$openid);
         if($session_res){
@@ -235,6 +226,15 @@ class BusinessModel extends Model {
             }else{
                 return '系统繁忙请稍候重试!';
             }
+        }
+
+        $map['appid'] = $appid;
+        $map1['pattern'] = 2;
+        $map['key_word'] = array('like',"%$key_word%");
+        $reply_text = Db::name('message_rule')->where($map)->where($map1)->value('reply_text');
+        if(!$reply_text){
+            $map2['pattern'] = 1;
+            $reply_text = Db::name('message_rule')->where($map)->where($map2)->value('reply_text');
         }
 
         return empty($reply_text) == true ? $this->default_message : emoji_decode($reply_text);
@@ -322,23 +322,25 @@ class BusinessModel extends Model {
     private function imgEvent($appid,$openid,$message_arr){
         //判断是否存在客服会话
         $session_res = $this->getSession($appid,$openid);
-        if($session_res){
-            $add_res = Common::addMessagge(
-                $appid,
-                $openid,
-                $session_res['session_id'],
-                $session_res['customer_service_id'],
-                $session_res['uid'],
-                2,
-                2,
-                ['file_url'=>$message_arr['PicUrl'],'media_id'=>$message_arr['MediaId']]
-            );
+        if(!$session_res){
+            return '';
+        }
 
-            if($add_res){
-                return '';
-            }else{
-                return '系统繁忙请稍候重试!';
-            }
+        $add_res = Common::addMessagge(
+            $appid,
+            $openid,
+            $session_res['session_id'],
+            $session_res['customer_service_id'],
+            $session_res['uid'],
+            2,
+            2,
+            ['file_url'=>$message_arr['PicUrl'],'media_id'=>$message_arr['MediaId']]
+        );
+
+        if($add_res){
+            return '';
+        }else{
+            return '系统繁忙请稍候重试!';
         }
     }
 
