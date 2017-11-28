@@ -103,10 +103,12 @@ class Common {
             $insert_res = Db::name('message_data')
             ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>10])
             ->insert($add_data);
-        }else{
+        }else if($opercode == 2){
             $redis = self::createRedis();
             $redis->select(1);
             $insert_res = $redis->zAdd($openid,time(),json_encode($add_data));
+        }else{
+            return false;
         }
 
         if($insert_res){
