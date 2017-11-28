@@ -453,24 +453,29 @@ class BusinessModel extends Model {
 
         switch($type){
             case 'user':
-                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1])->find();
+                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'customer_service_id'=>$id])->find();
                 if(empty($customer_service_res)){
                     return '暂无可分配的客服！';
                 }
-
-                $customer_service_id = $customer_service_res['customer_service_id'];
-                $customer_service_uid = $customer_service_res['uid'];
-                $company_id = $customer_service_res['company_id'];
-                $customer_service_name = $customer_service_res['name'];
                 break;
 
             case 'group':
-                
+                $list = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'user_group_id'=>$user_group_id,'user_group_id'=>$id])->select();
+                if(empty($list)){
+                    return '暂无可分配的客服！';    
+                }
+
+                $customer_service_res = array_rand($list);
                 break;
 
             default:
                 return $this->default_message;
         }
+
+        $customer_service_id = $customer_service_res['customer_service_id'];
+        $customer_service_uid = $customer_service_res['uid'];
+        $company_id = $customer_service_res['company_id'];
+        $customer_service_name = $customer_service_res['name'];
 
         $wx_info = $this->addWxUserInfo($appid,$openid);
         if(empty($wx_info)){
