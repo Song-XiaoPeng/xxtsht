@@ -414,7 +414,7 @@ class BusinessModel extends Model {
      * @param event_key 触发下标值
 	 * @return code 200->成功
 	 */
-    private function createSession($appid,$openid,$type,$id){
+    private function createSession($appid,$openid,$type,$id = ''){
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,120)->value('company_id');
         if(empty($company_id)){
             return '公众号未绑定第三方平台';
@@ -453,19 +453,23 @@ class BusinessModel extends Model {
 
         switch($type){
             case 'user':
-                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'customer_service_id'=>$id])->find();
+                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'uid'=>$id])->find();
                 if(empty($customer_service_res)){
                     return '暂无可分配的客服！';
                 }
                 break;
 
             case 'group':
-                $list = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'user_group_id'=>$user_group_id,'user_group_id'=>$id])->select();
+                $list = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'user_group_id'=>$id])->select();
                 if(empty($list)){
-                    return '暂无可分配的客服！';    
+                    return '暂无可分配的客服！123123';    
                 }
 
                 $customer_service_res = array_rand($list);
+                break;
+
+            case 'other':
+                return '暂未开通';
                 break;
 
             default:
