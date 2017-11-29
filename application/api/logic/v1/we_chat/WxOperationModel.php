@@ -1615,10 +1615,6 @@ class WxOperationModel extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
 
-        if(count($openid_list) == 0){
-            return msg(3003,'openid_list参数为空');
-        }
-
         $redis = Common::createRedis();
         $redis->select(1); 
 
