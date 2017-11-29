@@ -52,6 +52,7 @@ class AuthModel extends Model {
         $group_name = $body['body']['group_name'];
         $user_group_id = $body['body']['user_group_id'];
         $user_type = $body['body']['user_type'];
+        $avatar_url = $body['body']['avatar_url'];
 
         if(strtotime($time) > strtotime($expiration_date)){
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
@@ -74,7 +75,8 @@ class AuthModel extends Model {
                 'user_group_id' => $user_group_id,
                 'group_name' => $group_name,
                 'user_type' => $user_type,
-                'uid' => $uid
+                'uid' => $uid,
+                'avatar_url' => $avatar_url,
             ]
         );
     }
