@@ -33,6 +33,10 @@ class CustomerOperationModel extends Model {
         $wx_company_id = empty($data['wx_company_id']) == true ? -1 : $data['wx_company_id'];
         $desc = empty($data['desc']) == true ? -1 : $data['desc'];
         $wx_user_group_id = empty($data['wx_user_group_id']) == true ? -1 : $data['wx_user_group_id'];
+        $birthday = empty($data['birthday']) == true ? -1 : $data['birthday'];
+        $wx_number = empty($data['wx_number']) == true ? -1 : $data['wx_number'];
+        $email = empty($data['email']) == true ? -1 : $data['email'];
+        $tel = empty($data['tel']) == true ? -1 : $data['tel'];
 
         $wx_user_res = Db::name('wx_user')
         ->partition('', '', ['type'=>'md5','num'=>5])
@@ -76,6 +80,10 @@ class CustomerOperationModel extends Model {
                 'wx_user_group_id' => $wx_user_group_id,
                 'company_id' => $company_id,
                 'desc' => $desc,
+                'birthday' => $birthday,
+                'wx_number' => $wx_number,
+                'email' => $email,
+                'tel' => $tel,
             ]);
         }else{
             $db_operation_res = Db::name('customer_info')
@@ -96,6 +104,10 @@ class CustomerOperationModel extends Model {
                 'wx_company_id' => $wx_company_id,
                 'wx_user_group_id' => $wx_user_group_id,
                 'desc' => $desc,
+                'birthday' => $birthday,
+                'wx_number' => $wx_number,
+                'email' => $email,
+                'tel' => $tel,
             ]);
         }
 
@@ -109,5 +121,53 @@ class CustomerOperationModel extends Model {
         }else{
             return msg(3002,'数据操作失败');
         }
+    }
+
+    /**
+     * 获取客户信息
+     * @param company_id 商户company_id
+     * @param appid 客户来源appid
+	 * @param openid 客户微信openid
+	 * @return code 200->成功
+	 */
+    public function getWxCustomerInfo($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+
+        $customer_info_id = Db::name('wx_user')
+        ->partition('', '', ['type'=>'md5','num'=>5])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->value('customer_info_id');
+
+        if(!$customer_info_id){
+            return msg(3001,'暂无客户信息');
+        }
+
+        $customer_info = Db::name('customer_info')
+        ->partition('', '', ['type'=>'md5','num'=>5])
+        ->where(['customer_info_id'=>$customer_info_id])
+        ->find();
+        if(!$customer_info){
+            return msg(3001,'暂无客户信息');
+        }
+
+        if($customer_info['wx_user_group_id'] != -1){
+            $customer_info['wx_user_group_name'] = Db::name('wx_user_group')
+            ->where(['wx_user_group_id'=>$customer_info['wx_user_group_id']])
+            ->find();
+        }else{
+            $customer_info['wx_user_group_name'] = null;
+        }
+
+        if($customer_info['wx_company_id'] != -1){
+            $customer_info['wx_company_name'] = Db::name('wx_user_company')
+            ->where(['wx_company_id'=>$customer_info['wx_company_id']])
+            ->find();
+        }else{
+            $customer_info['wx_company_name'] = null;
+        }
+
+        return msg(200,'success',$customer_info);
     }
 }
