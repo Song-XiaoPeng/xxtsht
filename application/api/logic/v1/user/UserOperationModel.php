@@ -206,6 +206,51 @@ class UserOperationModel extends Model {
     }
 
     /**
+     * 设置账号头像
+	 * @param uid 设置的用户uid
+	 * @param company_id 商户company_id
+	 * @param resources_id 资源id
+	 * @return code 200->成功
+	 */
+    public function setUserPortrait($uid,$company_id,$resources_id){
+        $resources_res = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id,'resources_type'=>2])->find();
+
+        $insert_res = Db::name('user_portrait')->insert([
+            'uid' => $uid,
+            'company_id' => $company_id,
+            'resources_id' => $resources_id,
+        ]);
+
+        $customer_service_list = Db::name('customer_service')->where(['uid'=>$uid,'company_id'=>$company_id])->select();
+
+        foreach($customer_service_list as $k=>$v){
+            $token_info = Common::getRefreshToken($v['appid'],$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return $token_info;
+            }
+    
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+    
+            try{
+                $wx_sign = 'lyfzkf@'.$v['uid'];
+                $staff = $openPlatform->createAuthorizerApplication($v['appid'],$refresh_token)->staff;
+                $staff->avatar($wx_sign, $resources_res['resources_route']);
+            }catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        if($insert_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'设置失败');
+        }
+    }
+
+    /**
      * 删除子账号客服权限
 	 * @param company_id 商户company_id
 	 * @param appid 微信公众号appid

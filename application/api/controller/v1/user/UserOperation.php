@@ -25,6 +25,24 @@ class UserOperation extends Auth{
     }
 
     /**
+     * 设置账号头像
+     * 请求类型 post
+	 * 传入JSON格式: {"uid":"uid...","resources_id":"resources_id..."}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"}}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/setUserPortrait
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/setUserPortrait
+	 * @param uid 设置的用户uid
+	 * @param resources_id 资源id
+	 * @return code 200->成功
+	 */
+    public function setUserPortrait () {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->setUserPortrait($data);
+    }
+
+    /**
      * 获取子账号列表
      * 请求类型 post
 	 * 传入JSON格式: {"user_group_id":5,"page":1}

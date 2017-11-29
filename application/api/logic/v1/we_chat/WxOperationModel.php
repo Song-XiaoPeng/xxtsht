@@ -1745,11 +1745,13 @@ class WxOperationModel extends Model {
      * @param company_id 商户company_id
      * @param uid 客服uid
      * @param file 文件流字段名称
+     * @param resources_type 资源类型 1 im数据文件 2客服头像
 	 * @return code 200->成功
 	 */
     public function uploadResources($data){
         $company_id = $data['company_id'];
         $uid = $data['uid'];
+        $resources_type = empty($data['resources_type']) == true ? 1 : $data['resources_type'];
 
         $catalog_name = date('Ymd');
         $save_catalog = "../uploads/message/$catalog_name";
@@ -1817,7 +1819,8 @@ class WxOperationModel extends Model {
                 'file_name' => $data['name'],
                 'name' => $_FILES['file']['name'],
                 'resources_route' => substr($save_catalog,2).'/'.$data['name'],
-                'mime_type' => $data['mime']
+                'mime_type' => $data['mime'],
+                'resources_type' => $resources_type
             ]);
             
             return msg(200,'messgae',['resources_id'=>$resources_id]);

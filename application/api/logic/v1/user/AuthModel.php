@@ -40,6 +40,8 @@ class AuthModel extends Model {
             return msg(3009,'未获得功能模块授权');
         }
 
+        $portrait_id = Db::name('user_portrait')->where(['uid'=>$body['body']['uid']])->value('resources_id');
+
         $expiration_date = $body['body']['auth_info']['11']['expiration_date'];
         $login_token = $body['body']['token'];
         $address = $body['body']['address'];
@@ -52,7 +54,7 @@ class AuthModel extends Model {
         $group_name = $body['body']['group_name'];
         $user_group_id = $body['body']['user_group_id'];
         $user_type = $body['body']['user_type'];
-        $avatar_url = $body['body']['avatar_url'];
+        $avatar_url = empty($portrait_id) == true ? $body['body']['avatar_url'] : 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$portrait_id;
 
         if(strtotime($time) > strtotime($expiration_date)){
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
