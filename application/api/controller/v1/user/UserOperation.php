@@ -1,5 +1,5 @@
 <?php
-namespace app\api\controller\v1\User;
+namespace app\api\controller\v1\user;
 use app\api\common\Auth;
 
 //用户账户相关操作

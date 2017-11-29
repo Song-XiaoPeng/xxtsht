@@ -1,5 +1,5 @@
 <?php
-namespace app\api\controller\v1\User;
+namespace app\api\controller\v1\user;
 use \think\Request;
 
 //授权登录相关操作
