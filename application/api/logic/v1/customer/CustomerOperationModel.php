@@ -17,6 +17,7 @@ class CustomerOperationModel extends Model {
 	 * @param contact_address 客户联系地址
 	 * @param wx_company_id 所属公司
 	 * @param wx_user_group_id 所属用户分组id
+	 * @param desc 备注
 	 * @param customer_info_id 客户信息id (关联时选传)
 	 * @return code 200->成功
 	 */
@@ -30,6 +31,7 @@ class CustomerOperationModel extends Model {
         $real_phone = empty($data['real_phone']) == true ? '' : $data['real_phone'];
         $contact_address = empty($data['contact_address']) == true ? '' : $data['contact_address'];
         $wx_company_id = empty($data['wx_company_id']) == true ? -1 : $data['wx_company_id'];
+        $desc = empty($data['desc']) == true ? -1 : $data['desc'];
         $wx_user_group_id = empty($data['wx_user_group_id']) == true ? -1 : $data['wx_user_group_id'];
 
         $wx_user_res = Db::name('wx_user')
@@ -73,6 +75,7 @@ class CustomerOperationModel extends Model {
                 'wx_company_id' => $wx_company_id,
                 'wx_user_group_id' => $wx_user_group_id,
                 'company_id' => $company_id,
+                'desc' => $desc,
             ]);
         }else{
             $db_operation_res = Db::name('customer_info')
@@ -92,6 +95,7 @@ class CustomerOperationModel extends Model {
                 'contact_address' => $contact_address,
                 'wx_company_id' => $wx_company_id,
                 'wx_user_group_id' => $wx_user_group_id,
+                'desc' => $desc,
             ]);
         }
 
