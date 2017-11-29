@@ -78,6 +78,17 @@ class UserOperationModel extends Model {
             ]
         );
 
+        $request_data = json_decode($res->getBody(),true);
+
+        foreach($request_data['body']['user_list'] as $k=>$v){
+            $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
+            if(!$resources_id){
+                continue;
+            }
+
+            $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+        }
+
         return json_decode($res->getBody(),true);
     }
 
@@ -247,7 +258,7 @@ class UserOperationModel extends Model {
         }
 
         if($insert_res){
-            return msg(200,'success');
+            return msg(200,'success',['avatar_url'=>'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id]);
         }else{
             return msg(3001,'设置失败');
         }
