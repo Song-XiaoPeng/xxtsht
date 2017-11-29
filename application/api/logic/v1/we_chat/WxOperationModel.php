@@ -1607,7 +1607,6 @@ class WxOperationModel extends Model {
      * 获取会话消息
      * @param company_id 商户company_id
      * @param uid 客服uid
-     * @param openid_list 用户的openid list
 	 * @return code 200->成功
 	 */
     public function getMessage($data){
@@ -1615,7 +1614,6 @@ class WxOperationModel extends Model {
 
         $company_id = $data['company_id'];
         $uid = $data['uid'];
-        $openid_list = $data['openid_list'];
 
         if(count($openid_list) == 0){
             return msg(3003,'openid_list参数为空');
@@ -1627,8 +1625,10 @@ class WxOperationModel extends Model {
         while (true) {
             $arr = [];
 
+            $openid_list = Db::name('message_session')->where(['uid'=>$uid,'company_id'=>$company_id])->field('customer_wx_openid')->select();
+
             foreach($openid_list as $k=>$v){
-                $raw_data = $redis->zRange($v, 0, -1);
+                $raw_data = $redis->zRange($v['customer_wx_openid'], 0, -1);
                 if(empty($raw_data)){
                     continue;
                 }
@@ -1642,13 +1642,13 @@ class WxOperationModel extends Model {
                 }
 
                 if($content){
-                    $arr[$v] = $content;
+                    $arr[$v['customer_wx_openid']] = $content;
                 }
 
-                $redis->del($v);
+                $redis->del($v['customer_wx_openid']);
 
                 Db::name('message_data')
-                ->partition(['customer_wx_openid'=>$v], "customer_wx_openid", ['type'=>'md5','num'=>10])
+                ->partition(['customer_wx_openid'=>$v['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>10])
                 ->insertAll($content);
             }
 

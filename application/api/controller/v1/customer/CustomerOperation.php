@@ -28,5 +28,23 @@ class CustomerOperation extends Auth{
         $data['company_id'] = $this->company_id;
         
         return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->setCustomerInfo($data);
-    }
+	}
+	
+    /**
+     * 获取客户信息
+     * 请求类型 post
+	 * 传入JSON格式: {"appid":"wx88c6052d06eaaf7d","openid":"oZ8DFwU5HOTs0b4g-P_skZ8wgH7g"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/getWxCustomerInfo
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getWxCustomerInfo
+     * @param appid 客户来源appid
+	 * @param openid 客户微信openid
+	 * @return code 200->成功
+	 */
+	public function getWxCustomerInfo(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->getWxCustomerInfo($data);
+	}
 }

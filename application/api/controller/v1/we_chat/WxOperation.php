@@ -756,17 +756,13 @@ class WxOperation extends Auth{
 
     /**
      * 获取会话消息
-	 * 请求类型：post
-	 * 传入JSON格式: {"session_list":["294bbb5b94de0c044e66f6caec067856","b2fe3202dff09473cf9aa2b9f15ad79f"]}
+	 * 请求类型：get
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"bdff9bb74cab59e104fa035a881c203b":[{"text":"5555","opercode":2,"file_url":null,"lng":null,"lat":null,"add_time":"2017-11-24 19:58:39","message_type":1,"page_title":null,"page_desc":null,"map_scale":null,"map_label":null,"map_img":null,"media_id":null}]}}
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMessage
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMessage
-     * @param uid 客服uid
-     * @param openid_list 用户的openid list
 	 * @return code 200->成功
 	 */
     public function getMessage(){
-        $data = input('put.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
