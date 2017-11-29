@@ -360,6 +360,17 @@ class UserOperationModel extends Model {
             return msg(3001,$e->getMessage());
         }
 
+        $resources_id = Db::name('user_portrait')->where(['uid'=>$uid,'company_id'=>$company_id])->value('resources_id');
+        if($resources_id){
+            $resources_route = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id,'resources_type'=>2])->value('resources_route');
+            if($resources_route){
+                try{
+                    $staff->avatar($wx_sign, $resources_res['resources_route']);
+                }catch (\Exception $e) {
+                }
+            }
+        }
+
         Db::name('customer_service')->insert([
             'name' => $user_name,
             'wx_sign' => $wx_sign,
