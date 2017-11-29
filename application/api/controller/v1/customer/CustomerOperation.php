@@ -44,6 +44,7 @@ class CustomerOperation extends Auth{
 	public function getWxCustomerInfo(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
         
         return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->getWxCustomerInfo($data);
 	}

@@ -10,6 +10,7 @@ class CustomerOperationModel extends Model {
      * 设置客户信息
      * @param company_id 商户company_id
      * @param appid 客户来源appid
+     * @param uid 客服账号uid
 	 * @param openid 客户微信openid
 	 * @param real_name 客户真实姓名
 	 * @param real_sex 客户真实性别 0未知 1男 2女
@@ -24,6 +25,7 @@ class CustomerOperationModel extends Model {
     public function setCustomerInfo($data){
         $company_id = $data['company_id'];
         $appid = $data['appid'];
+        $uid = $data['uid'];
         $openid = $data['openid'];
         $real_name = $data['real_name'];
         $real_sex = $data['real_sex'] == '' ? 0 : $data['real_sex'];
@@ -84,6 +86,7 @@ class CustomerOperationModel extends Model {
                 'wx_number' => $wx_number,
                 'email' => $email,
                 'tel' => $tel,
+                'uid' => $uid,
             ]);
         }else{
             $db_operation_res = Db::name('customer_info')
@@ -169,5 +172,20 @@ class CustomerOperationModel extends Model {
         }
 
         return msg(200,'success',$customer_info);
+    }
+
+    /**
+     * 获取客户信息列表
+     * @param company_id 商户company_id
+     * @param page 分页参数 默认1
+     * @param real_name 客户姓名 (选传)
+	 * @return code 200->成功
+	 */
+    public function getCustomerList($data){
+        $company_id = $data['company_id'];
+        $page = $data['page'];
+        $real_name = $data['real_name'];
+
+
     }
 }
