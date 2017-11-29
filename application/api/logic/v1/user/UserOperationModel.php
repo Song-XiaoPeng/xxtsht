@@ -214,6 +214,9 @@ class UserOperationModel extends Model {
 	 */
     public function setUserPortrait($uid,$company_id,$resources_id){
         $resources_res = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id,'resources_type'=>2])->find();
+        if(!$resources_res){
+            return msg(3003,'resources_id参数错误');
+        }
 
         $insert_res = Db::name('user_portrait')->insert([
             'uid' => $uid,
