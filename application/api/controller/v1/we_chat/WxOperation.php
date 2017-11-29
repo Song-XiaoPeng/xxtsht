@@ -814,6 +814,7 @@ class WxOperation extends Auth{
 	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/uploadResources
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/uploadResources
      * @param file 文件流字段名称
+     * @param resources_type 资源类型 1 im数据文件 2客服头像
 	 * @return code 200->成功
 	 */
     public function uploadResources(){
