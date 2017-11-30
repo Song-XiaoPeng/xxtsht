@@ -39,7 +39,7 @@ class UserOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('UserOperationModel','logic\v1\user')->setUserPortrait($data);
+        return \think\Loader::model('UserOperationModel','logic\v1\user')->setUserPortrait($data['uid'],$data['company_id'],$data['resources_id']);
     }
 
     /**
