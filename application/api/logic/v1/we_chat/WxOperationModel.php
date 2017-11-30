@@ -1410,8 +1410,30 @@ class WxOperationModel extends Model {
                     $message = new Video(['media_id' => $upload_res['media_id']]);
                     break;
                 case 5:
-                    $upload_res = $temporary->uploadVoice('..'.$resources_res['resources_route']);
-                    $message = new Voice(['media_id' => $upload_res['media_id']]);
+                    if($resources_res['mime_type'] == 'audio/x-wav'){
+                        $audio_name = md5(uniqid());
+                        
+                        $amr_file = '..'.$resources_res['resources_route'];
+                    
+                        $mp3_file = "../uploads/source_material/$audio_name.mp3";
+        
+                        $command = "/usr/local/bin/ffmpeg -i $amr_file $mp3_file";
+        
+                        exec($command, $log, $status);
+    
+                        if(!file_exists($mp3_file)){
+                            return msg(3004,'file_error');
+                        }
+    
+                        $upload_res = $temporary->uploadVoice($mp3_file);
+                        $message = new Voice(['media_id' => $upload_res['media_id']]);
+                        unlink($mp3_file);
+                    }else if($resources_res['mime_type'] == 'audio/mpeg'){
+                        $upload_res = $temporary->uploadVoice('..'.$resources_res['resources_route']);
+                        $message = new Voice(['media_id' => $upload_res['media_id']]);
+                    }else{
+                        return msg(3008,'File types do not support');
+                    }
                     break;
                 case 6:
                     $message = new Material(['media_id' => $media_id]);
@@ -1785,6 +1807,7 @@ class WxOperationModel extends Model {
                     'image/jpeg',
                     'image/bmp',
                     'audio/mpeg',
+                    'audio/x-wav',
                     'video/x-msvideo',
                     'video/mp4'
                 ]),
