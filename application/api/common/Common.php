@@ -1,6 +1,7 @@
 <?php
 namespace app\api\common;
 use think\Db;
+use EasyWeChat\Foundation\Application;
 
 class Common {
     //获取商户公众号或小程序授权信息
@@ -14,7 +15,6 @@ class Common {
         if(!$openweixin_authinfo_res){
             return msg(3001,'appid不存在');
         }
-
 
         $time = time();
 

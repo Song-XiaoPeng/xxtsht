@@ -89,7 +89,7 @@ class UserOperationModel extends Model {
             $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
         }
 
-        return msg(200,'success',$request_data);
+        return msg(200,'success',['user_list'=>$request_data['body']['user_list'],'page_data'=>$request_data['body']['page_data']]);
     }
 
     /**
