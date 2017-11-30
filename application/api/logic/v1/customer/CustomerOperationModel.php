@@ -19,6 +19,7 @@ class CustomerOperationModel extends Model {
 	 * @param wx_company_id 所属公司
 	 * @param wx_user_group_id 所属用户分组id
 	 * @param desc 备注
+	 * @param product_id 意向产品id
 	 * @param customer_info_id 客户信息id (关联时选传)
 	 * @return code 200->成功
 	 */
@@ -39,6 +40,7 @@ class CustomerOperationModel extends Model {
         $wx_number = empty($data['wx_number']) == true ? -1 : $data['wx_number'];
         $email = empty($data['email']) == true ? -1 : $data['email'];
         $tel = empty($data['tel']) == true ? -1 : $data['tel'];
+        $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
 
         $wx_user_res = Db::name('wx_user')
         ->partition('', '', ['type'=>'md5','num'=>5])
@@ -87,6 +89,7 @@ class CustomerOperationModel extends Model {
                 'email' => $email,
                 'tel' => $tel,
                 'uid' => $uid,
+                'product_id' => $product_id,
             ]);
         }else{
             $db_operation_res = Db::name('customer_info')
@@ -111,6 +114,7 @@ class CustomerOperationModel extends Model {
                 'wx_number' => $wx_number,
                 'email' => $email,
                 'tel' => $tel,
+                'product_id' => $product_id,
             ]);
         }
 
@@ -178,6 +182,7 @@ class CustomerOperationModel extends Model {
      * 获取客户信息列表
      * @param company_id 商户company_id
      * @param page 分页参数 默认1
+     * @param uid 登录账号uid
      * @param real_name 客户姓名 (选传)
 	 * @return code 200->成功
 	 */
@@ -185,7 +190,22 @@ class CustomerOperationModel extends Model {
         $company_id = $data['company_id'];
         $page = $data['page'];
         $real_name = $data['real_name'];
+        $uid = $data['uid'];
 
-        //Db::name('')->
+        $user_type = Db::name('login_token')->where(['uid'=>$uid,'company_id'=>$company_id])->value('user_type');
+
+        if($user_type != 3){
+            $map['uid'] = $uid;
+        }
+
+        $map['real_name'] = ['like',"%$real_name%"];
+        $map['company_id'] = $company_id;
+
+        $customer_info_res = Db::name('customer_info')
+        ->partition('', '', ['type'=>'md5','num'=>5])
+        ->where($map)
+        ->select();
+
+        dump($customer_info_res);
     }
 }

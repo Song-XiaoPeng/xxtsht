@@ -1634,7 +1634,11 @@ class WxOperationModel extends Model {
                 }
 
                 foreach($content as $i=>$c){
-                    $content[$i]['text'] = emoji_decode($c['text']);
+                    if(!empty($c['text'])){
+                        $content[$i]['text'] = emoji_decode($c['text']);
+                    }else{
+                        $content[$i]['text'] = '';
+                    }
                 }
 
                 if($content){

@@ -20,6 +20,7 @@ class CustomerOperation extends Auth{
 	 * @param wx_company_id 所属公司
 	 * @param wx_user_group_id 所属用户分组id
 	 * @param desc 备注
+	 * @param product_id 意向产品id
 	 * @param customer_info_id 客户信息id (关联时选传)
 	 * @return code 200->成功
 	 */
@@ -48,4 +49,23 @@ class CustomerOperation extends Auth{
         
         return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->getWxCustomerInfo($data);
 	}
+
+	/**
+     * 获取客户信息列表
+     * 请求类型 post
+	 * 传入JSON格式: {"page":"1","real_name":"张三"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/getCustomerList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getCustomerList
+     * @param page 分页参数 默认1
+     * @param real_name 客户姓名 (选传)
+	 * @return code 200->成功
+	 */
+	public function getCustomerList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+        
+        return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->getCustomerList($data);
+	}	
 }
