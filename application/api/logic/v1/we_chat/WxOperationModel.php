@@ -1639,6 +1639,10 @@ class WxOperationModel extends Model {
                     }else{
                         $content[$i]['text'] = '';
                     }
+
+                    if($c['message_type'] == 2){
+                        $content[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getWxUrlImg?url='.$c['file_url'];
+                    }
                 }
 
                 if($content){

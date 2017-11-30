@@ -740,4 +740,29 @@ class BusinessModel extends Model {
 
         return response($picture_data)->contentType($type);
     }
+
+    //获取微信外链图片
+    public function getWxUrlImg($url){
+        $im = imagecreate(600, 300);
+        $black = imagecolorallocate($im, 100, 100, 100);
+        $white = imagecolorallocate($im, 255, 255, 255);
+
+        if (!$url) {
+            header("Content-Type:image/png");
+            imagettftext($im, 18, 0, 200, 100, $white, "../uploads/static/fonts/hwxh.ttf", "Error 001");
+            imagettftext($im, 14, 0, 150, 150, $white, "../uploads/static/fonts/hwxh.ttf", "请在参数中输入图片的绝对地址。");
+            imagepng($im);
+            exit();
+        }
+        @$imgString = urlOpen($url);
+        if ($imgString == "") {
+            header("Content-Type:image/png");
+            imagettftext($im, 18, 0, 200, 100, $white, "../uploads/static/fonts/hwxh.ttf", "Error 002");
+            imagettftext($im, 14, 0, 70, 150, $white, "../uploads/static/fonts/hwxh.ttf", "加载远程图片失败，请确认图片的地址能正常访问。");
+            imagepng($im);
+            exit();
+        }
+
+        return response($imgString)->contentType('image/png');
+    }
 }

@@ -104,3 +104,19 @@ function get_title($html){
     preg_match("/<title>(.*)<\/title>/i",$html,$title);
     return empty($title[1]) == true ? '无法获取标题' : $title[1];
 }
+
+//获取微信外链图片
+function urlOpen($url, $data = null, $ua = ''){
+    if ($ua == '') {
+        $ua = 'MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1';
+    } else {
+        $ua = $ua;
+    }
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_USERAGENT, $ua);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $content = curl_exec($ch);
+    curl_close($ch);
+    return $content;
+}

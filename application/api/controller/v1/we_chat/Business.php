@@ -86,4 +86,18 @@ class Business {
 
         return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getFile($resources_id);
     }
+
+    /**
+     * 获取微信外链图片
+	 * 请求类型：get
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/Business/getWxUrlImg?url=url...
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/Business/getWxUrlImg?url=url...
+     * @param url 外链图片地址
+	 * @return code 200->成功
+	 */
+    public function getWxUrlImg(){
+        $url = input('get.url');
+
+        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getWxUrlImg($url);
+    }
 }
