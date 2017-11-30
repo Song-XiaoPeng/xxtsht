@@ -1822,8 +1822,14 @@ class WxOperationModel extends Model {
                 'mime_type' => $data['mime'],
                 'resources_type' => $resources_type
             ]);
+
+            if(substr($data['mime'],0,5) == 'image'){
+                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+            }else{
+                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getFile?resources_id='.$resources_id;
+            }
             
-            return msg(200,'messgae',['resources_id'=>$resources_id]);
+            return msg(200,'messgae',['resources_id'=>$resources_id,'url'=>$url]);
         } catch (\Exception $e) {
             if(empty($file->getErrors()[0])){
                 return msg(3003,$e->getMessage());
