@@ -1785,6 +1785,7 @@ class WxOperationModel extends Model {
                     'image/jpeg',
                     'image/bmp',
                     'audio/mpeg',
+                    'audio/x-wav',
                     'video/x-msvideo',
                     'video/mp4'
                 ]),
