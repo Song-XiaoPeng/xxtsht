@@ -1389,7 +1389,7 @@ class WxOperationModel extends Model {
         $openPlatform = $app->open_platform;
 
         try{
-            if($type == 2 || $type == 4 || $type == 5){
+            if($type == 2 || $type == 4 || $type == 3){
                 $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
                 
                 if(!$resources_res){return msg(3005,'资源不存在');}
