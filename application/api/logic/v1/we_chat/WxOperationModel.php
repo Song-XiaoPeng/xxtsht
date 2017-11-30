@@ -1345,7 +1345,7 @@ class WxOperationModel extends Model {
      * @param uid 客服uid
      * @param session_id 会话id
      * @param message 消息内容
-     * @param type 1文字 2图片 3文件 4视频  5声音 6图文信息素材 7链接
+     * @param type 1文字 2图片 3声音 4视频 6图文信息素材 7链接
      * @param resources_id 资源id (图片 视频 声音)
      * @param media_id 素材id (图文素材)
      * @param link_url 链接 (链接)
@@ -1409,7 +1409,7 @@ class WxOperationModel extends Model {
                     $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
                     $message = new Video(['media_id' => $upload_res['media_id']]);
                     break;
-                case 5:
+                case 3:
                     if($resources_res['mime_type'] == 'audio/x-wav'){
                         $audio_name = md5(uniqid());
                         
