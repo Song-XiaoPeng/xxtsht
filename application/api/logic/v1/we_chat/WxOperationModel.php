@@ -1639,10 +1639,6 @@ class WxOperationModel extends Model {
                     }else{
                         $content[$i]['text'] = '';
                     }
-
-                    if($c['message_type'] == 2){
-                        $content[$i]['file_url'] = getWximg($c['file_url']);
-                    }
                 }
 
                 if($content){
@@ -1654,6 +1650,12 @@ class WxOperationModel extends Model {
                 Db::name('message_data')
                 ->partition(['customer_wx_openid'=>$v['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>10])
                 ->insertAll($content);
+
+                foreach($content as $i=>$c){
+                    if($c['message_type'] == 2){
+                        $content[$i]['file_url'] = getWximg($c['file_url']);
+                    }
+                }
             }
 
             if(count($arr) != 0){
