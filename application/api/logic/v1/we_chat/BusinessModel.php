@@ -702,10 +702,14 @@ class BusinessModel extends Model {
             'resources_id'=>$resources_id
         ])->find();
         if(!$res){
-            $file_ize = filesize('../uploads/static/img/no_picture.gif');
-            $picture_data = fread(fopen('../uploads/static/img/no_picture.gif', "r"), $file_ize);
-
-            return response($picture_data)->contentType('image/gif');
+            header("Content-Type:image/png");
+            $im = imagecreate(300, 300);
+            $black = imagecolorallocate($im, 100, 100, 100);
+            $white = imagecolorallocate($im, 255, 255, 255);
+            imagettftext($im, 18, 0, 105, 100, $white, "../uploads/static/fonts/hwxh.ttf", "Error 003");
+            imagettftext($im, 14, 0, 65, 150, $white, "../uploads/static/fonts/hwxh.ttf", "图片不存在或已过期！");
+            imagepng($im);
+            exit();
         }
 
         $file_ize = filesize('..'.$res['resources_route']);
@@ -743,22 +747,22 @@ class BusinessModel extends Model {
 
     //获取微信外链图片
     public function getWxUrlImg($url){
-        $im = imagecreate(600, 300);
+        $im = imagecreate(300, 300);
         $black = imagecolorallocate($im, 100, 100, 100);
         $white = imagecolorallocate($im, 255, 255, 255);
 
         if (!$url) {
             header("Content-Type:image/png");
-            imagettftext($im, 18, 0, 200, 100, $white, "../uploads/static/fonts/hwxh.ttf", "Error 001");
-            imagettftext($im, 14, 0, 150, 150, $white, "../uploads/static/fonts/hwxh.ttf", "请在参数中输入图片的绝对地址。");
+            imagettftext($im, 18, 0, 105, 100, $white, "../uploads/static/fonts/hwxh.ttf", "Error 001");
+            imagettftext($im, 14, 0, 10, 150, $white, "../uploads/static/fonts/hwxh.ttf", "请在参数中输入图片的绝对地址！");
             imagepng($im);
             exit();
         }
         @$imgString = urlOpen($url);
         if ($imgString == "") {
             header("Content-Type:image/png");
-            imagettftext($im, 18, 0, 200, 100, $white, "../uploads/static/fonts/hwxh.ttf", "Error 002");
-            imagettftext($im, 14, 0, 70, 150, $white, "../uploads/static/fonts/hwxh.ttf", "加载远程图片失败，请确认图片的地址能正常访问。");
+            imagettftext($im, 18, 0, 105, 100, $white, "../uploads/static/fonts/hwxh.ttf", "Error 002");
+            imagettftext($im, 14, 0, 10, 150, $white, "../uploads/static/fonts/hwxh.ttf", "加载远程图片失败地址无法访问！");
             imagepng($im);
             exit();
         }
