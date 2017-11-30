@@ -189,14 +189,9 @@ class CustomerOperationModel extends Model {
     public function getCustomerList($data){
         $company_id = $data['company_id'];
         $page = $data['page'];
-        $real_name = $data['real_name'];
-        $uid = $data['uid'];
+        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
 
         $user_type = Db::name('login_token')->where(['uid'=>$uid,'company_id'=>$company_id])->value('user_type');
-
-        if($user_type != 3){
-            $map['uid'] = $uid;
-        }
 
         $map['real_name'] = ['like',"%$real_name%"];
         $map['company_id'] = $company_id;
@@ -205,7 +200,36 @@ class CustomerOperationModel extends Model {
         ->partition('', '', ['type'=>'md5','num'=>5])
         ->where($map)
         ->select();
+        
+        foreach($customer_info_res as $k=>$v){
+            if($v['wx_user_group_id'] != -1){
+                $customer_info_res[$k]['wx_user_group_name'] = Db::name('wx_user_group')
+                ->where(['wx_user_group_id'=>$v['wx_user_group_id']])
+                ->cache(true,60)
+                ->find();
+            }else{
+                $customer_info_res[$k]['wx_user_group_name'] = null;
+            }
+    
+            if($v['wx_company_id'] != -1){
+                $customer_info_res[$k]['wx_company_name'] = Db::name('wx_user_company')
+                ->where(['wx_company_id'=>$v['wx_company_id']])
+                ->cache(true,60)
+                ->find();
+            }else{
+                $customer_info_res[$k]['wx_company_name'] = null;
+            }
 
-        dump($customer_info_res);
+            if($v['product_id'] != -1){
+                $customer_info_res[$k]['product_name'] = Db::name('product')
+                ->where(['product_id'=>$v['product_id']])
+                ->cache(true,60)
+                ->find();
+            }else{
+                $customer_info_res[$k]['product_name'] = null;
+            }
+        }
+
+        return msg(200,'success',$customer_info_res);
     }
 }
