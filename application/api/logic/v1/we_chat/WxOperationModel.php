@@ -1804,9 +1804,15 @@ class WxOperationModel extends Model {
             'dimensions' => $file->getDimensions()
         );
 
-        $resources_id = Db::name('resources')->where(['resources_md5'=>$data['md5'],'company_id'=>$company_id])->value('resources_id');
-        if($resources_id){
-            return msg(200,'messgae',['resources_id'=>$resources_id]);
+        $resources_res = Db::name('resources')->where(['resources_md5'=>$data['md5'],'company_id'=>$company_id])->find();
+        if($resources_res){
+            if(substr($resources_res['mime_type'],0,5) == 'image'){
+                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_res['resources_id'];
+            }else{
+                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getFile?resources_id='.$resources_res['resources_id'];
+            }
+
+            return msg(200,'messgae',['resources_id'=>$resources_res['resources_id'],'url'=>$url]);
         }
 
         try {

@@ -32,6 +32,6 @@ class Common extends Auth{
 	 * @return code 200->成功
 	 */
 	public function getQuickReplyList(){
-        return \think\Loader::model('CommonModel','logic\v1\message')->getQuickReplyList();
+        return \think\Loader::model('CommonModel','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid);
 	}
 }
