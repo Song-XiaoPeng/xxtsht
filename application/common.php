@@ -105,7 +105,7 @@ function get_title($html){
     return empty($title[1]) == true ? '无法获取标题' : $title[1];
 }
 
-//获取微信外链图片
+//请求微信外链图片数据
 function urlOpen($url, $data = null, $ua = ''){
     if ($ua == '') {
         $ua = 'MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1';
@@ -119,4 +119,9 @@ function urlOpen($url, $data = null, $ua = ''){
     $content = curl_exec($ch);
     curl_close($ch);
     return $content;
+}
+
+//输出微信外链图片
+function getWximg($url){
+    return 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getWxUrlImg?url='.$url;
 }
