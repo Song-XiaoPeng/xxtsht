@@ -1641,12 +1641,6 @@ class WxOperationModel extends Model {
                     }
                 }
 
-                if($content){
-                    $arr[$v['customer_wx_openid']] = $content;
-                }
-
-                $redis->del($v['customer_wx_openid']);
-
                 Db::name('message_data')
                 ->partition(['customer_wx_openid'=>$v['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>10])
                 ->insertAll($content);
@@ -1656,6 +1650,12 @@ class WxOperationModel extends Model {
                         $content[$i]['file_url'] = getWximg($c['file_url']);
                     }
                 }
+
+                if($content){
+                    $arr[$v['customer_wx_openid']] = $content;
+                }
+
+                $redis->del($v['customer_wx_openid']);
             }
 
             if(count($arr) != 0){
