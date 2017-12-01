@@ -21,6 +21,7 @@ class InteractionModel extends Model {
         $show_page = ($page - 1) * $page_count;
 
         $session_res = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>8])
         ->where([
             'uid' => $uid,
             'company_id' => $company_id,
@@ -32,6 +33,7 @@ class InteractionModel extends Model {
         ->select();
 
         $count = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>8])
         ->where([
             'uid' => $uid,
             'company_id' => $company_id,

@@ -351,7 +351,10 @@ class BusinessModel extends Model {
 	 * @return code 200->成功
 	 */
     private function getSession($appid,$openid){
-        $res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>1])->find();
+        $res = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>1])
+        ->find();
 
         if($res){
             return [
@@ -448,7 +451,10 @@ class BusinessModel extends Model {
         }
 
         //匹配是否存在正在会话中数据
-        $session_res = Db::name('message_session')->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1,3])])->find();
+        $session_res = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1,3])])
+        ->find();
         if($session_res){
             $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->value('name');
 
