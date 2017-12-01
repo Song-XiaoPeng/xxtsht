@@ -1511,63 +1511,6 @@ class WxOperationModel extends Model {
     }
 
     /**
-     * 获取历史会话列表
-     * @param company_id 商户id
-     * @param uid 客服uid
-     * @param type 会话类型 1接待超时关闭 2会话关闭
-     * @param page 分页参数默认1
-	 * @return code 200->成功
-	 */
-    public function getSessionHistoryList($data){
-        $company_id = $data['company_id'];
-        $type = $data['type'];
-        $page = $data['page'];
-        $uid = $data['uid'];
-
-        if($type == 1){
-            $type = -2;
-        }
-
-        if($type == 2){
-            $type = -1;
-        }
-
-        //分页
-        $page_count = 16;
-        $show_page = ($page - 1) * $page_count;       
-        
-        $session_res = Db::name('message_session')
-        ->where([
-            'uid' => $uid,
-            'company_id' => $company_id,
-            'state' => $type
-        ])
-        ->limit($show_page,$page_count)
-        ->select();
-
-        $count = $count = Db::name('message_session')
-        ->where([
-            'uid' => $uid,
-            'company_id' => $company_id,
-            'state' => $type
-        ])
-        ->count();
-
-        foreach($session_res as $k=>$v){
-            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
-            
-            $session_res[$k]['nick_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
-        }
-
-        $res['data_list'] = count($session_res) == 0 ? array() : $session_res;
-        $res['page_data']['count'] = $count;
-        $res['page_data']['rows_num'] = $page_count;
-        $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
-    }
-
-    /**
      * 获取待接入会话列表
      * @param company_id 商户id
      * @param uid 客服uid

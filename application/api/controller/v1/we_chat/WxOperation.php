@@ -736,25 +736,6 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 获取会话列表
-	 * 请求类型：post
-	 * 传入JSON格式: {"type":1,"page":1}
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"session_id":"38a3843d6d2c733e5b7212f993af453e","customer_service_id":91601557,"customer_wx_openid":"olKKojskJPK46Q8m4pXWo6pcLr20","add_time":"2017-11-22 13:17:47","state":1,"uid":6452,"appid":"wx52bf4acbefcf4653","company_id":"51454009d703c86c91353f61011ecf2f","previous_customer_service_id":null,"customer_wx_nickname":"Junwen"}],"page_data":{"count":1,"rows_num":16,"page":1}}}
-	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getSessionHistoryList
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getSessionHistoryList
-     * @param type 会话类型 -2接待超时关闭 -1会话关闭 0等待接入会话 1会话中
-     * @param page 分页参数默认1
-	 * @return code 200->成功
-	 */
-    public function  getSessionHistoryList(){
-        $data = input('put.');
-        $data['company_id'] = $this->company_id;
-        $data['uid'] = $this->uid;
-
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getSessionHistoryList($data);
-    }
-
-    /**
      * 获取会话消息
 	 * 请求类型：get
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"bdff9bb74cab59e104fa035a881c203b":[{"text":"5555","opercode":2,"file_url":null,"lng":null,"lat":null,"add_time":"2017-11-24 19:58:39","message_type":1,"page_title":null,"page_desc":null,"map_scale":null,"map_label":null,"map_img":null,"media_id":null}]}}
