@@ -62,6 +62,14 @@ class AuthModel extends Model {
 
         $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date);
 
+        if($user_type != 3){
+            $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$uid])->value('model_list');
+            
+            $model_list = json_decode($model_list);
+        }else{
+            $model_list = [];
+        }
+
         return msg(
             200,
             'success',
@@ -72,6 +80,7 @@ class AuthModel extends Model {
                 'company_id' => $company_id,
                 'company_name' => $company_name,
                 'username' => $username,
+                'user_type' => $user_type,
                 'logo' => $logo,
                 'phone_no' => $phone_no,
                 'user_group_id' => $user_group_id,
@@ -79,6 +88,7 @@ class AuthModel extends Model {
                 'user_type' => $user_type,
                 'uid' => $uid,
                 'avatar_url' => $avatar_url,
+                'model_list' => $model_list,
             ]
         );
     }
