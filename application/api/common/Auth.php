@@ -13,6 +13,8 @@ class Auth extends Controller{
 
     protected $expiration_date;
 
+    protected $user_type;
+
     public function __construct() {
         $header_token = Request::instance()->header('token');
         if(empty($header_token)){
@@ -35,6 +37,8 @@ class Auth extends Controller{
         $this->uid = $user_res['uid'];
 
         $this->expiration_date = $user_res['expiration_date'];
+
+        $this->user_type = $user_res['user_type'];
     }
 
     private function returnJson($code,$message){
