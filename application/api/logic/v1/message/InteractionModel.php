@@ -69,7 +69,7 @@ class InteractionModel extends Model {
         $company_id = $data['company_id'];
 
         //分页
-        $page_count = 200;
+        $page_count = 2000;
         $show_page = ($page - 1) * $page_count;
 
         $message_res = Db::name('message_data')
