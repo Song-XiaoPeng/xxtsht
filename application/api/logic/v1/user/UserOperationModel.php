@@ -87,6 +87,14 @@ class UserOperationModel extends Model {
             }
 
             $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+
+            if($v['user_type'] != 3){
+                $model_list = Db::name('model_auth')->where(['company_id'=>$v['company_id'],'model_auth_uid'=>$v['uid']])->value('model_list');
+                
+                $request_data['body']['user_list'][$k]['model_list'] = json_decode($model_list);
+            }else{
+                $request_data['body']['user_list'][$k]['model_list'] = [];
+            }
         }
 
         return msg(200,'success',['user_list'=>$request_data['body']['user_list'],'page_data'=>$request_data['body']['page_data']]);

@@ -40,6 +40,10 @@ class ModelAuth extends Auth{
 
         $data = input('put.');
         $data['company_id'] = $this->company_id;
+
+        if($this->uid == $data['uid']){
+            return msg(3001,'管理员账户无法设置');
+        }
         
         return \think\Loader::model('MaModel','logic\v1\user')->setUserModelAuth($data);
     }
