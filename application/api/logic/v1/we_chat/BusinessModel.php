@@ -456,9 +456,21 @@ class BusinessModel extends Model {
         ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1,3])])
         ->find();
         if($session_res){
-            $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->value('name');
+            if($session_res['state'] == 1 || $session_res['state'] == 2){
+                $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->value('name');
+            }
 
-            return '正在为您接入客服'.$customer_service_name.'请稍等！';
+            switch($session_res['state']){
+                case 0:
+                    return '正在为您接入客服'.$customer_service_name.'请稍等！';
+                    break;
+                case 1:
+                    return '客服'.$customer_service_name.'正在为您服务！';
+                    break;
+                case 3:
+                    return '正在为您分配客服，请稍等！';
+                    break;
+            }
         }
 
         switch($type){
@@ -721,10 +733,6 @@ class BusinessModel extends Model {
         $file_ize = filesize('..'.$res['resources_route']);
         $picture_data = fread(fopen('..'.$res['resources_route'], "r"), $file_ize);
 
-        // $repository = new \Dflydev\ApacheMimeTypes\JsonRepository;
-        
-        // $type = $repository->findType($res['file_suffix_name']);
-
         return response($picture_data)->contentType($res['mime_type']);
     }
 
@@ -743,10 +751,6 @@ class BusinessModel extends Model {
 
         $file_ize = filesize('..'.$res['resources_route']);
         $picture_data = fread(fopen('..'.$res['resources_route'], "r"), $file_ize);
-
-        // $repository = new \Dflydev\ApacheMimeTypes\JsonRepository;
-        
-        // $type = $repository->findType($res['file_suffix_name']);
 
         return response($picture_data)->contentType($res['mime_type']);
     }
