@@ -271,4 +271,12 @@ return [
 
     //redis password
     'redis_password' => '556ca120',
+
+    //分表数量配置
+    'separate' => [
+        'customer_info' => 5,
+        'message_data' => 10,
+        'message_session' => 8,
+        'wx_user' => 5,
+    ]
 ];

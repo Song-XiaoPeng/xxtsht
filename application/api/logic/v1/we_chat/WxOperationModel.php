@@ -1364,7 +1364,7 @@ class WxOperationModel extends Model {
         $link_name = empty($data['link_name']) == true ? '' : $data['link_name'];
 
         $session_res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where([
             'uid' => $uid,
             'company_id' => $company_id,
@@ -1467,7 +1467,7 @@ class WxOperationModel extends Model {
         }
 
         $session_res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->join('tb_customer_service','tb_customer_service.customer_service_id = tb_message_session.customer_service_id')
         ->where([
             'tb_message_session.company_id' => $company_id,
@@ -1498,7 +1498,7 @@ class WxOperationModel extends Model {
         }
 
         $update_res = Db::name('message_session')
-        ->partition(['session_id' => $session_id], 'session_id', ['type'=>'md5','num'=>8])
+        ->partition(['session_id' => $session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where([
             'session_id' => $session_id,
             'company_id' => $company_id
@@ -1543,7 +1543,7 @@ class WxOperationModel extends Model {
                 
                 $extra_data['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
-                $extra_data['session_frequency'] = Db::name('message_session')->partition('', '', ['type'=>'md5','num'=>8])->where(['customer_wx_openid'=>$session_data['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
+                $extra_data['session_frequency'] = Db::name('message_session')->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])->where(['customer_wx_openid'=>$session_data['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
 
                 $extra_data['invitation_frequency'] = 0;
 
@@ -1557,7 +1557,7 @@ class WxOperationModel extends Model {
 
             if(count($waiting) != 0 || count($queue_up) != 0){
                 foreach($insert_waiting as $key=>$value){
-                    Db::name('message_session')->partition(['session_id'=>$value['session_id']], '', ['type'=>'md5','num'=>8])->insert($insert_waiting[$key]);
+                    Db::name('message_session')->partition(['session_id'=>$value['session_id']], '', ['type'=>'md5','num'=>config('separate')['message_session']])->insert($insert_waiting[$key]);
                 }
 
                 foreach($arr as $v){
@@ -1590,7 +1590,7 @@ class WxOperationModel extends Model {
             $arr = [];
 
             $openid_list = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>8])
+            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->where(['uid'=>$uid,'company_id'=>$company_id])
             ->field('customer_wx_openid')
             ->select();
@@ -1614,7 +1614,7 @@ class WxOperationModel extends Model {
                 }
 
                 Db::name('message_data')
-                ->partition(['customer_wx_openid'=>$v['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>10])
+                ->partition(['customer_wx_openid'=>$v['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>config('separate')['message_data']])
                 ->insertAll($content);
 
                 foreach($content as $i=>$c){
@@ -1655,7 +1655,7 @@ class WxOperationModel extends Model {
 
         foreach($session_list as $k=>$v){
             $session_res = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>8])
+            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->where([
                 'session_id' => $v,
                 'company_id' => $company_id,
@@ -1676,7 +1676,7 @@ class WxOperationModel extends Model {
     
             $this->noticeCloseSession($session_res['appid'],$company_id,$session_res['customer_wx_openid'],$customer_service_name);
 
-            Db::name('message_session')->partition(['session_id' => $v], 'session_id', ['type'=>'md5','num'=>8])->where(['session_id' => $v])->update(['state' => -1]);
+            Db::name('message_session')->partition(['session_id' => $v], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])->where(['session_id' => $v])->update(['state' => -1]);
 
             array_push($success_close_session,$v);
         }

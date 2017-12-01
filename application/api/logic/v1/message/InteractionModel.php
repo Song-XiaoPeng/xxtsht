@@ -21,7 +21,7 @@ class InteractionModel extends Model {
         $show_page = ($page - 1) * $page_count;
 
         $session_res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where([
             'uid' => $uid,
             'company_id' => $company_id,
@@ -33,7 +33,7 @@ class InteractionModel extends Model {
         ->select();
 
         $count = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where([
             'uid' => $uid,
             'company_id' => $company_id,
@@ -73,7 +73,7 @@ class InteractionModel extends Model {
         $show_page = ($page - 1) * $page_count;
 
         $message_res = Db::name('message_data')
-        ->partition('', '', ['type'=>'md5','num'=>10])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
         ->where([
             'uid' => $uid,
             'company_id' => $company_id,
@@ -84,7 +84,7 @@ class InteractionModel extends Model {
         ->select();
 
         $count = Db::name('message_data')
-        ->partition('', '', ['type'=>'md5','num'=>10])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
         ->where([
             'uid' => $uid,
             'company_id' => $company_id,

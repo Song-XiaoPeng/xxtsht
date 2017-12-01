@@ -10,8 +10,6 @@ use app\api\common\Common;
 class BusinessModel extends Model {
     private $default_message = '系统未识别到您的描述，请再描述一次！';
 
-    private $wx_user_partition_num = 5;
-
     //微信授权事件处理
     public function authCallback(){
         Log::record('收到微信数据------'.date('YmdHis'));
@@ -352,7 +350,7 @@ class BusinessModel extends Model {
 	 */
     private function getSession($appid,$openid){
         $res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>1])
         ->find();
 
@@ -452,7 +450,7 @@ class BusinessModel extends Model {
 
         //匹配是否存在正在会话中数据
         $session_res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>8])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1,3])])
         ->find();
         if($session_res){
@@ -570,7 +568,7 @@ class BusinessModel extends Model {
         }
 
         $wx_user_count = Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->count();
 
@@ -599,7 +597,7 @@ class BusinessModel extends Model {
             }
 
             Db::name('wx_user')
-            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['appid'=>$appid,'openid'=>$openid])
             ->update($update_map);
 
@@ -609,7 +607,7 @@ class BusinessModel extends Model {
         }
 
         $wx_user_count = Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->insert([
             'wx_user_id' => md5(uniqid()),
             'nickname' => $wx_info['nickname'],

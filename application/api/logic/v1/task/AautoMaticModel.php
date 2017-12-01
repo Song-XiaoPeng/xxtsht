@@ -7,8 +7,6 @@ use app\api\common\Common;
 
 //自动任务处理
 class AautoMaticModel extends Model {
-    private $wx_user_partition_num = 5;
-
     //任务进度计算
     private function progressCalculation($task_id,$total,$max_count,$num){
         $pull_num = ceil($total/$max_count);
@@ -74,7 +72,7 @@ class AautoMaticModel extends Model {
         foreach($list['data']['openid'] as $openid){
             try{
                 Db::name('wx_user')
-                ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+                ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
                 ->insert([
                     'wx_user_id' => md5(uniqid()),
                     'openid' => $openid,
@@ -105,7 +103,7 @@ class AautoMaticModel extends Model {
                     foreach($id_list['data']['openid'] as $openid){
                         try{
                             Db::name('wx_user')
-                            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+                            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
                             ->insert([
                                 'wx_user_id' => md5(uniqid()),
                                 'openid' => $openid,
@@ -160,12 +158,12 @@ class AautoMaticModel extends Model {
         $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
 
         $total = Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'company_id'=>$company_id,'is_sync'=>$is_sync])
         ->count();
 
         $wx_user_arr = Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>$this->wx_user_partition_num])
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'company_id'=>$company_id,'is_sync'=>$is_sync])
         ->field('openid')
         ->select();

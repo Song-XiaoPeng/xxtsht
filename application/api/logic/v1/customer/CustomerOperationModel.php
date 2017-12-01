@@ -43,7 +43,7 @@ class CustomerOperationModel extends Model {
         $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
 
         $wx_user_res = Db::name('wx_user')
-        ->partition('', '', ['type'=>'md5','num'=>5])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->find();
     
@@ -56,7 +56,7 @@ class CustomerOperationModel extends Model {
             ->partition(
                 ['customer_info_id' => $customer_info_id],
                 'customer_info_id',
-                ['type' => 'md5','num' => 5]
+                ['type' => 'md5','num' => config('separate')['customer_info']]
             )
             ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
             ->find();
@@ -72,7 +72,7 @@ class CustomerOperationModel extends Model {
             ->partition(
                 ['customer_info_id' => $customer_info_id],
                 'customer_info_id',
-                ['type' => 'md5','num' => 5]
+                ['type' => 'md5','num' => config('separate')['customer_info']]
             )
             ->insert([
                 'customer_info_id' => $customer_info_id,
@@ -96,7 +96,7 @@ class CustomerOperationModel extends Model {
             ->partition(
                 ['customer_info_id' => empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id],
                 'customer_info_id',
-                ['type' => 'md5','num' => 5]
+                ['type' => 'md5','num' => config('separate')['customer_info']]
             )
             ->where([
                 'customer_info_id' => empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id,
@@ -119,7 +119,7 @@ class CustomerOperationModel extends Model {
         }
 
         $db_operation_res = Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], 'company_id', ['type'=>'md5','num'=>5])
+        ->partition(['company_id'=>$company_id], 'company_id', ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->update(['customer_info_id'=>$customer_info_id]);
 
@@ -143,7 +143,7 @@ class CustomerOperationModel extends Model {
         $openid = $data['openid'];
 
         $customer_info_id = Db::name('wx_user')
-        ->partition('', '', ['type'=>'md5','num'=>5])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->value('customer_info_id');
 
@@ -152,7 +152,7 @@ class CustomerOperationModel extends Model {
         }
 
         $customer_info = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>5])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->where(['customer_info_id'=>$customer_info_id])
         ->find();
         if(!$customer_info){
@@ -197,7 +197,7 @@ class CustomerOperationModel extends Model {
         $map['company_id'] = $company_id;
 
         $customer_info_res = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>5])
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->where($map)
         ->select();
         
