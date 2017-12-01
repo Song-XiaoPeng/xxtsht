@@ -51,4 +51,50 @@ class InteractionModel extends Model {
 
         return msg(200,'success',$res);
     }
+
+    /**
+     * 获取客户历史消息记录
+     * @param page 分页参数
+	 * @param company_id 商户company_id
+	 * @param uid 客服账号uid
+	 * @param customer_wx_openid 客户微信openid
+	 * @return code 200->成功
+	 */
+    public function getHistoryMessage($data){
+        $page = $data['page'];
+        $customer_wx_openid = $data['customer_wx_openid'];
+        $uid = $data['uid'];
+        $company_id = $data['company_id'];
+
+        //分页
+        $page_count = 200;
+        $show_page = ($page - 1) * $page_count;
+
+        $message_res = Db::name('message_data')
+        ->partition('', '', ['type'=>'md5','num'=>10])
+        ->where([
+            'uid' => $uid,
+            'company_id' => $company_id,
+            'customer_wx_openid' => $customer_wx_openid
+        ])
+        ->order('add_time asc')
+        ->limit($show_page,$page_count)
+        ->select();
+
+        $count = Db::name('message_data')
+        ->partition('', '', ['type'=>'md5','num'=>10])
+        ->where([
+            'uid' => $uid,
+            'company_id' => $company_id,
+            'customer_wx_openid' => $customer_wx_openid
+        ])
+        ->count();
+
+        $res['data_list'] = count($message_res) == 0 ? array() : $message_res;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+
+        return msg(200,'success',$res);
+    }
 }

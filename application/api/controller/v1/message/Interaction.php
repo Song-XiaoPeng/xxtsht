@@ -25,18 +25,19 @@ class Interaction extends Auth{
 	/**
      * 获取客户历史消息记录
      * 请求类型 post
-	 * 传入JSON格式: {"page":"1"}
-	 * 返回JSON格式: 
-	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/getHistoryMessageg
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/getHistoryMessageg
-     * @param page 分页参数默认1
+	 * 传入JSON格式: {"page":"1","customer_wx_openid":"oZ8DFwU5HOTs0b4g-P_skZ8wgH7g"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"message_id":"0e19af953b298140b4e83585baee0b1b","company_id":"51454009d703c86c91353f61011ecf2f","appid":"wx88c6052d06eaaf7d","customer_service_id":4,"customer_wx_openid":"oZ8DFwU5HOTs0b4g-P_skZ8wgH7g","add_time":"2017-11-28 16:20:11","opercode":2,"text":"九分节操呢","message_type":1,"file_url":null,"lng":null,"lat":null,"is_read":-1,"session_id":"104d6db707b4e82511748971554358bb","uid":6454,"media_id":null,"page_title":null,"page_desc":null,"map_scale":null,"map_label":null,"map_img":null,"resources_id":null}],"page_data":{"count":419,"rows_num":1,"page":"1"}}}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/getHistoryMessage
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/getHistoryMessage
+     * @param page 分页参数
+	 * @param customer_wx_openid 客户微信openid
 	 * @return code 200->成功
 	 */
-	public function getHistoryMessageg(){
+	public function getHistoryMessage(){
 		$data = input('put.');
 		$data['company_id'] = $this->company_id;
 		$data['uid'] = $this->uid;
 
-		return \think\Loader::model('InteractionModel','logic\v1\message')->getHistoryMessageg($data);
+		return \think\Loader::model('InteractionModel','logic\v1\message')->getHistoryMessage($data);
 	}
 }
