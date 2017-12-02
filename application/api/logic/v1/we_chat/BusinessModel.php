@@ -454,7 +454,7 @@ class BusinessModel extends Model {
         ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1,3])])
         ->find();
         if($session_res){
-            if($session_res['state'] == 1 || $session_res['state'] == 2){
+            if($session_res['state'] == 0 || $session_res['state'] == 1){
                 $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->value('name');
             }
 
