@@ -99,4 +99,31 @@ class InteractionModel extends Model {
 
         return msg(200,'success',$res);
     }
+
+    /**
+     * 获取已接入会话列表
+	 * @param company_id 商户company_id
+	 * @param uid 客服账号uid
+	 * @return code 200->成功
+	 */
+    public function getAlreadyAccess($company_id,$uid){
+        $session_res = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where([
+            'company_id' => $company_id,
+            'uid' => $uid,
+            'state' => 1,
+        ])
+        ->select();
+
+        foreach($session_res as $k=>$v){
+            $session_res[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
+
+            $session_res[$k]['session_frequency'] = Db::name('message_session')->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])->where(['customer_wx_openid'=>$v['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
+
+            $session_res[$k]['invitation_frequency'] = 0;
+        }
+
+        return msg(200,'success',$session_res);
+    }
 }

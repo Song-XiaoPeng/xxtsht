@@ -40,4 +40,16 @@ class Interaction extends Auth{
 
 		return \think\Loader::model('InteractionModel','logic\v1\message')->getHistoryMessage($data);
 	}
+
+	/**
+     * 获取已接入会话列表
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"session_id":"5902785347cfadaa59a1f4c90b39e4ed","customer_service_id":4,"customer_wx_openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","add_time":"2017-12-02 09:44:13","state":1,"uid":6454,"appid":"wx88c6052d06eaaf7d","company_id":"51454009d703c86c91353f61011ecf2f","previous_customer_service_id":null,"customer_wx_nickname":"Junwen","customer_wx_portrait":"http:\/\/wx.qlogo.cn\/mmopen\/YCOL3hU8ffVqHh18vG77VtZ9KpWGX7PFunR9cO0oTbS1SqmS8DBUJxwvI4ZZnY2mQqEb020ULBv1SBcibYeI3ey1BEa0dbSHB\/0","app_name":"网鱼服务营销平台","session_frequency":3,"invitation_frequency":0}]}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/getAlreadyAccess
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/getAlreadyAccess
+	 * @return code 200->成功
+	 */
+	public function getAlreadyAccess(){
+		return \think\Loader::model('InteractionModel','logic\v1\message')->getAlreadyAccess($this->company_id,$this->uid);
+	}
 }
