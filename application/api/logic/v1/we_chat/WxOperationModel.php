@@ -1468,15 +1468,19 @@ class WxOperationModel extends Model {
 
         $session_res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->join('tb_customer_service','tb_customer_service.customer_service_id = tb_message_session.customer_service_id')
         ->where([
-            'tb_message_session.company_id' => $company_id,
-            'tb_message_session.session_id' => $session_id,
-            'tb_message_session.uid' => $uid,
-            'tb_message_session.state' => ['in',[0,3]],
+            'company_id' => $company_id,
+            'session_id' => $session_id,
+            'uid' => $uid,
+            'state' => ['in',[0,3]],
         ])->find();
         if(!$session_res){
             return msg(3001,'会话不可接入');
+        }
+
+        $customer_service_res = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->find();
+        if(!$customer_service_res){
+            return msg(3003,'客服账号不存在');
         }
 
         $token_info = Common::getRefreshToken($session_res['appid'],$company_id);
@@ -1491,8 +1495,8 @@ class WxOperationModel extends Model {
             $openPlatform = $app->open_platform;
             $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
 
-            $message = new Text(['content' => '您好，我是客服'.$session_res['name'].'请问有什么需要帮助吗？']);
-            $staff->message($message)->by($session_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();            
+            $message = new Text(['content' => '您好，我是客服'.$customer_service_res['name'].'请问有什么需要帮助吗？']);
+            $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();            
         }catch (\Exception $e) {
             return msg(3002,$e->getMessage());
         }
@@ -1557,7 +1561,7 @@ class WxOperationModel extends Model {
 
             if(count($waiting) != 0 || count($queue_up) != 0){
                 foreach($insert_waiting as $key=>$value){
-                    Db::name('message_session')->partition(['session_id'=>$value['session_id']], '', ['type'=>'md5','num'=>config('separate')['message_session']])->insert($insert_waiting[$key]);
+                    Db::name('message_session')->partition(['session_id'=>$value['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])->insert($insert_waiting[$key]);
                 }
 
                 foreach($arr as $v){
