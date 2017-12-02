@@ -1438,7 +1438,7 @@ class WxOperationModel extends Model {
                     }
                     break;
                 case 6:
-                    $message = new Material(['media_id' => $media_id]);
+                    $message = new Material('mpnews', $media_id);
                     break;
                 default:
                     return msg(3006,'type参数错误');
