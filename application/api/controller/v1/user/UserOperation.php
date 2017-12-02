@@ -56,6 +56,7 @@ class UserOperation extends Auth{
     public function getUserList () {
         $data = input('put.');
         $data['token'] = $this->token;
+        $data['company_id'] = $this->company_id;
         
         return \think\Loader::model('UserOperationModel','logic\v1\user')->getUserList($data);
     }

@@ -58,6 +58,7 @@ class UserOperationModel extends Model {
     public function getUserList($data){
         $token = $data['token'];
         $page = $data['page'];
+        $company_id = $data['company_id'];
         $user_group_id = empty($data['user_group_id']) == true ? '' : $data['user_group_id'];
 
         $request_data = [
@@ -89,7 +90,7 @@ class UserOperationModel extends Model {
             $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
 
             if($v['user_type'] != 3){
-                $model_list = Db::name('model_auth')->where(['company_id'=>$v['company_id'],'model_auth_uid'=>$v['uid']])->value('model_list');
+                $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$v['uid']])->value('model_list');
                 
                 $request_data['body']['user_list'][$k]['model_list'] = json_decode($model_list);
             }else{
