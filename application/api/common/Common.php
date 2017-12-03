@@ -44,7 +44,7 @@ class Common {
      * @param openid 用户微信openid
      * @param session_id 会话id
      * @param customer_service_id 客服id
-     * @param type 消息类型 0其他 1文本 2图片 3语音 4视频 5坐标 6链接
+     * @param type 消息类型 0其他 1文本 2图片 3语音 4视频 5坐标 6图文素材 7链接
      * @param opercode 操作码 1客服发送信息 2客服接收消息
      * @param data_obj 数据对象
 	 * @return code 200->成功
@@ -58,13 +58,18 @@ class Common {
                 break;
             case '2':
                 $arr['file_url'] = $data_obj['file_url'];
-                $arr['media_id'] = $data_obj['media_id'];
+                $arr['media_id'] = empty($data_obj['media_id']) == true ? '' : $data_obj['media_id'];
+                $arr['resources_id'] = empty($data_obj['resources_id']) == true ? '' : $data_obj['resources_id'];
                 break;
             case '3':
-                $arr['media_id'] = $data_obj['media_id'];
+                $arr['media_id'] = empty($data_obj['media_id']) == true ? '' : $data_obj['media_id'];
+                $arr['resources_id'] = empty($data_obj['resources_id']) == true ? '' : $data_obj['resources_id'];
+                $arr['file_url'] = empty($data_obj['file_url']) == true ? '' : $data_obj['file_url'];
                 break;
             case '4':
-                $arr['media_id'] = $data_obj['media_id'];
+                $arr['media_id'] = empty($data_obj['media_id']) == true ? '' : $data_obj['media_id'];
+                $arr['resources_id'] = empty($data_obj['resources_id']) == true ? '' : $data_obj['resources_id'];
+                $arr['file_url'] = empty($data_obj['file_url']) == true ? '' : $data_obj['file_url'];
                 break;
             case '5':
                 $arr['lng'] = $data_obj['lng'];
@@ -74,6 +79,8 @@ class Common {
                 $arr['map_img'] = $data_obj['map_img'];
                 break;
             case '6':
+                $arr['media_id'] = $data_obj['media_id'];
+            case '7':
                 $arr['text'] = $data_obj['text'];
                 $arr['page_title'] = $data_obj['page_title'];
                 $arr['page_desc'] = $data_obj['page_desc'];

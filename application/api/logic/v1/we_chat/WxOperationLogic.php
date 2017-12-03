@@ -1402,14 +1402,17 @@ class WxOperationLogic extends Model {
             switch($type){
                 case 1:
                     $message = new Text(['content' => $content]);
+                    $data_obj = ['text'=>$content];
                     break;
                 case 2:
                     $upload_res = $temporary->uploadImage('..'.$resources_res['resources_route']);
                     $message = new Image(['media_id' => $upload_res['media_id']]);
+                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
                     break;
                 case 4:
                     $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
                     $message = new Video(['media_id' => $upload_res['media_id']]);
+                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
                     break;
                 case 3:
                     if($resources_res['mime_type'] == 'audio/x-wav'){
@@ -1436,9 +1439,12 @@ class WxOperationLogic extends Model {
                     }else{
                         return msg(3008,'File types do not support');
                     }
+
+                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
                     break;
                 case 6:
                     $message = new Material('mpnews', $media_id);
+                    $data_obj = ['media_id'=>$media_id]
                     break;
                 default:
                     return msg(3006,'type参数错误');
@@ -1450,7 +1456,7 @@ class WxOperationLogic extends Model {
             return msg(3001,$e->getMessage());
         }
 
-        Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],1,1,['text'=>$content]);
+        Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,1,$data_obj);
 
         return msg(200,'success');
     }

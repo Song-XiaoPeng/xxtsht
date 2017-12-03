@@ -93,8 +93,16 @@ class InteractionLogic extends Model {
         ->count();
 
         foreach($message_res as $i=>$c){
-            if($c['message_type'] == 2){
+            if($c['message_type'] == 2 && $c['opercode'] == 1){
+                $message_res[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
+            }
+
+            if($c['message_type'] == 2 && $c['opercode'] == 2){
                 $message_res[$i]['file_url'] = getWximg($c['file_url']);
+            }
+
+            if($c['message_type'] == 3 || $c['message_type'] == 4 && $c['opercode'] == 1){
+                $message_res[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
             }
         }
 
