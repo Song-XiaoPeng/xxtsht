@@ -59,4 +59,19 @@ class CommonModel extends Model {
     
         return msg(200,'success',$list);
     }
+
+    /**
+     * 删除快捷回复语句
+     * @param quick_reply_id 语句id
+	 * @return code 200->成功
+	 */
+    public function delQuickReply($company_id,$uid,$quick_reply_id){
+        $del_res = Db::name('quick_reply')->where(['quick_reply_id'=>$quick_reply_id,'uid'=>$uid,'company_id'=>$company_id])->delete();
+
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
+        }
+    }
 }

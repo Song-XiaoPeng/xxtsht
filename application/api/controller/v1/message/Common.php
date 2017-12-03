@@ -33,5 +33,21 @@ class Common extends Auth{
 	 */
 	public function getQuickReplyList(){
         return \think\Loader::model('CommonModel','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid);
+    }
+    
+    /**
+     * 删除快捷回复语句
+     * 请求类型 post
+     * 传入JSON格式: {"quick_reply_id":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[]}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Common/delQuickReply
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Common/delQuickReply
+     * @param quick_reply_id 删除的语句id
+	 * @return code 200->成功
+	 */
+	public function delQuickReply(){
+        $data = input('put.');
+
+        return \think\Loader::model('CommonModel','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid,$data['quick_reply_id']);
 	}
 }
