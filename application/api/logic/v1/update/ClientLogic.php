@@ -9,7 +9,7 @@ class ClientLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getVersion(){
-        $res = Db::name('client_version')->order('version desc')->group('system_type')->select();
+        $res = Db::name('client_version')->order('version desc')->group('system_type')->cache(true,60)->select();
 
         $data = [];
 
