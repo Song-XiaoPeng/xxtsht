@@ -92,6 +92,12 @@ class InteractionLogic extends Model {
         ])
         ->count();
 
+        foreach($message_res as $i=>$c){
+            if($c['message_type'] == 2){
+                $message_res[$i]['file_url'] = getWximg($c['file_url']);
+            }
+        }
+
         $res['data_list'] = count($message_res) == 0 ? array() : $message_res;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
