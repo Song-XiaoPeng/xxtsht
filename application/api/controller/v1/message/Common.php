@@ -20,7 +20,7 @@ class Common extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
         
-        return \think\Loader::model('CommonModel','logic\v1\message')->setQuickReplyText($data);
+        return \think\Loader::model('CommonLogic','logic\v1\message')->setQuickReplyText($data);
 	}
 
     /**
@@ -32,7 +32,7 @@ class Common extends Auth{
 	 * @return code 200->成功
 	 */
 	public function getQuickReplyList(){
-        return \think\Loader::model('CommonModel','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid);
+        return \think\Loader::model('CommonLogic','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid);
     }
     
     /**
@@ -48,6 +48,6 @@ class Common extends Auth{
 	public function delQuickReply(){
         $data = input('put.');
 
-        return \think\Loader::model('CommonModel','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid,$data['quick_reply_id']);
+        return \think\Loader::model('CommonLogic','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid,$data['quick_reply_id']);
 	}
 }

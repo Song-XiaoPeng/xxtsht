@@ -26,7 +26,7 @@ class Handle extends Auth{
         $data['uid'] = $this->uid;
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('ExtensionModel','logic\v1\extension')->createQrcode($data);
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->createQrcode($data);
     }
 
     /**
@@ -45,7 +45,7 @@ class Handle extends Auth{
         $data['uid'] = $this->uid;
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('ExtensionModel','logic\v1\extension')->addQrcodeGroup($data);
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->addQrcodeGroup($data);
     }
 
     /**
@@ -63,7 +63,7 @@ class Handle extends Auth{
         $data['uid'] = $this->uid;
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('ExtensionModel','logic\v1\extension')->delQrcodeGroup($data);
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->delQrcodeGroup($data);
     }
 
     /**
@@ -81,7 +81,7 @@ class Handle extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('ExtensionModel','logic\v1\extension')->editQrcodeGroupName($data);
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->editQrcodeGroupName($data);
     }
 
     /**
@@ -98,7 +98,7 @@ class Handle extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('ExtensionModel','logic\v1\extension')->getQrcodeGroupList($data);
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getQrcodeGroupList($data);
     }
 
     /**
@@ -117,6 +117,6 @@ class Handle extends Auth{
         $data['company_id'] = $this->company_id;
         $data['token'] = $this->token;
         
-        return \think\Loader::model('ExtensionModel','logic\v1\extension')->getQrcodList($data);
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getQrcodList($data);
     }
 }

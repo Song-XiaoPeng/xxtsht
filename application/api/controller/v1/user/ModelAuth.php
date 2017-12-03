@@ -21,7 +21,7 @@ class ModelAuth extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
         
-        return \think\Loader::model('MaModel','logic\v1\user')->getModelAuthList($data);
+        return \think\Loader::model('MaLogic','logic\v1\user')->getModelAuthList($data);
     }
 
     /**
@@ -45,7 +45,7 @@ class ModelAuth extends Auth{
             return msg(3001,'管理员账户无法设置');
         }
         
-        return \think\Loader::model('MaModel','logic\v1\user')->setUserModelAuth($data);
+        return \think\Loader::model('MaLogic','logic\v1\user')->setUserModelAuth($data);
     }
 
 

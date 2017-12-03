@@ -7,7 +7,7 @@ use think\Config;
 class Business {
     //微信授权事件处理
     public function authCallback(){
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->authCallback();
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->authCallback();
     }
 
     //微信公众号消息与事件处理
@@ -19,28 +19,28 @@ class Business {
             $data['appid'] = trim($data['appid'],'/');
         }
 
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->messageEvent($data);
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->messageEvent($data);
     }
 
     //获取第三方公众号授权链接
     public function getAuthUrl(){
         $company_id = input('get.company_id');
 
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getAuthUrl($company_id);
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->getAuthUrl($company_id);
     }
 
     //授权成功跳转页面
     public function authCallbackPage(){
         $data = input('get.');
 
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->authCallbackPage($data);
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->authCallbackPage($data);
     }
 
     //上传微信永久素材图片
     public function wx_upload_img(){
         $data = input('get.');
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->wx_upload_img($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->wx_upload_img($data);
     }
 
     /**
@@ -56,7 +56,7 @@ class Business {
     public function getMaterial(){
         $data = input('get.');
         
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getMaterial($data['appid'],$data['company_id'],$data['media_id'],$data['type']);
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->getMaterial($data['appid'],$data['company_id'],$data['media_id'],$data['type']);
     }
 
     /**
@@ -70,7 +70,7 @@ class Business {
     public function getImg(){
         $resources_id = input('get.resources_id');
 
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getImg($resources_id);
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->getImg($resources_id);
     }
 
     /**
@@ -84,7 +84,7 @@ class Business {
     public function getFile(){
         $resources_id = input('get.resources_id');
 
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getFile($resources_id);
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->getFile($resources_id);
     }
 
     /**
@@ -98,6 +98,6 @@ class Business {
     public function getWxUrlImg(){
         $url = input('get.url');
 
-        return \think\Loader::model('BusinessModel','logic\v1\we_chat')->getWxUrlImg($url);
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')->getWxUrlImg($url);
     }
 }

@@ -28,7 +28,7 @@ class CustomerOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->setCustomerInfo($data);
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->setCustomerInfo($data);
 	}
 	
     /**
@@ -47,7 +47,7 @@ class CustomerOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
         
-        return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->getWxCustomerInfo($data);
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getWxCustomerInfo($data);
 	}
 
 	/**
@@ -65,6 +65,6 @@ class CustomerOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('CustomerOperationModel','logic\v1\customer')->getCustomerList($data);
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getCustomerList($data);
 	}	
 }

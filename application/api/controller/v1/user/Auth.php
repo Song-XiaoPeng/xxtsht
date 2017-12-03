@@ -17,7 +17,7 @@ class Auth {
     public function login () {
         $data = input('put.');
         
-        return \think\Loader::model('AuthModel','logic\v1\user')->login($data);
+        return \think\Loader::model('AuthLogic','logic\v1\user')->login($data);
     }
     
     /**
@@ -37,6 +37,6 @@ class Auth {
             return msg(3001,'token错误');
         }
         
-        return \think\Loader::model('AuthModel','logic\v1\user')->updateAuthTime($data);
+        return \think\Loader::model('AuthLogic','logic\v1\user')->updateAuthTime($data);
     }
 }

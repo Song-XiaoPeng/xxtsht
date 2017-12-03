@@ -18,7 +18,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMenuList($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getMenuList($data);
     }
 
     /**
@@ -36,7 +36,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setMenu($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->setMenu($data);
     }
 
     /**
@@ -59,7 +59,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setMessageRuld($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->setMessageRuld($data);
     }
 
     /**
@@ -78,7 +78,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMessageRuleList($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getMessageRuleList($data);
     }
 
     /**
@@ -95,7 +95,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delMessageRule($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->delMessageRule($data);
     }
 
     /**
@@ -113,14 +113,14 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['token'] = $this->token;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadSourceMaterial($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->uploadSourceMaterial($data);
     }
 
     public function wxUploadImg(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->wxUploadImg($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->wxUploadImg($data);
     }
 
     /**
@@ -145,7 +145,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addArticle($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->addArticle($data);
     }
 
     /**
@@ -163,7 +163,7 @@ class WxOperation extends Auth{
     public function getArticleList(){
         $data = input('put.');
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')
         ->getArticleList(
             $this->company_id,
             $data['appid'],
@@ -186,7 +186,7 @@ class WxOperation extends Auth{
     public function delSourceMaterial(){
         $data = input('put.');
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')
         ->delSourceMaterial(
             $this->company_id,
             $data['appid'],
@@ -208,7 +208,7 @@ class WxOperation extends Auth{
     public function getSourceMaterial(){
         $data = input('put.');
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')
         ->getSourceMaterial(
             $this->company_id,
             $data['appid'],
@@ -231,7 +231,7 @@ class WxOperation extends Auth{
     public function syncWxUser(){
         $data = input('put.');
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')
         ->syncWxUser(
             $this->company_id,
             $this->uid,
@@ -253,7 +253,7 @@ class WxOperation extends Auth{
     public function getTaskList(){
         $data = input('put.');
         
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')
         ->getTaskList(
             $this->company_id,
             $data['page']
@@ -278,7 +278,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxUserList($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getWxUserList($data);
     }
 
     /**
@@ -301,7 +301,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addWxUserComapnyGroup($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->addWxUserComapnyGroup($data);
     }
     
     /**
@@ -319,7 +319,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxUserComapnyGroupList($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getWxUserComapnyGroupList($data);
     }
 
     /**
@@ -336,7 +336,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxUserComapny($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->delWxUserComapny($data);
     }
 
     /**
@@ -354,7 +354,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addCustomerGroup($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->addCustomerGroup($data);
     }
 
     /**
@@ -371,7 +371,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delCustomerGroup($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->delCustomerGroup($data);
     }
 
     /**
@@ -391,7 +391,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->setWxIndividualizationMenu($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->setWxIndividualizationMenu($data);
     }
 
     /**
@@ -409,7 +409,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxIndividualizationMenu($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getWxIndividualizationMenu($data);
     }
 
     /**
@@ -427,7 +427,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxIndividualizationMenu($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->delWxIndividualizationMenu($data);
     }
 
     /**
@@ -444,7 +444,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getCustomerGroupList($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getCustomerGroupList($data);
     }
 
     /**
@@ -461,7 +461,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getWxGroup($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getWxGroup($data);
     }
 
     /**
@@ -480,7 +480,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addWxGroup($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->addWxGroup($data);
     }
 
     /**
@@ -498,7 +498,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delWxGroup($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->delWxGroup($data);
     }
 
     /**
@@ -517,7 +517,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->moveUserWxGroup($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->moveUserWxGroup($data);
     }
 
     /**
@@ -542,7 +542,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->addMassNews($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->addMassNews($data);
     }
 
     /**
@@ -560,7 +560,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->delMassNews($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->delMassNews($data);
     }
 
     /**
@@ -578,7 +578,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMassNewsList($data['appid'],$data['company_id'],$data['page']);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getMassNewsList($data['appid'],$data['company_id'],$data['page']);
     }
 
     /**
@@ -597,7 +597,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUserSummary($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getUserSummary($data);
     }
 
     /**
@@ -616,7 +616,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUserCumulate($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getUserCumulate($data);
     }
 
     /**
@@ -635,7 +635,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getArticleSummary($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getArticleSummary($data);
     }
 
     /**
@@ -654,7 +654,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getArticleTotal($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getArticleTotal($data);
     }
 
     /**
@@ -673,7 +673,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUserShareSummary($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getUserShareSummary($data);
     }
 
     /**
@@ -692,7 +692,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getUpstreamMessageSummary($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getUpstreamMessageSummary($data);
     }
 
     /**
@@ -714,7 +714,7 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->sendMessage($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->sendMessage($data);
     }
 
     /**
@@ -732,7 +732,7 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->sessionAccess($data['company_id'],$data['uid'],$data['session_id']);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->sessionAccess($data['company_id'],$data['uid'],$data['session_id']);
     }
 
     /**
@@ -747,7 +747,7 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getMessage($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getMessage($data);
     }
 
     /**
@@ -765,7 +765,7 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->closeSession($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->closeSession($data);
     }
 
     /**
@@ -781,7 +781,7 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->getSessionList($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getSessionList($data);
     }
 
     /**
@@ -799,10 +799,10 @@ class WxOperation extends Auth{
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->uploadResources($data);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->uploadResources($data);
     }
 
     public function test(){
-        return \think\Loader::model('WxOperationModel','logic\v1\we_chat')->test();
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->test();
     }
 }
