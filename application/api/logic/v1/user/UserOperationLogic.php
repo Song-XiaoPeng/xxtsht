@@ -5,7 +5,7 @@ use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
 
-class UserOperationModel extends Model {
+class UserOperationLogic extends Model {
     /**
      * 添加子账号
 	 * @param user_group_id 权限分组id

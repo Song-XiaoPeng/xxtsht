@@ -5,7 +5,7 @@ use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
 
-class CustomerOperationModel extends Model {
+class CustomerOperationLogic extends Model {
     /**
      * 设置客户信息
      * @param company_id 商户company_id

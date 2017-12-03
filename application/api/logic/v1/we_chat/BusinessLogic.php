@@ -7,7 +7,7 @@ use EasyWeChat\OpenPlatform\Guard;
 use think\Log;
 use app\api\common\Common;
 
-class BusinessModel extends Model {
+class BusinessLogic extends Model {
     private $default_message = '系统未识别到您的描述，请再描述一次！';
 
     //微信授权事件处理

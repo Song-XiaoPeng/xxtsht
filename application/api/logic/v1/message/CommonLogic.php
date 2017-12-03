@@ -3,7 +3,7 @@ namespace app\api\logic\v1\message;
 use think\Model;
 use think\Db;
 
-class CommonModel extends Model {
+class CommonLogic extends Model {
     /**
      * 设置快捷回复语句
      * @param quick_reply_id 存在则是编辑

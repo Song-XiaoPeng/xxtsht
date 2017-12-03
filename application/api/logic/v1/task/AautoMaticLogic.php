@@ -6,7 +6,7 @@ use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
 
 //自动任务处理
-class AautoMaticModel extends Model {
+class AautoMaticLogic extends Model {
     //任务进度计算
     private function progressCalculation($task_id,$total,$max_count,$num){
         $pull_num = ceil($total/$max_count);

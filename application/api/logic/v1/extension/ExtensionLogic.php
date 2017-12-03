@@ -5,7 +5,7 @@ use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
 
-class ExtensionModel extends Model {
+class ExtensionLogic extends Model {
     /**
      * 创建推广二维码
      * @param appid 公众号appid

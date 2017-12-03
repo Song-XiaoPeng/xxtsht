@@ -13,7 +13,7 @@ use EasyWeChat\Message\Video;
 use EasyWeChat\Message\Material;
 
 //微信后台操作业务类
-class WxOperationModel extends Model {
+class WxOperationLogic extends Model {
     /**
      * 获取菜单List
      * @param appid 公众号或小程序appid

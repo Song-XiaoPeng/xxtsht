@@ -3,7 +3,7 @@ namespace app\api\logic\v1\message;
 use think\Model;
 use think\Db;
 
-class InteractionModel extends Model {
+class InteractionLogic extends Model {
     /**
      * 获取客服历史会话列表
      * @param page 分页参数

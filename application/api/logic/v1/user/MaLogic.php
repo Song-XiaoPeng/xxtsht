@@ -4,7 +4,7 @@ use think\Model;
 use think\Db;
 use app\api\common\Common;
 
-class MaModel extends Model {
+class MaLogic extends Model {
     /**
      * 获取授权模块列表
 	 * @param company_id 商户company_id

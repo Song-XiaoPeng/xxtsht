@@ -3,7 +3,7 @@ namespace app\api\logic\v1\user;
 use think\Model;
 use think\Db;
 
-class AuthModel extends Model {
+class AuthLogic extends Model {
     /**
      * 账号登录
      * @param phone_no 用户手机
