@@ -188,6 +188,7 @@ class CustomerOperationLogic extends Model {
 	 */
     public function getCustomerList($data){
         $company_id = $data['company_id'];
+        $uid = $data['uid'];
         $page = $data['page'];
         $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
 
