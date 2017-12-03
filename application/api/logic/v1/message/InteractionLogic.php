@@ -79,7 +79,7 @@ class InteractionLogic extends Model {
             'company_id' => $company_id,
             'customer_wx_openid' => $customer_wx_openid
         ])
-        ->order('add_time asc')
+        ->order('add_time desc')
         ->limit($show_page,$page_count)
         ->select();
 

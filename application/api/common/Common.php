@@ -80,6 +80,7 @@ class Common {
                 break;
             case '6':
                 $arr['media_id'] = $data_obj['media_id'];
+                break;
             case '7':
                 $arr['text'] = $data_obj['text'];
                 $arr['page_title'] = $data_obj['page_title'];
