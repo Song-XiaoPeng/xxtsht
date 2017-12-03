@@ -1444,7 +1444,7 @@ class WxOperationLogic extends Model {
                     break;
                 case 6:
                     $message = new Material('mpnews', $media_id);
-                    $data_obj = ['media_id'=>$media_id]
+                    $data_obj = ['media_id'=>$media_id];
                     break;
                 default:
                     return msg(3006,'type参数错误');
