@@ -192,13 +192,23 @@ class CustomerOperationLogic extends Model {
         $page = $data['page'];
         $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
 
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
         $map['real_name'] = ['like',"%$real_name%"];
         $map['company_id'] = $company_id;
 
         $customer_info_res = Db::name('customer_info')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
+        ->limit($show_page,$page_count)
         ->where($map)
         ->select();
+
+        $count = Db::name('customer_info')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
+        ->where($map)
+        ->count();
         
         foreach($customer_info_res as $k=>$v){
             if($v['wx_user_group_id'] != -1){
@@ -229,7 +239,12 @@ class CustomerOperationLogic extends Model {
             }
         }
 
-        return msg(200,'success',$customer_info_res);
+        $res['data_list'] = count($customer_info_res) == 0 ? array() : $customer_info_res;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
     }
 
     /**
