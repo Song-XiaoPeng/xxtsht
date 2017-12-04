@@ -32,7 +32,7 @@ class Remind extends Auth{
 	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/getRemindList
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/getRemindList
 	 * @param wx_user_id 提醒的客户微信基础信息id(选传空返回全部)
-	 * @param is_remind 是否已经提醒 1是 -1否 不传返回全部
+	 * @param is_remind 是否已经提醒 1是 -1否
 	 * @param page 分页参数默认1
 	 * @return code 200->成功
 	 */

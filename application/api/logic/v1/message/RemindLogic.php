@@ -2,6 +2,7 @@
 namespace app\api\logic\v1\message;
 use think\Model;
 use think\Db;
+use app\api\common\Common;
 
 class RemindLogic extends Model {
     /**
@@ -32,7 +33,10 @@ class RemindLogic extends Model {
 
         $remind_id = md5(uniqid());
 
-        $insert_res = Db::name('remind')->insertGetId([
+        $redis = Common::createRedis();
+        $redis->select(2);
+
+        $insert_data = [
             'remind_id' => $remind_id,
             'remind_content' => $remind_content,
             'wx_user_id' => $wx_user_id,
@@ -41,7 +45,9 @@ class RemindLogic extends Model {
             'add_time' => date('Y-m-d H:i:s'),
             'remind_time' => $remind_time,
             'remind_openid' => $remind_openid,
-        ]);
+        ];
+
+        $insert_res = $redis->LPUSH($uid,json_encode($insert_data));
 
         if($insert_res){
             return msg(200,'success',['remind_id'=>$remind_id]);
@@ -55,7 +61,7 @@ class RemindLogic extends Model {
      * @param page 分页参数默认1 空返回全部
      * @param wx_user_id 提醒的客户微信基础信息id
 	 * @param uid 账号uid
-	 * @param is_remind 是否已经提醒 1是 -1否 不传返回全部
+	 * @param is_remind 是否已经提醒 1是 -1否
 	 * @param company_id 商户company_id
 	 * @return code 200->成功
 	 */
