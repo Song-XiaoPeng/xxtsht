@@ -187,6 +187,7 @@ class CustomerOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param page 分页参数 默认1
      * @param uid 登录账号uid
+     * @param type 客户类型 0其他 1意向客户 2订单客户 3追销客户
      * @param real_name 客户姓名 (选传)
 	 * @return code 200->成功
 	 */
@@ -194,6 +195,7 @@ class CustomerOperationLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $page = $data['page'];
+        $type = $data['type'];
         $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
 
         //分页
@@ -202,6 +204,7 @@ class CustomerOperationLogic extends Model {
 
         $map['real_name'] = ['like',"%$real_name%"];
         $map['company_id'] = $company_id;
+        $map['customer_type'] = $type;
 
         $customer_info_res = Db::name('customer_info')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
@@ -219,7 +222,7 @@ class CustomerOperationLogic extends Model {
                 $customer_info_res[$k]['wx_user_group_name'] = Db::name('wx_user_group')
                 ->where(['wx_user_group_id'=>$v['wx_user_group_id']])
                 ->cache(true,60)
-                ->value('wx_user_group_name');
+                ->value('group_name');
             }else{
                 $customer_info_res[$k]['wx_user_group_name'] = null;
             }
