@@ -60,12 +60,8 @@ class RemindLogic extends Model {
         $company_id = $data['company_id'];
         $wx_user_id = $data['wx_user_id'];
         $uid = $data['uid'];
-        $page = $data['page'];
+        $page = empty($data['page']) == true ? '' : $data['page'];
         $is_remind = empty($data['is_remind']) == true ? '' : $data['is_remind'];
-
-        //分页
-        $page_count = 16;
-        $show_page = ($page - 1) * $page_count;
 
         if($wx_user_id){
             $map['wx_user_id'] = $wx_user_id;
@@ -76,8 +72,16 @@ class RemindLogic extends Model {
         $map['company_id'] = $company_id;
         $map['uid'] = $uid;
 
-        $list = Db::name('remind')->where($map)->limit($show_page,$page_count)->select();
-        $count = Db::name('remind')->where($map)->count();
+        //分页
+        if($page){
+            $page_count = 16;
+            $show_page = ($page - 1) * $page_count;
+
+            $list = Db::name('remind')->where($map)->limit($show_page,$page_count)->select();
+            $count = Db::name('remind')->where($map)->count();
+        }else{
+            $list = Db::name('remind')->where($map)->select();
+        }
 
         foreach($list as $k=>$v){
             $wx_user_info = Db::name('wx_user')
@@ -126,9 +130,13 @@ class RemindLogic extends Model {
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
-        $res['page_data']['count'] = $count;
-        $res['page_data']['rows_num'] = $page_count;
-        $res['page_data']['page'] = $page;
+        if($page){
+            $res['page_data']['count'] = $count;
+            $res['page_data']['rows_num'] = $page_count;
+            $res['page_data']['page'] = $page;
+        }else{
+            $res['page_data']= null;
+        }
         
         return msg(200,'success',$res);
     }
