@@ -13,7 +13,7 @@ class AuthLogic extends Model {
     public function login ($data) {
         $phone_no = $data['phone_no'];
         $password = $data['password'];
-        $version = empty($data['version']) == true ? '' : $data['version'];
+        $client_version = empty($data['client_version']) == true ? '' : $data['client_version'];
         $time = date('Y-m-d H:i:s');
 
         $client = new \GuzzleHttp\Client();
@@ -61,7 +61,7 @@ class AuthLogic extends Model {
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
         }
 
-        $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$version);
+        $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version);
 
         if($user_type != 3){
             $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$uid])->value('model_list');
@@ -102,7 +102,7 @@ class AuthLogic extends Model {
 	 * @param expiration_date 模块到期时间
 	 * @return code 200->成功
 	 */
-    private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$version) {
+    private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version) {
         $auth_res = Db::name('login_token')->where(['uid'=>$uid])->find();
 
         $time = date('Y-m-d H:i:s');
@@ -117,7 +117,7 @@ class AuthLogic extends Model {
                 'phone_no'=>$phone_no,
                 'user_type'=>$user_type,
                 'user_group_id'=>$user_group_id,
-                'version'=>$version
+                'client_version'=>$client_version
             ]);
         }else{
             Db::name('login_token')->insert([
@@ -129,7 +129,7 @@ class AuthLogic extends Model {
                 'phone_no'=>$phone_no,
                 'user_type'=>$user_type,
                 'user_group_id'=>$user_group_id,
-                'version'=>$version
+                'client_version'=>$client_version
             ]);
         }
 
