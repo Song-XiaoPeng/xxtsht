@@ -13,6 +13,7 @@ class CustomerOperation extends Auth{
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/setCustomerInfo
      * @param appid 客户来源appid
 	 * @param openid 客户微信openid
+     * @param customer_type 客户类型 0其他 1意向客户 2订单客户 3追销客户
 	 * @param real_name 客户真实姓名
 	 * @param real_sex 客户真实性别 0未知 1男 2女
 	 * @param real_phone 客户真实联系手机

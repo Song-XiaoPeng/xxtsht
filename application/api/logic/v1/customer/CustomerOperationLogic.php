@@ -10,6 +10,7 @@ class CustomerOperationLogic extends Model {
      * 设置客户信息
      * @param company_id 商户company_id
      * @param appid 客户来源appid
+     * @param customer_type 客户类型 0其他 1意向客户 2订单客户 3追销客户
      * @param uid 客服账号uid
 	 * @param openid 客户微信openid
 	 * @param real_name 客户真实姓名
@@ -29,6 +30,7 @@ class CustomerOperationLogic extends Model {
         $uid = $data['uid'];
         $openid = $data['openid'];
         $real_name = $data['real_name'];
+        $customer_type = $data['customer_type'];
         $real_sex = $data['real_sex'] == '' ? 0 : $data['real_sex'];
         $customer_info_id = empty($data['customer_info_id']) == true ? '' : $data['customer_info_id'];
         $real_phone = empty($data['real_phone']) == true ? '' : $data['real_phone'];
@@ -90,6 +92,7 @@ class CustomerOperationLogic extends Model {
                 'tel' => $tel,
                 'uid' => $uid,
                 'product_id' => $product_id,
+                'customer_type' => $customer_type,
             ]);
         }else{
             $db_operation_res = Db::name('customer_info')
@@ -115,6 +118,7 @@ class CustomerOperationLogic extends Model {
                 'email' => $email,
                 'tel' => $tel,
                 'product_id' => $product_id,
+                'customer_type' => $customer_type,
             ]);
         }
 
