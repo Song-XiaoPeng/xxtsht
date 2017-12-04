@@ -49,7 +49,7 @@ class RemindLogic extends Model {
 
     /**
      * 获取客户提醒列表
-     * @param page 分页参数默认1
+     * @param page 分页参数默认1 空返回全部
      * @param wx_user_id 提醒的客户微信基础信息id
 	 * @param uid 账号uid
 	 * @param is_remind 是否已经提醒 1是 -1否 不传返回全部
