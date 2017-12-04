@@ -30,7 +30,7 @@ class RemindLogic extends Model {
             return msg(3001,'客户基础信息不存在');
         }
 
-        $insert_res = Db::name('remind')->insert([
+        $remind_id = Db::name('remind')->insertGetId([
             'remind_content' => $remind_content,
             'wx_user_id' => $wx_user_id,
             'uid' => $uid,
@@ -40,8 +40,8 @@ class RemindLogic extends Model {
             'remind_openid' => $remind_openid,
         ]);
 
-        if($insert_res){
-            return msg(200,'success');
+        if($remind_id){
+            return msg(200,'success',['remind_id'=>$remind_id]);
         }else{
             return msg(3001,'插入数据失败');
         }

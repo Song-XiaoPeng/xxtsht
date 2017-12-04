@@ -8,7 +8,7 @@ class Remind extends Auth{
      * 增加客户提醒
      * 请求类型 post
 	 * 传入JSON格式: {"remind_content":"测试","wx_user_id":"0b45c030270e41d0d873713077107ad1","remind_time":"2017-12-08 20:20:12","remind_openid":"oF_-jjmYyxKMsnmN-z0mRWgsLeQI"}
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"remind_id":"4"}}
 	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/addRemind
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/addRemind
      * @param remind_content 提醒内容
