@@ -192,8 +192,6 @@ class CustomerOperationLogic extends Model {
         $page = $data['page'];
         $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
 
-        $user_type = Db::name('login_token')->where(['uid'=>$uid,'company_id'=>$company_id])->value('user_type');
-
         $map['real_name'] = ['like',"%$real_name%"];
         $map['company_id'] = $company_id;
 
@@ -207,7 +205,7 @@ class CustomerOperationLogic extends Model {
                 $customer_info_res[$k]['wx_user_group_name'] = Db::name('wx_user_group')
                 ->where(['wx_user_group_id'=>$v['wx_user_group_id']])
                 ->cache(true,60)
-                ->find();
+                ->value('wx_user_group_name');
             }else{
                 $customer_info_res[$k]['wx_user_group_name'] = null;
             }
@@ -216,7 +214,7 @@ class CustomerOperationLogic extends Model {
                 $customer_info_res[$k]['wx_company_name'] = Db::name('wx_user_company')
                 ->where(['wx_company_id'=>$v['wx_company_id']])
                 ->cache(true,60)
-                ->find();
+                ->value('wx_company_name');
             }else{
                 $customer_info_res[$k]['wx_company_name'] = null;
             }
@@ -225,7 +223,65 @@ class CustomerOperationLogic extends Model {
                 $customer_info_res[$k]['product_name'] = Db::name('product')
                 ->where(['product_id'=>$v['product_id']])
                 ->cache(true,60)
-                ->find();
+                ->value('product_name');
+            }else{
+                $customer_info_res[$k]['product_name'] = null;
+            }
+        }
+
+        return msg(200,'success',$customer_info_res);
+    }
+
+    /**
+     * 模糊搜索获取客户信息
+     * @param company_id 商户company_id
+     * @param real_name 客户姓名 (选传)
+     * @param real_phone 客户手机 (选传)
+	 * @return code 200->成功
+	 */
+    public function searchCustomerInfo($data){
+        $company_id = $data['company_id'];
+        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
+        $real_phone = empty($data['real_phone']) == true ? '' : $data['real_phone'];
+
+        if($real_name){
+            $map['real_name'] = ['like',"%$real_name%"];
+        }
+
+        if($real_phone){
+            $map['real_phone'] = ['like',"%$real_phone%"];
+        }
+        $map['company_id'] = $company_id;
+
+        $customer_info_res = Db::name('customer_info')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
+        ->where($map)
+        ->select();
+        
+        foreach($customer_info_res as $k=>$v){
+            if($v['wx_user_group_id'] != -1){
+                $customer_info_res[$k]['wx_user_group_name'] = Db::name('wx_user_group')
+                ->where(['wx_user_group_id'=>$v['wx_user_group_id']])
+                ->cache(true,60)
+                ->value('group_name');
+            }else{
+                $customer_info_res[$k]['wx_user_group_name'] = null;
+            }
+    
+            if($v['wx_company_id'] != -1){
+                $customer_info_res[$k]['wx_company_name'] = Db::name('wx_user_company')
+                ->where(['wx_company_id'=>$v['wx_company_id']])
+                ->cache(true,60)
+                ->value('wx_company_name');
+            }else{
+                $customer_info_res[$k]['wx_company_name'] = null;
+            }
+
+            if($v['product_id'] != -1){
+                $customer_info_res[$k]['product_name'] = Db::name('product')
+                ->where(['product_id'=>$v['product_id']])
+                ->cache(true,60)
+                ->value('product_name');
             }else{
                 $customer_info_res[$k]['product_name'] = null;
             }

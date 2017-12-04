@@ -50,6 +50,24 @@ class CustomerOperation extends Auth{
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getWxCustomerInfo($data);
 	}
 
+    /**
+     * 模糊搜索获取客户信息
+     * 请求类型 post
+	 * 传入JSON格式: {"real_name":"张三","real_phone": 18316314485}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"customer_info_id":"2357fc7de3f269187e6d7c442970a049","real_name":"李涛二","real_sex":1,"real_phone":"13502439257","contact_address":"广东省惠州市惠城区河南岸","wx_company_id":-1,"wx_user_group_id":2,"company_id":"51454009d703c86c91353f61011ecf2f","desc":"dwadwad","birthday":"2017-12-22","wx_number":"weixin","email":"youxiang@qq.com","tel":"13233223322","uid":6454,"product_id":-1,"wx_user_group_name":"测试bvc","wx_company_name":null,"product_name":null}]}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/searchCustomerInfo
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/searchCustomerInfo
+     * @param real_name 客户姓名 (选传)
+     * @param real_phone 客户手机 (选传)
+	 * @return code 200->成功
+	 */
+	public function searchCustomerInfo(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->searchCustomerInfo($data);
+	}
+
 	/**
      * 获取客户信息列表
      * 请求类型 post
@@ -67,5 +85,5 @@ class CustomerOperation extends Auth{
         $data['uid'] = $this->uid;
         
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getCustomerList($data);
-	}	
+	}
 }
