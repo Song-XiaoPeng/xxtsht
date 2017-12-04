@@ -127,4 +127,21 @@ class RemindLogic extends Model {
         
         return msg(200,'success',$res);
     }
+
+    /**
+     * 删除客户提醒
+     * @param remind_id 删除的提醒id
+	 * @param uid 账号uid
+	 * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function delRemind($remind_id,$uid,$company_id){
+        $del_res = Db::name('remind')->where(['remind_id'=>$remind_id,'uid'=>$uid,'company_id'=>$company_id])->delete();
+
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
+        }
+    }
 }

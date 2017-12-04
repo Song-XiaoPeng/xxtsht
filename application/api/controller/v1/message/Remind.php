@@ -41,5 +41,21 @@ class Remind extends Auth{
 		$data['uid'] = $this->uid;
 
 		return \think\Loader::model('RemindLogic','logic\v1\message')->getRemindList($data);
-    }
+	}
+	
+	/**
+     * 删除客户提醒
+     * 请求类型 post
+	 * 传入JSON格式: {"remind_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/delRemind
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/delRemind
+     * @param remind_id 删除的提醒id
+	 * @return code 200->成功
+	 */
+	public function delRemind(){
+		$data = input('put.');
+
+		return \think\Loader::model('RemindLogic','logic\v1\message')->delRemind($data['remind_id'],$this->uid,$this->company_id);
+	}
 }
