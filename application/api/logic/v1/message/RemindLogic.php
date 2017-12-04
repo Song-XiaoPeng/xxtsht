@@ -144,4 +144,24 @@ class RemindLogic extends Model {
             return msg(3001,'删除失败');
         }
     }
+
+    /**
+     * 修改客户提醒时间
+     * @param remind_id 修改的提醒id
+     * @param remind_time 提醒时间
+	 * @param uid 账号uid
+	 * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function updateRemindTime($remind_id,$uid,$company_id,$remind_time){
+        $update_res = Db::name('remind')->where(['remind_id'=>$remind_id,'uid'=>$uid,'company_id'=>$company_id,'is_remind'=>-1])->update([
+            'remind_time' => $remind_time
+        ]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'修改失败');
+        }
+    }
 }

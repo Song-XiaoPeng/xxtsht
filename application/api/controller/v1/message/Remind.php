@@ -58,4 +58,21 @@ class Remind extends Auth{
 
 		return \think\Loader::model('RemindLogic','logic\v1\message')->delRemind($data['remind_id'],$this->uid,$this->company_id);
 	}
+
+	/**
+     * 修改客户提醒时间
+     * 请求类型 post
+	 * 传入JSON格式: {"remind_id":"1","remind_time":"2017-12-09 12:20:12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/updateRemindTime
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/updateRemindTime
+     * @param remind_id 修改的提醒id
+     * @param remind_time 提醒时间
+	 * @return code 200->成功
+	 */
+	public function updateRemindTime(){
+		$data = input('put.');
+
+		return \think\Loader::model('RemindLogic','logic\v1\message')->updateRemindTime($data['remind_id'],$this->uid,$this->company_id,$data['remind_time']);
+	}
 }
