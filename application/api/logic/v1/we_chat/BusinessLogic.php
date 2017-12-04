@@ -518,6 +518,7 @@ class BusinessLogic extends Model {
                 'customer_wx_nickname' => $wx_info['nickname'],
                 'customer_wx_portrait' => $wx_info['headimgurl'],
                 'state' => 0,
+                'wx_user_id' => $wx_info['wx_user_id']
             ];
 
             $add_res = $redis->sAdd($company_id, json_encode($insert_data));
@@ -606,10 +607,12 @@ class BusinessLogic extends Model {
             return $wx_info;
         }
 
+        $wx_user_id = md5(uniqid());
+
         $wx_user_count = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->insert([
-            'wx_user_id' => md5(uniqid()),
+            'wx_user_id' => $wx_user_id,
             'nickname' => $wx_info['nickname'],
             'portrait' => $wx_info['headimgurl'],
             'gender' => $wx_info['sex'],
@@ -633,6 +636,7 @@ class BusinessLogic extends Model {
         ]);
 
         $wx_info['is_update'] = false;
+        $wx_info['wx_user_id'] = $wx_user_id;
         
         return $wx_info;
     }
