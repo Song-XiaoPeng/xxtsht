@@ -72,13 +72,14 @@ class CustomerOperation extends Auth{
 	/**
      * 获取客户信息列表
      * 请求类型 post
-	 * 传入JSON格式: {"page":"1","real_name":"张三","type":"1"}
+	 * 传入JSON格式: {"page":"1","real_name":"","type":"0","ascription":"1"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"customer_info_id":"e80de8e1b9809072d2cd6e84a6179bfa","real_name":"婉儿啊哦","real_sex":2,"real_phone":"18316317751","contact_address":"广东省惠州市惠城区麦地岸","wx_company_id":-1,"wx_user_group_id":-1,"company_id":"51454009d703c86c91353f61011ecf2f","desc":null,"birthday":null,"wx_number":null,"email":null,"tel":null,"uid":6454,"product_id":-1,"customer_type":0,"wx_user_group_name":null,"wx_company_name":null,"product_name":null},{"customer_info_id":"2357fc7de3f269187e6d7c442970a049","real_name":"李涛二","real_sex":1,"real_phone":"13502439257","contact_address":"广东省惠州市惠城区河南岸","wx_company_id":-1,"wx_user_group_id":2,"company_id":"51454009d703c86c91353f61011ecf2f","desc":"dwadwad","birthday":"2017-12-22","wx_number":"weixin","email":"youxiang@qq.com","tel":"13233223322","uid":6454,"product_id":-1,"customer_type":0,"wx_user_group_name":"测试bvc","wx_company_name":null,"product_name":null},{"customer_info_id":"2f85b32c1bab69feb1e2a4b14b654bf2","real_name":"张达力","real_sex":1,"real_phone":"18316317751","contact_address":"广东省惠州市惠城区麦地岸","wx_company_id":-1,"wx_user_group_id":-1,"company_id":"51454009d703c86c91353f61011ecf2f","desc":"-1","birthday":"0000-00-00","wx_number":"-1","email":"-1","tel":"-1","uid":6454,"product_id":-1,"customer_type":0,"wx_user_group_name":null,"wx_company_name":null,"product_name":null}],"page_data":{"count":3,"rows_num":16,"page":"1"}}}
 	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/getCustomerList
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getCustomerList
      * @param page 分页参数 默认1
      * @param real_name 客户姓名 (选传)
      * @param type 客户类型 0其他 1意向客户 2订单客户 3追销客户
+     * @param ascription 客户归属类型 1我的客户 2其他人
 	 * @return code 200->成功
 	 */
 	public function getCustomerList(){
