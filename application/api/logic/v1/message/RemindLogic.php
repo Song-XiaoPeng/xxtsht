@@ -52,14 +52,16 @@ class RemindLogic extends Model {
      * @param page 分页参数默认1
      * @param wx_user_id 提醒的客户微信基础信息id
 	 * @param uid 账号uid
+	 * @param is_remind 是否已经提醒 1是 -1否 不传返回全部
 	 * @param company_id 商户company_id
 	 * @return code 200->成功
 	 */
     public function getRemindList($data){
-        $company_id =$data['company_id'];
-        $wx_user_id =$data['wx_user_id'];
-        $uid =$data['uid'];
-        $page =$data['page'];
+        $company_id = $data['company_id'];
+        $wx_user_id = $data['wx_user_id'];
+        $uid = $data['uid'];
+        $page = $data['page'];
+        $is_remind = empty($data['is_remind']) == true ? '' : $data['is_remind'];
 
         //分页
         $page_count = 16;
@@ -67,6 +69,9 @@ class RemindLogic extends Model {
 
         if($wx_user_id){
             $map['wx_user_id'] = $wx_user_id;
+        }
+        if($is_remind){
+            $map['is_remind'] = $is_remind;
         }
         $map['company_id'] = $company_id;
         $map['uid'] = $uid;
