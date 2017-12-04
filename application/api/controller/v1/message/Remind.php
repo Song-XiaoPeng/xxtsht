@@ -31,7 +31,7 @@ class Remind extends Auth{
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"remind_id":1,"remind_content":"测试","company_id":"51454009d703c86c91353f61011ecf2f","uid":6454,"add_time":"2017-12-04 15:23:38","remind_time":"2017-12-08 20:20:12","wx_user_id":"0b45c030270e41d0d873713077107ad1","remind_openid":"oF_-jjmYyxKMsnmN-z0mRWgsLeQI","wx_user_info":null,"customer_info":null},{"remind_id":2,"remind_content":"测试","company_id":"51454009d703c86c91353f61011ecf2f","uid":6454,"add_time":"2017-12-04 15:33:54","remind_time":"2017-12-08 20:20:12","wx_user_id":"0b45c030270e41d0d873713077107ad1","remind_openid":"oF_-jjmYyxKMsnmN-z0mRWgsLeQI","wx_user_info":null,"customer_info":null},{"remind_id":3,"remind_content":"测试","company_id":"51454009d703c86c91353f61011ecf2f","uid":6454,"add_time":"2017-12-04 15:34:42","remind_time":"2017-12-08 20:20:12","wx_user_id":"0b45c030270e41d0d873713077107ad1","remind_openid":"oF_-jjmYyxKMsnmN-z0mRWgsLeQI","wx_user_info":null,"customer_info":null}],"page_data":{"count":3,"rows_num":16,"page":1}}}
 	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/getRemindList
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/getRemindList
-	 * @param wx_user_id 提醒的客户微信基础信息id(选传)
+	 * @param wx_user_id 提醒的客户微信基础信息id(选传空返回全部)
 	 * @param is_remind 是否已经提醒 1是 -1否 不传返回全部
 	 * @param page 分页参数默认1
 	 * @return code 200->成功
