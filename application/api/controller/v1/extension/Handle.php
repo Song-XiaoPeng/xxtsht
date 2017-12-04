@@ -102,6 +102,24 @@ class Handle extends Auth{
     }
 
     /**
+     * 删除推广二维码
+     * 请求类型 post
+	 * 传入JSON格式: {"qrcode_id":"1e30180bc266c2a762850f8dc48c4d1b"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"qrcode_group_id":1,"qrcode_group_name":"张三"},{"qrcode_group_id":2,"qrcode_group_name":"张三"}]}
+	 * API_URL_本地: http://localhost:91/api/v1/extension/Handle/delQrcod
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/delQrcod
+	 * @param qrcode_id 删除的二维码id
+	 * @return code 200->成功
+	 */
+    public function delQrcod(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+        
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->delQrcod($data);
+    }
+
+    /**
      * 获取推广二维码list
      * 请求类型 post
 	 * 传入JSON格式: {"page":1,"type":"1"}

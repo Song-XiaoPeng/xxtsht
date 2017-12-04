@@ -262,4 +262,25 @@ class ExtensionLogic extends Model {
         
         return msg(200,'success',$res);
     }
+
+    /**
+     * 删除推广二维码
+	 * @param company_id 商户company_id
+	 * @param uid 账号uid
+	 * @param qrcode_id 删除的qrcodeid
+	 * @return code 200->成功
+	 */
+    public function delQrcod($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $qrcode_id = $data['qrcode_id'];
+
+        $update_res = Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id,'company_id'=>$company_id,'create_uid'=>$uid])->update(['is_del'=>1]);
+
+        if ($update_res !== false) {
+            return msg(200,'success');
+        } else {
+            return msg(3001,'删除失败');
+        }
+    }
 }
