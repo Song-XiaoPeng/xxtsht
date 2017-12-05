@@ -21,6 +21,11 @@ class RemindLogic extends Model {
         $uid = $data['uid'];
         $company_id = $data['company_id'];
 
+        $time = date('Y-m-d H:i:s');
+        if(strtotime($time) > strtotime($remind_time)){
+            return msg(3002,'时间不合法');
+        }
+
         $customer_info = Db::name('customer_info')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->where(['company_id'=>$company_id,'customer_info_id'=>$customer_info_id])
@@ -39,7 +44,7 @@ class RemindLogic extends Model {
             'remind_content' => $remind_content,
             'uid' => $uid,
             'company_id' => $company_id,
-            'add_time' => date('Y-m-d H:i:s'),
+            'add_time' => $time,
             'remind_time' => $remind_time,
             'customer_name' => $customer_info['customer_name'],
             'customer_info_id' => $customer_info['customer_info_id'],
@@ -195,6 +200,11 @@ class RemindLogic extends Model {
         $remind_content = $data['remind_content'];
         $uid = $data['uid'];
         $company_id = $data['company_id'];
+
+        $time = date('Y-m-d H:i:s');
+        if(strtotime($time) > strtotime($remind_time)){
+            return msg(3002,'时间不合法');
+        }
 
         $redis = Common::createRedis();
         $redis->select(2);
