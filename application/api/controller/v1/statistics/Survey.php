@@ -20,10 +20,10 @@ class Survey extends Auth{
      * 获取客服排名
      * 请求类型 post
 	 * 传入JSON格式: {"type":"1","start_time":"","end_time":""}
-	 * 返回JSON格式: 
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"session_total":0,"first_session":0,"effective":0,"effective_percentage":0,"invalid_session":0,"session_missing":0,"own_session":0,"auto_session":0,"active_session":0,"collection":0,"collection_percentage":0,"send_message_total":0,"name":"张山","customer_service_id":6,"uid":6379},{"session_total":0,"first_session":0,"effective":0,"effective_percentage":0,"invalid_session":0,"session_missing":0,"own_session":0,"auto_session":0,"active_session":0,"collection":0,"collection_percentage":0,"send_message_total":0,"name":"张山","customer_service_id":8,"uid":6382},{"session_total":0,"first_session":0,"effective":0,"effective_percentage":0,"invalid_session":0,"session_missing":0,"own_session":0,"auto_session":0,"active_session":0,"collection":0,"collection_percentage":0,"send_message_total":0,"name":"adware","customer_service_id":7,"uid":6450},{"session_total":3,"first_session":2,"effective":5,"effective_percentage":0,"invalid_session":0,"session_missing":0,"own_session":0,"auto_session":5,"active_session":0,"collection":3,"collection_percentage":0,"send_message_total":914,"name":"张丽","customer_service_id":4,"uid":6454}]}
 	 * API_URL_本地: http://localhost:91/api/v1/statistics/Survey/getCustomerServiceRanking
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/statistics/Survey/getCustomerServiceRanking
-	 * @param type 1今天 2昨天 3近3天 4近一周 5近一月 6自定义时间段
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
 	 * @param start_time 开始时间
 	 * @param end_time 结束时间
 	 * @return code 200->成功

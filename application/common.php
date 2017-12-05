@@ -125,3 +125,57 @@ function urlOpen($url, $data = null, $ua = ''){
 function getWximg($url){
     return 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getWxUrlImg?url='.$url;
 }
+
+//获取本月开始时间结束时间
+function getMonthTimeSolt(){
+    $begin_time = date ( "Y-m-d H:i:s", mktime ( 0, 0, 0, date ( "m" ), 1, date ( "Y" ) ) );
+    
+    $end_time = date ( "Y-m-d H:i:s", mktime ( 23, 59, 59, date ( "m" ), date ( "t" ), date ( "Y" ) ) );
+
+    return [
+        'begin_time' => $begin_time,
+        'end_time' => $end_time
+    ];
+}
+
+//获取昨天开始时间结束时间
+function getYesTerdayTimeSolt(){
+    $begin_time = date ( "Y-m-d 00:00:00", strtotime("-1 day"));
+    
+    $end_time = date ( "Y-m-d 23:59:59");
+
+    return [
+        'begin_time' => $begin_time,
+        'end_time' => $end_time
+    ];
+}
+
+//获取当天开始时间结束时间
+function getDayTimeSolt(){
+    $begin_time = date ( "Y-m-d 00:00:00");
+    
+    $end_time = date ( "Y-m-d 23:59:59");
+
+    return [
+        'begin_time' => $begin_time,
+        'end_time' => $end_time
+    ];
+}
+
+//获取本周开始时间结束时间
+function getWeekTimeSolt(){
+    $sdefaultDate = date("Y-m-d");
+
+    $first = 1;
+    
+    $w = date('w',strtotime($sdefaultDate));
+    
+    $begin_time = date('Y-m-d',strtotime("$sdefaultDate -".($w ? $w - $first : 6).' days'));
+    
+    $week_end = date('Y-m-d',strtotime("$begin_time +6 days"));
+
+    return [
+        'begin_time' => $begin_time,
+        'end_time' => $week_end
+    ];
+}

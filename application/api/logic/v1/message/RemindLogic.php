@@ -46,7 +46,7 @@ class RemindLogic extends Model {
             'company_id' => $company_id,
             'add_time' => $time,
             'remind_time' => $remind_time,
-            'customer_name' => $customer_info['customer_name'],
+            'customer_name' => $customer_info['real_name'],
             'customer_info_id' => $customer_info['customer_info_id'],
         ];
 

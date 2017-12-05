@@ -70,7 +70,7 @@ class SurveyLogic extends Model {
     /**
      * 获取客服排名
      * @param company_id 商户company_id
-	 * @param type 1今天 2昨天 3近3天 4近一周 5近一月 6自定义时间段
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
 	 * @param start_time 开始时间
 	 * @param end_time 结束时间
 	 * @return code 200->成功
@@ -81,7 +81,7 @@ class SurveyLogic extends Model {
         $start_time = empty($data['start_time']) == true ? '' : $data['start_time'];
         $end_time = empty($data['end_time']) == true ? '' : $data['end_time'];
 
-        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->field('name,customer_service_id,uid')->select();
+        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->field('name,customer_service_id,uid')->select();
 
         foreach($list as $k=>$v){
             $statistical_data = [
@@ -99,46 +99,279 @@ class SurveyLogic extends Model {
                 'send_message_total' => 0, //发出消息
             ];
 
-            $statistical_data['session_total'] = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-            ->where(['company_id'=>$company_id,'uid'=>$v['uid']])->cache(true,60)->count();
+            $statistical_data['session_total'] = $this->getSessionTotal($v['uid'],$company_id,$type,$start_time,$end_time);
 
-            $statistical_data['first_session'] = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-            ->where(['company_id'=>$company_id,'uid'=>$v['uid']])->group('customer_wx_openid')->cache(true,60)->count();
+            $statistical_data['first_session'] = $this->getFirstSession($v['uid'],$company_id,$type,$start_time,$end_time);
 
-            $effective = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-            ->where(['company_id'=>$company_id,'uid'=>$v['uid'],'state'=>array('in',[-1,1])])
-            ->cache(true,60)
-            ->count();
+            $effective = $this->getEffective($v['uid'],$company_id,$type,$start_time,$end_time);
 
             $statistical_data['effective'] = $effective;
             $statistical_data['auto_session'] = $effective;
 
-            $invalid_session = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-            ->where(['company_id'=>$company_id,'uid'=>$v['uid'],'state'=>-2])
-            ->cache(true,60)
-            ->count();
+            $invalid_session = $this->getInvalidSession($v['uid'],$company_id,$type,$start_time,$end_time);
 
             $statistical_data['invalid_session'] = $invalid_session;
             $statistical_data['session_missing'] = $invalid_session;
 
-            $statistical_data['collection'] = Db::name('customer_info')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
-            ->where(['uid'=>$v['uid']])
-            ->count();
+            $statistical_data['collection'] = $this->getCollection($v['uid'],$company_id,$type,$start_time,$end_time);
 
-            $statistical_data['send_message_total'] = Db::name('message_data')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
-            ->where(['uid'=>$v['uid']])
-            ->cache(true,60)
-            ->count();
+            $statistical_data['send_message_total'] = $this->getSendMessageTotal($v['uid'],$company_id,$type,$start_time,$end_time);
 
             $list[$k] = array_merge($statistical_data,$v);
         }
 
         return msg(200,'success',$list);
+    }
+
+    /**
+     * 获取会话总数
+     * @param uid 客服uid
+     * @param company_id 商户company_id
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
+	 * @param start_time 开始时间
+	 * @param end_time 结束时间
+	 * @return code 200->成功
+	 */
+    private function getSessionTotal($uid, $company_id, $type, $start_time = '', $end_time = ''){
+        switch($type){
+            case 1:
+                $yesterday_res = getDayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 2:
+                $yesterday_res = getYesTerdayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 3:
+                $yesterday_res = getWeekTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;  
+            case 4:
+                $month_res = getMonthTimeSolt();
+                $begin_time = $month_res['begin_time'];
+                $end_time = $month_res['end_time'];
+                break;
+            case 5:
+                $begin_time = $start_time;
+                $end_time = $end_time;
+                break;
+        }
+
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        return $session_total;
+    }
+
+    /**
+     * 获取首次会话
+     * @param uid 客服uid
+     * @param company_id 商户company_id
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
+	 * @param start_time 开始时间
+	 * @param end_time 结束时间
+	 * @return code 200->成功
+	 */
+    private function getFirstSession($uid, $company_id, $type, $start_time = '', $end_time = ''){
+        switch($type){
+            case 1:
+                $yesterday_res = getDayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 2:
+                $yesterday_res = getYesTerdayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 3:
+                $yesterday_res = getWeekTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;  
+            case 4:
+                $month_res = getMonthTimeSolt();
+                $begin_time = $month_res['begin_time'];
+                $end_time = $month_res['end_time'];
+                break;
+            case 5:
+                $begin_time = $start_time;
+                $end_time = $end_time;
+                break;
+        }
+
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT COUNT(*) FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id' AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' GROUP BY `customer_wx_openid` ) `_group_count_` LIMIT 1")[0]['count'];
+
+        return $session_total;
+    }
+
+    /**
+     * 获取有效会话
+     * @param uid 客服uid
+     * @param company_id 商户company_id
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
+	 * @param start_time 开始时间
+	 * @param end_time 结束时间
+	 * @return code 200->成功
+	 */
+    private function getEffective($uid, $company_id, $type, $start_time = '', $end_time = ''){
+        switch($type){
+            case 1:
+                $yesterday_res = getDayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 2:
+                $yesterday_res = getYesTerdayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 3:
+                $yesterday_res = getWeekTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;  
+            case 4:
+                $month_res = getMonthTimeSolt();
+                $begin_time = $month_res['begin_time'];
+                $end_time = $month_res['end_time'];
+                break;
+            case 5:
+                $begin_time = $start_time;
+                $end_time = $end_time;
+                break;
+        }
+
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `state` IN (-1,1)  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        return $session_total;
+    }
+
+    /**
+     * 获取无效会话
+     * @param uid 客服uid
+     * @param company_id 商户company_id
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
+	 * @param start_time 开始时间
+	 * @param end_time 结束时间
+	 * @return code 200->成功
+	 */
+    private function getInvalidSession($uid, $company_id, $type, $start_time = '', $end_time = ''){
+        switch($type){
+            case 1:
+                $yesterday_res = getDayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 2:
+                $yesterday_res = getYesTerdayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 3:
+                $yesterday_res = getWeekTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;  
+            case 4:
+                $month_res = getMonthTimeSolt();
+                $begin_time = $month_res['begin_time'];
+                $end_time = $month_res['end_time'];
+                break;
+            case 5:
+                $begin_time = $start_time;
+                $end_time = $end_time;
+                break;
+        }
+
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `state` = -2  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        return $session_total;
+    }
+
+    /**
+     * 获取采集客咨
+     * @param uid 客服uid
+     * @param company_id 商户company_id
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
+	 * @param start_time 开始时间
+	 * @param end_time 结束时间
+	 * @return code 200->成功
+	 */
+    private function getCollection($uid, $company_id, $type, $start_time = '', $end_time = ''){
+        switch($type){
+            case 1:
+                $yesterday_res = getDayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 2:
+                $yesterday_res = getYesTerdayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 3:
+                $yesterday_res = getWeekTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;  
+            case 4:
+                $month_res = getMonthTimeSolt();
+                $begin_time = $month_res['begin_time'];
+                $end_time = $month_res['end_time'];
+                break;
+            case 5:
+                $begin_time = $start_time;
+                $end_time = $end_time;
+                break;
+        }
+
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_customer_info_1 UNION SELECT * FROM tb_customer_info_2 UNION SELECT * FROM tb_customer_info_3 UNION SELECT * FROM tb_customer_info_4 UNION SELECT * FROM tb_customer_info_5) AS customer_info WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        return $session_total;
+    }
+    
+    /**
+     * 获取发出消息
+     * @param uid 客服uid
+     * @param company_id 商户company_id
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
+	 * @param start_time 开始时间
+	 * @param end_time 结束时间
+	 * @return code 200->成功
+	 */
+    private function getSendMessageTotal($uid, $company_id, $type, $start_time = '', $end_time = ''){
+        switch($type){
+            case 1:
+                $yesterday_res = getDayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 2:
+                $yesterday_res = getYesTerdayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 3:
+                $yesterday_res = getWeekTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;  
+            case 4:
+                $month_res = getMonthTimeSolt();
+                $begin_time = $month_res['begin_time'];
+                $end_time = $month_res['end_time'];
+                break;
+            case 5:
+                $begin_time = $start_time;
+                $end_time = $end_time;
+                break;
+        }
+
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_data_1 UNION SELECT * FROM tb_message_data_2 UNION SELECT * FROM tb_message_data_3 UNION SELECT * FROM tb_message_data_4 UNION SELECT * FROM tb_message_data_5 UNION SELECT * FROM tb_message_data_6 UNION SELECT * FROM tb_message_data_7 UNION SELECT * FROM tb_message_data_8 UNION SELECT * FROM tb_message_data_9 UNION SELECT * FROM tb_message_data_10) AS message_data WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        return $session_total;
     }
 }
