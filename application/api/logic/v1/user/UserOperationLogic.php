@@ -93,8 +93,17 @@ class UserOperationLogic extends Model {
                 $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$v['uid']])->value('model_list');
                 
                 $request_data['body']['user_list'][$k]['model_list'] = json_decode($model_list);
+
+
+                $customer_service_list = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->select();
+
+                foreach($customer_service_list as $key=>$value){
+                    $customer_service_list[$key]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$value['appid']])->cache(true,60)->value('nick_name');
+                }
+
+                $request_data['body']['user_list'][$k]['customer_service_list'] = empty($customer_service_list) == true ? null : $customer_service_list;
             }else{
-                $request_data['body']['user_list'][$k]['model_list'] = [];
+                $request_data['body']['user_list'][$k]['model_list'] = null;
             }
         }
 
