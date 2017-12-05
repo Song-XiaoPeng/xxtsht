@@ -61,14 +61,15 @@ class Remind extends Auth{
 	}
 
 	/**
-     * 修改客户提醒时间
+     * 修改客户提醒
      * 请求类型 post
-	 * 传入JSON格式: {"remind_id":"1","remind_time":"2017-12-09 12:20:12"}
+	 * 传入JSON格式: {"remind_id":"1","remind_time":"2017-12-09 12:20:12","remind_content":"测试"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
 	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/updateRemindTime
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/updateRemindTime
      * @param remind_id 修改的提醒id
      * @param remind_time 提醒时间
+     * @param remind_content 提醒内容
 	 * @return code 200->成功
 	 */
 	public function updateRemindTime(){

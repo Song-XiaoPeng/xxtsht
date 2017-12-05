@@ -165,7 +165,10 @@ class RemindLogic extends Model {
 
         foreach($list as $k=>$v){
             $arr = json_decode($v,true);
-            if($arr['remind_id'] == $remind_id){
+            if($arr['remind_id'] == $remind_id && 
+            $arr['company_id'] == $company_id &&
+            $arr['uid'] == $uid
+            ){
                 $del_res = $redis->lrem($uid, 1,$v);
             }
         }
@@ -178,19 +181,46 @@ class RemindLogic extends Model {
     }
 
     /**
-     * 修改客户提醒时间
+     * 修改客户提醒
      * @param remind_id 修改的提醒id
      * @param remind_time 提醒时间
+     * @param remind_content 提醒内容
 	 * @param uid 账号uid
 	 * @param company_id 商户company_id
 	 * @return code 200->成功
 	 */
-    public function updateRemindTime($remind_id,$uid,$company_id,$remind_time){
-        $update_res = Db::name('remind')->where(['remind_id'=>$remind_id,'uid'=>$uid,'company_id'=>$company_id,'is_remind'=>-1])->update([
-            'remind_time' => $remind_time
-        ]);
+    public function updateRemindTime($data){
+        $remind_id = $data['remind_id'];
+        $remind_time = $data['remind_time'];
+        $remind_content = $data['remind_content'];
+        $uid = $data['uid'];
+        $company_id = $data['company_id'];
 
-        if($update_res !== false){
+        $redis = Common::createRedis();
+        $redis->select(2);
+        $list = $redis->lRange($uid, 0, -1);
+
+        $update_res = false;
+
+        foreach($list as $k=>$v){
+            $arr = json_decode($v,true);
+            if($arr['remind_id'] == $remind_id && 
+            $arr['company_id'] == $company_id &&
+            $arr['uid'] == $uid
+            ){
+                $del_res = $redis->lrem($uid, 1,$v);
+                if($del_res){
+                    break;
+                }
+
+                $arr['remind_time'] = $remind_time;
+                $arr['remind_content'] = $remind_content;
+
+                $update_res = $redis->LPUSH($uid,json_encode($arr));
+            }
+        }
+
+        if($update_res){
             return msg(200,'success');
         }else{
             return msg(3001,'修改失败');
