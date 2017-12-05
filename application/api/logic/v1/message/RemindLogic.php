@@ -23,7 +23,7 @@ class RemindLogic extends Model {
 
         $time = date('Y-m-d H:i:s');
         if(strtotime($time) > strtotime($remind_time)){
-            return msg(3002,'时间不合法');
+            return msg(3002,'提醒时间不合法');
         }
 
         $customer_info = Db::name('customer_info')
@@ -203,7 +203,7 @@ class RemindLogic extends Model {
 
         $time = date('Y-m-d H:i:s');
         if(strtotime($time) > strtotime($remind_time)){
-            return msg(3002,'时间不合法');
+            return msg(3002,'提醒时间不合法');
         }
 
         $redis = Common::createRedis();
