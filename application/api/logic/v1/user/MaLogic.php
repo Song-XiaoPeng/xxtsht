@@ -45,7 +45,7 @@ class MaLogic extends Model {
             if($v == 1){
                 $res = Db::name('customer_service')->where(['uid'=>$uid])->find();
                 if(!$res){
-                    return msg(3003,'账号未开通客服权限无法启用客服接待模块');
+                    return msg(3003,'子账号未开通客服权限无法启用客服接待模块');
                 }
             }
         }
