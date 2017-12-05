@@ -22,7 +22,7 @@ class RemindLogic extends Model {
         $company_id = $data['company_id'];
 
         $time = date('Y-m-d H:i:s');
-        if(strtotime($time) > strtotime($remind_time)){
+        if(strtotime($time) >= strtotime($remind_time)){
             return msg(3002,'提醒时间不合法');
         }
 
@@ -202,7 +202,7 @@ class RemindLogic extends Model {
         $company_id = $data['company_id'];
 
         $time = date('Y-m-d H:i:s');
-        if(strtotime($time) > strtotime($remind_time)){
+        if(strtotime($time) >= strtotime($remind_time)){
             return msg(3002,'提醒时间不合法');
         }
 
