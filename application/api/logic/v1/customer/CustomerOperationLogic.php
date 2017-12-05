@@ -93,6 +93,7 @@ class CustomerOperationLogic extends Model {
                 'uid' => $uid,
                 'product_id' => $product_id,
                 'customer_type' => $customer_type,
+                'add_time' => date('Y-m-d H:i:s'),
             ]);
         }else{
             $db_operation_res = Db::name('customer_info')
