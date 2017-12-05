@@ -8,7 +8,7 @@ class RemindLogic extends Model {
     /**
      * 增加客户提醒
      * @param remind_content 提醒内容
-	 * @param wx_user_id 提醒客户微信基础信息id
+	 * @param customer_info_id 客户基础信息id
 	 * @param remind_time 提醒时间
 	 * @param uid 账号uid
 	 * @param company_id 商户company_id
@@ -16,19 +16,17 @@ class RemindLogic extends Model {
 	 */
     public function addRemind($data){
         $remind_content = $data['remind_content'];
-        $wx_user_id = $data['wx_user_id'];
+        $customer_info_id = $data['customer_info_id'];
         $remind_time = $data['remind_time'];
         $uid = $data['uid'];
         $company_id = $data['company_id'];
-        $remind_openid = $data['remind_openid'];
 
-        $wx_user_res = Db::name('wx_user')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where(['company_id'=>$company_id,'wx_user_id'=>$wx_user_id])
+        $customer_info = Db::name('customer_info')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
+        ->where(['company_id'=>$company_id,'customer_info_id'=>$customer_info_id])
         ->find();
-
-        if(!$wx_user_res){
-            return msg(3001,'客户基础信息不存在');
+        if(!$customer_info){
+            return msg(3001,'客户信息不存在');
         }
 
         $remind_id = md5(uniqid());
@@ -39,12 +37,12 @@ class RemindLogic extends Model {
         $insert_data = [
             'remind_id' => $remind_id,
             'remind_content' => $remind_content,
-            'wx_user_id' => $wx_user_id,
             'uid' => $uid,
             'company_id' => $company_id,
             'add_time' => date('Y-m-d H:i:s'),
             'remind_time' => $remind_time,
-            'remind_openid' => $remind_openid,
+            'customer_name' => $customer_info['customer_name'],
+            'customer_info_id' => $customer_info['customer_info_id'],
         ];
 
         $insert_res = $redis->LPUSH($uid,json_encode($insert_data));
@@ -159,24 +157,24 @@ class RemindLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function delRemind($remind_id,$uid,$company_id){
-        return msg(200,'success');
-
         $redis = Common::createRedis();
         $redis->select(2);
         $list = $redis->lRange($uid, 0, -1);
 
+        $del_res = false;
+
         foreach($list as $k=>$v){
             $arr = json_decode($v,true);
             if($arr['remind_id'] == $remind_id){
-                dump($redis->LREM($uid, $v));
+                $del_res = $redis->lrem($uid, 1,$v);
             }
         }
 
-        // if($del_res){
-        //     return msg(200,'success');
-        // }else{
-        //     return msg(3001,'删除失败');
-        // }
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
+        }
     }
 
     /**
