@@ -58,7 +58,7 @@ class RemindLogic extends Model {
 
     /**
      * 获取客户提醒列表
-     * @param page 分页参数默认1 空返回全部
+     * @param page 分页参数默认1
      * @param wx_user_id 提醒的客户微信基础信息id
 	 * @param uid 账号uid
 	 * @param is_remind 是否已经提醒 1是 -1否
@@ -70,26 +70,31 @@ class RemindLogic extends Model {
         $wx_user_id = $data['wx_user_id'];
         $uid = $data['uid'];
         $page = empty($data['page']) == true ? '' : $data['page'];
-        $is_remind = empty($data['is_remind']) == true ? '' : $data['is_remind'];
+        $is_remind = $data['is_remind'];
 
         if($wx_user_id){
             $map['wx_user_id'] = $wx_user_id;
-        }
-        if($is_remind){
-            $map['is_remind'] = $is_remind;
         }
         $map['company_id'] = $company_id;
         $map['uid'] = $uid;
 
         //分页
-        if($page){
-            $page_count = 16;
-            $show_page = ($page - 1) * $page_count;
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
 
+        if($is_remind == 1){
             $list = Db::name('remind')->where($map)->limit($show_page,$page_count)->select();
             $count = Db::name('remind')->where($map)->count();
         }else{
-            $list = Db::name('remind')->where($map)->select();
+            $redis = Common::createRedis();
+            $redis->select(2);
+            $list = $redis->lRange($uid, $show_page, $page_count);
+
+            foreach($list as $k=>$v){
+                $list[$k] = json_decode($v,true);
+            }
+
+            $count = $redis->LLEN($uid);
         }
 
         foreach($list as $k=>$v){
@@ -139,13 +144,9 @@ class RemindLogic extends Model {
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
-        if($page){
-            $res['page_data']['count'] = $count;
-            $res['page_data']['rows_num'] = $page_count;
-            $res['page_data']['page'] = $page;
-        }else{
-            $res['page_data']= null;
-        }
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
         
         return msg(200,'success',$res);
     }
