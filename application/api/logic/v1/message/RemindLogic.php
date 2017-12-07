@@ -235,6 +235,7 @@ class RemindLogic extends Model {
     public function getAllRemindList($data){
         $company_id = $data['company_id'];
         $uid = $data['uid'];
+        $user_type = $data['user_type'];
         $customer_type = $data['customer_type'];
         $time_type = $data['time_type'];
         $page = $data['page'];
@@ -246,37 +247,106 @@ class RemindLogic extends Model {
         $show_page = ($page - 1) * $page_count;
 
         $map['tb_remind.company_id'] = $company_id;
-        $map['tb_remind.uid'] = $uid;
+        if($user_type != 3){
+            $map['tb_remind.remind_uid'] = $uid;
+        }
         $map['tb_customer_info.customer_type'] = $customer_type;
         $map['tb_remind.is_complete'] = -1;
 
         switch($time_type){
             case 1:
-                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->field('tb_customer_info.add_time as create_time')->select();
+                $list = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->limit($show_page,$page_count)
+                ->where($map)
+                ->whereTime('remind_time', 'today')
+                ->select();
 
-                dump($list);
-                exit;
+                $count = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->whereTime('remind_time', 'today')
+                ->count();
                 break;
             case 2:
-                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', 'yesterday')->select();
-                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', 'yesterday')->count();
+                $list = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)->limit($show_page,$page_count)
+                ->whereTime('remind_time', 'yesterday')
+                ->select();
+
+                $count = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->whereTime('remind_time', 'yesterday')
+                ->count();
                 break;
             case 3:
-                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', 'week')->select();
-                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', 'week')->count();
+                $list = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->limit($show_page,$page_count)
+                ->whereTime('remind_time', 'week')
+                ->select();
+
+                $count = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->whereTime('remind_time', 'week')
+                ->count();
                 break;
             case 4:
-                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', 'month')->select();
-                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', 'month')->count();
+                $list = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->limit($show_page,$page_count)
+                ->whereTime('remind_time', 'month')
+                ->select();
+
+                $count = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->whereTime('remind_time', 'month')
+                ->count();
                 break;
             case 5:
-                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', '<', $time)->select();
-                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', '<', $time)->count();
+                $list = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->limit($show_page,$page_count)
+                ->whereTime('remind_time', '<', $time)
+                ->select();
+
+                $count = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->whereTime('remind_time', '<', $time)
+                ->count();
                 break;
             case 6:
                 $map['is_complete'] = 1;
-                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->select();
-                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->count();
+                $list = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->limit($show_page,$page_count)
+                ->select();
+
+                $count = Db::name('remind')
+                ->alias('a')
+                ->join('tb_customer_info b','a.customer_info_id = b.customer_info_id')
+                ->where($map)
+                ->count();
                 break;
         }
 
@@ -284,6 +354,14 @@ class RemindLogic extends Model {
             $product_name = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
 
             $list[$k]['product_name'] = empty($product_name) == true ? '暂无产品' : $product_name;
+
+            $wx_comapny_name = Db::name('wx_user_company')->where(['wx_company_id'=>$v['wx_company_id']])->cache(true,60)->value('wx_comapny_name');
+
+            $list[$k]['wx_comapny_name'] = empty($wx_comapny_name) == true ? '' : $wx_comapny_name;
+
+            $group_name = Db::name('wx_user_group')->where(['wx_user_group_id'=>$v['wx_user_group_id']])->cache(true,60)->value('group_name');
+            
+            $list[$k]['wx_user_group_name'] = empty($group_name) == true ? '' : $group_name;
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;

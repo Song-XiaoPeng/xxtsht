@@ -494,11 +494,11 @@ class CustomerOperationLogic extends Model {
 
         $list = Db::name('product')
         ->limit($show_page,$page_count)
-        ->where(['company_id'=>$company_id])
+        ->where(['company_id'=>$company_id,'is_del'=>-1])
         ->select();
 
         $count = Db::name('product')
-        ->where(['company_id'=>$company_id])
+        ->where(['company_id'=>$company_id,'is_del'=>-1])
         ->count();
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
