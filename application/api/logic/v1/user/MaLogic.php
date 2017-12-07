@@ -56,7 +56,7 @@ class MaLogic extends Model {
                 'model_list' => json_encode($model_list)
             ]);
             
-            if($update_res){
+            if($update_res !== false){
                 return msg(200,'success');
             }else{
                 return msg(3002,'更新数据失败');
