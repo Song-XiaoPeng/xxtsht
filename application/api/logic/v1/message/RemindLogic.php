@@ -62,7 +62,7 @@ class RemindLogic extends Model {
     /**
      * 获取客户提醒列表
      * @param page 分页参数默认1
-     * @param wx_user_id 提醒的客户微信基础信息id
+     * @param customer_info_id 客户基础信息id
 	 * @param uid 账号uid
 	 * @param is_remind 是否已经提醒 1是 -1否
 	 * @param company_id 商户company_id
@@ -70,13 +70,13 @@ class RemindLogic extends Model {
 	 */
     public function getRemindList($data){
         $company_id = $data['company_id'];
-        $wx_user_id = $data['wx_user_id'];
+        $customer_info_id = $data['customer_info_id'];
         $uid = $data['uid'];
         $page = empty($data['page']) == true ? '' : $data['page'];
         $is_remind = $data['is_remind'];
 
-        if($wx_user_id){
-            $map['wx_user_id'] = $wx_user_id;
+        if($customer_info_id){
+            $map['customer_info_id'] = $customer_info_id;
         }
         $map['company_id'] = $company_id;
         $map['uid'] = $uid;
@@ -101,17 +101,17 @@ class RemindLogic extends Model {
         }
 
         foreach($list as $k=>$v){
-            $wx_user_info = Db::name('wx_user')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['wx_user']])
-            ->where(['wx_user_id'=>$v['wx_user_id']])
-            ->field('nickname,portrait,qrcode_id,customer_info_id,groupid,subscribe_time,appid,subscribe')
-            ->cache(true,10)
-            ->find();
-            if(!$wx_user_info){
-                $list[$k]['wx_user_info'] = null;
-                $list[$k]['customer_info'] = null;
-                continue;
-            }
+            // $wx_user_info = Db::name('wx_user')
+            // ->partition('', '', ['type'=>'md5','num'=>config('separate')['wx_user']])
+            // ->where(['wx_user_id'=>$v['remind_openid']])
+            // ->field('nickname,portrait,qrcode_id,customer_info_id,groupid,subscribe_time,appid,subscribe')
+            // ->cache(true,10)
+            // ->find();
+            // if(!$wx_user_info){
+            //     $list[$k]['wx_user_info'] = null;
+            //     $list[$k]['customer_info'] = null;
+            //     continue;
+            // }
 
             $customer_info_res = Db::name('customer_info')
             ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])

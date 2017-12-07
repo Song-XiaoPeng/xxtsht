@@ -96,14 +96,16 @@ class CustomerOperationLogic extends Model {
                 'add_time' => date('Y-m-d H:i:s'),
             ]);
         }else{
+            $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
+
             $db_operation_res = Db::name('customer_info')
             ->partition(
-                ['customer_info_id' => empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id],
+                ['customer_info_id' => $customer_info_id],
                 'customer_info_id',
                 ['type' => 'md5','num' => config('separate')['customer_info']]
             )
             ->where([
-                'customer_info_id' => empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id,
+                'customer_info_id' => $customer_info_id,
                 'company_id' => $company_id
             ])
             ->update([
@@ -129,7 +131,7 @@ class CustomerOperationLogic extends Model {
         ->update(['customer_info_id'=>$customer_info_id]);
 
         if($db_operation_res !== false){
-            return msg(200,'success');
+            return msg(200,'success',['customer_info_id'=>$customer_info_id]);
         }else{
             return msg(3002,'数据操作失败');
         }
