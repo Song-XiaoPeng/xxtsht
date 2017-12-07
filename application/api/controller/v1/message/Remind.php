@@ -28,11 +28,12 @@ class Remind extends Auth{
 	/**
      * 获取客户的跟踪提醒列表
      * 请求类型 post
-	 * 传入JSON格式: {"page":"1","customer_type":"1","time_type":"1"}
+	 * 传入JSON格式: {"page":"1","customer_type":"1","time_type":"1","search_text":""}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"remind_id":"4","remind_content":"测试","company_id":"51454009d703c86c91353f61011ecf2f","uid":6454,"add_time":"2017-12-02 17:00:17","remind_time":"2017-12-07 20:20:12","customer_info_id":"2f85b32c1bab69feb1e2a4b14b654bf2","remind_openid":"oF_-jjmYyxKMsnmN-z0mRWgsLeQI","is_remind":-1,"remind_uid":6454,"is_complete":-1,"complete_content":null,"real_name":"张达力","real_sex":1,"real_phone":"18316317751","contact_address":"广东省惠州市惠城区麦地岸","wx_company_id":-1,"wx_user_group_id":2,"desc":"都挖得你哇康觉得","birthday":"2017-12-29","wx_number":"wwee","email":"304778023@qq.com","tel":"13233223322","product_id":-1,"customer_type":1,"product_name":"暂无产品","wx_comapny_name":"","wx_user_group_name":"测试bvc"}],"page_data":{"count":1,"rows_num":16,"page":"1"}}}
 	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/getAllRemindList
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/getAllRemindList
      * @param page 分页参数 默认1
+	 * @param search_text 搜索名称(选传)
      * @param customer_type 客户类型 0线索 1意向客户 2订单客户 3追销客户
      * @param time_type 筛选时间条件类型 1今日需联系 2昨日需联系 3本周需联系 4本月需联系 5超时需联系 6已完成
 	 * @return code 200->成功

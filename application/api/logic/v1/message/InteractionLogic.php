@@ -140,4 +140,21 @@ class InteractionLogic extends Model {
 
         return msg(200,'success',$session_res);
     }
+
+    /**
+     * 商户监控会话列表获取
+	 * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getMonitorSessionList($company_id){
+        set_time_limit(60);
+
+        while (true) {
+            $message_session = Db::name('message_session')->where(['company_id'=>$company_id,'state'=>1])->select();
+
+            
+
+            sleep(2);
+        }
+    }
 }
