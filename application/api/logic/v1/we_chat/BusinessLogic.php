@@ -573,11 +573,7 @@ class BusinessLogic extends Model {
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->find();
 
-        $customer_info_res = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
-        ->where([''])
-        ->find();
-        if(!$customer_info_res){
+        if(!$wx_user_res['customer_info_id']){
             $customer_info_id = md5(uniqid());
 
             Db::name('customer_info')
@@ -592,7 +588,7 @@ class BusinessLogic extends Model {
                 'uid' => $uid,
             ]);
         }else{
-            $customer_info_id = $customer_info_res['customer_info_id'];
+            $customer_info_id = $wx_user_res['customer_info_id'];
         }
 
         if($wx_user_res){
