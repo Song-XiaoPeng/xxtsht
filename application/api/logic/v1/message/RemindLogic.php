@@ -235,10 +235,15 @@ class RemindLogic extends Model {
             }
         }
 
-        if($update_res){
+        if(!$update_res){
+            return msg(3001,'修改失败');
+        }
+
+        $update_time_res = Db::name('remind')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['remind_time'=>$remind_time]);
+        if($update_time_res !== false){
             return msg(200,'success');
         }else{
-            return msg(3001,'修改失败');
+            return msg(3001,'更新数据失败');
         }
     }
 
@@ -257,6 +262,16 @@ class RemindLogic extends Model {
         $remind_res = Db::name('remind')->where(['company_id'=>$company_id,'remind_id'=>$remind_id])->find();
         if(!$remind_res){
             return msg(3001,'remind_id错误');
+        }
+
+        foreach($list as $k=>$v){
+            $arr = json_decode($v,true);
+            if($arr['remind_id'] == $remind_id && 
+            $arr['company_id'] == $company_id &&
+            $arr['uid'] == $uid
+            ){
+                $del_res = $redis->lrem($uid, 1,$v);
+            }
         }
     
         $remind_res = Db::name('remind')->where(['remind_id'=>$remind_id])->update(['is_complete'=>1]);
