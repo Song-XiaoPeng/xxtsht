@@ -217,17 +217,6 @@ class RemindLogic extends Model {
             return msg(3001,'remind_id错误');
         }
 
-        $list = $redis->lRange($uid, 0, -1);
-        foreach($list as $k=>$v){
-            $arr = json_decode($v,true);
-            if($arr['remind_id'] == $remind_id && 
-            $arr['company_id'] == $company_id &&
-            $arr['uid'] == $uid
-            ){
-                $del_res = $redis->lrem($uid, 1,$v);
-            }
-        }
-    
         $remind_res = Db::name('remind')->where(['remind_id'=>$remind_id])->update(['is_complete'=>1]);
         if($remind_res !== false){
             return msg(200,'success');
