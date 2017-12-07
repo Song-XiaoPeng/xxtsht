@@ -264,6 +264,7 @@ class RemindLogic extends Model {
             return msg(3001,'remind_id错误');
         }
 
+        $list = $redis->lRange($uid, 0, -1);
         foreach($list as $k=>$v){
             $arr = json_decode($v,true);
             if($arr['remind_id'] == $remind_id && 
