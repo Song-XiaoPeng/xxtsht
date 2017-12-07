@@ -31,6 +31,32 @@ class CustomerOperation extends Auth{
         
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->setCustomerInfo($data);
 	}
+
+    /**
+     * 客户管理修改添加客户信息
+     * 请求类型 post
+	 * 传入JSON格式: {"real_name":"张达力","real_sex":"1","real_phone":"18316317751","contact_address":"广东省惠州市惠城区麦地岸","wx_company_id":"","wx_user_group_id":"","customer_info_id":"2f85b32c1bab69feb1e2a4b14b654bf2"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"customer_info_id":"2f85b32c1bab69feb1e2a4b14b654bf2"}}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/crmUpdate
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/crmUpdate
+     * @param customer_type 客户类型 0其他 1意向客户 2订单客户 3追销客户
+	 * @param real_name 客户真实姓名
+	 * @param real_sex 客户真实性别 0未知 1男 2女
+	 * @param real_phone 客户真实联系手机
+	 * @param contact_address 客户联系地址
+	 * @param wx_company_id 所属公司
+	 * @param wx_user_group_id 所属用户分组id
+	 * @param desc 备注
+	 * @param product_id 意向产品id
+	 * @param customer_info_id 客户信息id (更新时选传)
+	 * @return code 200->成功
+	 */
+    public function crmUpdate () {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->crmUpdate($data);
+	}
 	
     /**
      * 获取客户信息

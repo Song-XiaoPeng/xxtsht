@@ -138,6 +138,117 @@ class CustomerOperationLogic extends Model {
     }
 
     /**
+     * 客户管理修改添加客户信息
+     * @param company_id 商户company_id
+     * @param customer_type 客户类型 0其他 1意向客户 2订单客户 3追销客户
+     * @param uid 客服账号uid
+	 * @param real_name 客户真实姓名
+	 * @param real_sex 客户真实性别 0未知 1男 2女
+	 * @param real_phone 客户真实联系手机
+	 * @param contact_address 客户联系地址
+	 * @param wx_company_id 所属公司
+	 * @param wx_user_group_id 所属用户分组id
+	 * @param desc 备注
+	 * @param product_id 意向产品id
+	 * @param customer_info_id 客户信息id (更新时选传)
+	 * @return code 200->成功
+	 */
+    public function crmUpdate($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $real_name = $data['real_name'];
+        $customer_type = $data['customer_type'];
+        $real_sex = $data['real_sex'] == '' ? 0 : $data['real_sex'];
+        $customer_info_id = empty($data['customer_info_id']) == true ? '' : $data['customer_info_id'];
+        $real_phone = empty($data['real_phone']) == true ? '' : $data['real_phone'];
+        $contact_address = empty($data['contact_address']) == true ? '' : $data['contact_address'];
+        $wx_company_id = empty($data['wx_company_id']) == true ? -1 : $data['wx_company_id'];
+        $desc = empty($data['desc']) == true ? -1 : $data['desc'];
+        $wx_user_group_id = empty($data['wx_user_group_id']) == true ? -1 : $data['wx_user_group_id'];
+        $birthday = empty($data['birthday']) == true ? -1 : $data['birthday'];
+        $wx_number = empty($data['wx_number']) == true ? -1 : $data['wx_number'];
+        $email = empty($data['email']) == true ? -1 : $data['email'];
+        $tel = empty($data['tel']) == true ? -1 : $data['tel'];
+        $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
+
+        $customer_info_res = Db::name('customer_info')
+        ->partition(
+            ['customer_info_id' => $customer_info_id],
+            'customer_info_id',
+            ['type' => 'md5','num' => config('separate')['customer_info']]
+        )
+        ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
+        ->find();
+        if(!$customer_info_res){
+            return msg(3005,'customer_info_id参数错误');
+        }
+
+        if(!$customer_info_res){
+            $customer_info_id = md5(uniqid());
+            
+            $db_operation_res = Db::name('customer_info')
+            ->partition(
+                ['customer_info_id' => $customer_info_id],
+                'customer_info_id',
+                ['type' => 'md5','num' => config('separate')['customer_info']]
+            )
+            ->insert([
+                'customer_info_id' => $customer_info_id,
+                'real_name' => $real_name,
+                'real_sex' => $real_sex,
+                'real_phone' => $real_phone,
+                'contact_address' => $contact_address,
+                'wx_company_id' => $wx_company_id,
+                'wx_user_group_id' => $wx_user_group_id,
+                'company_id' => $company_id,
+                'desc' => $desc,
+                'birthday' => $birthday,
+                'wx_number' => $wx_number,
+                'email' => $email,
+                'tel' => $tel,
+                'uid' => $uid,
+                'product_id' => $product_id,
+                'customer_type' => $customer_type,
+                'add_time' => date('Y-m-d H:i:s'),
+            ]);
+        }else{
+            $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
+
+            $db_operation_res = Db::name('customer_info')
+            ->partition(
+                ['customer_info_id' => $customer_info_id],
+                'customer_info_id',
+                ['type' => 'md5','num' => config('separate')['customer_info']]
+            )
+            ->where([
+                'customer_info_id' => $customer_info_id,
+                'company_id' => $company_id
+            ])
+            ->update([
+                'real_name' => $real_name,
+                'real_sex' => $real_sex,
+                'real_phone' => $real_phone,
+                'contact_address' => $contact_address,
+                'wx_company_id' => $wx_company_id,
+                'wx_user_group_id' => $wx_user_group_id,
+                'desc' => $desc,
+                'birthday' => $birthday,
+                'wx_number' => $wx_number,
+                'email' => $email,
+                'tel' => $tel,
+                'product_id' => $product_id,
+                'customer_type' => $customer_type,
+            ]);
+        }
+
+        if($db_operation_res !== false){
+            return msg(200,'success',['customer_info_id'=>$customer_info_id]);
+        }else{
+            return msg(3002,'数据操作失败');
+        }
+    }
+
+    /**
      * 获取客户信息
      * @param company_id 商户company_id
      * @param appid 客户来源appid
