@@ -97,6 +97,40 @@ class CustomerOperation extends Auth{
 	}
 
     /**
+     * 删除客户意向产品
+     * 请求类型 post
+	 * 传入JSON格式: {"product_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":""}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/delProduct
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/delProduct
+     * @param product_id 产品id
+	 * @return code 200->成功
+	 */
+	public function delProduct(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->delProduct($data);
+	}
+
+    /**
+     * 模糊搜索客户意向产品List
+     * 请求类型 post
+	 * 传入JSON格式: {"product_name":"测试"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"product_id":1,"product_name":"测试","company_id":"51454009d703c86c91353f61011ecf2f","is_del":-1}]}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/searchProduct
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/searchProduct
+     * @param product_name 模糊搜索名称
+	 * @return code 200->成功
+	 */
+	public function searchProduct(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->searchProduct($data);
+	}
+
+    /**
      * 模糊搜索获取客户信息
      * 请求类型 post
 	 * 传入JSON格式: {"real_name":"张三","real_phone": 18316314485}

@@ -471,4 +471,44 @@ class CustomerOperationLogic extends Model {
             return msg(3003,'插入数据失败');
         }
     }
+
+    /**
+     * 删除客户意向产品
+     * @param company_id 商户company_id
+     * @param product_id 产品id
+	 * @return code 200->成功
+	 */
+    public function delProduct($data){
+        $company_id = $data['company_id'];
+        $product_id = $data['product_id'];
+
+        $update_res = Db::name('product')
+        ->where(['company_id'=>$company_id,'product_id'=>$product_id])
+        ->update(['is_del'=>1]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
+
+    /**
+     * 模糊搜索客户意向产品List
+     * @param company_id 商户company_id
+     * @param product_name 模糊搜索名称
+	 * @return code 200->成功
+	 */
+    public function searchProduct($data){
+        $company_id = $data['company_id'];
+        $product_name = empty($data['product_name']) == true ? '' : $data['product_name'];
+
+        if(!$product_name){
+            return msg(200,'success',[]);
+        }
+
+        $list = Db::name('product')->where(['company_id'=>$company_id,'is_del'=>-1,'product_name'=>['like',"%$product_name%"]])->cache(true,3)->select();
+    
+        return msg(200,'success',$list);
+    }
 }
