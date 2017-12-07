@@ -53,6 +53,8 @@ class RemindLogic extends Model {
             'customer_info_id' => $customer_info['customer_info_id'],
         ];
 
+        Db::name('remind')->insert($insert_data);
+
         $insert_res = $redis->LPUSH($uid,json_encode($insert_data));
 
         if($insert_res){
