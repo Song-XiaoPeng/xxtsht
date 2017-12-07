@@ -160,7 +160,7 @@ class RemindLogic extends Model {
     }
 
     /**
-     * 删除待提醒的客户提醒
+     * 删除客户提醒
      * @param remind_id 删除的提醒id
 	 * @param uid 账号uid
 	 * @param company_id 商户company_id
@@ -171,8 +171,6 @@ class RemindLogic extends Model {
         $redis->select(2);
         $list = $redis->lRange($uid, 0, -1);
 
-        $del_res = false;
-
         foreach($list as $k=>$v){
             $arr = json_decode($v,true);
             if($arr['remind_id'] == $remind_id && 
@@ -182,6 +180,8 @@ class RemindLogic extends Model {
                 $del_res = $redis->lrem($uid, 1,$v);
             }
         }
+
+        $del_res = Db::name('remind')->where(['remind_id'=>$remind_id,'company_id'=>$company_id,'uid'=>$uid])->delete();
 
         if($del_res){
             return msg(200,'success');
