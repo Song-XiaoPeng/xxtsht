@@ -11,6 +11,7 @@ class RemindLogic extends Model {
 	 * @param customer_info_id 客户基础信息id
 	 * @param remind_time 提醒时间
 	 * @param uid 账号uid
+	 * @param remind_uid 提醒账号uid
 	 * @param company_id 商户company_id
 	 * @return code 200->成功
 	 */
@@ -19,6 +20,7 @@ class RemindLogic extends Model {
         $customer_info_id = $data['customer_info_id'];
         $remind_time = $data['remind_time'];
         $uid = $data['uid'];
+        $remind_uid = $data['remind_uid'];
         $company_id = $data['company_id'];
 
         $time = date('Y-m-d H:i:s');
@@ -46,6 +48,7 @@ class RemindLogic extends Model {
             'company_id' => $company_id,
             'add_time' => $time,
             'remind_time' => $remind_time,
+            'remind_uid' => $remind_uid,
             'customer_name' => $customer_info['real_name'],
             'customer_info_id' => $customer_info['customer_info_id'],
         ];
@@ -234,6 +237,31 @@ class RemindLogic extends Model {
             return msg(200,'success');
         }else{
             return msg(3001,'修改失败');
+        }
+    }
+
+    /**
+     * 设置提醒已完成
+     * @param company_id 商户company_id
+     * @param uid 账号uid
+     * @param remind_id 提醒id
+	 * @return code 200->成功
+	 */
+    public function setComplete($data){
+        $comapny_id = $data['company_id'];
+        $uid = $data['uid'];
+        $remind_id = $data['remind_id'];
+        
+        $remind_res = Db::name('remind')->where(['company_id'=>$company_id,'remind_id'=>$remind_id])->find();
+        if(!$remind_res){
+            return msg(3001,'未到设定时间无法设置已完成');
+        }
+    
+        $remind_res = Db::name('remind')->where(['remind_id'=>$remind_id])->update(['is_complete'=>1]);
+        if($remind_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
         }
     }
 }

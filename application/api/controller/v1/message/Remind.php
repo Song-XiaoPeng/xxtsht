@@ -56,7 +56,9 @@ class Remind extends Auth{
 	 */
 	public function delRemind(){
 		$data = input('put.');
-
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+		
 		return \think\Loader::model('RemindLogic','logic\v1\message')->delRemind($data['remind_id'],$this->uid,$this->company_id);
 	}
 
@@ -74,7 +76,27 @@ class Remind extends Auth{
 	 */
 	public function updateRemindTime(){
 		$data = input('put.');
-
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+		
 		return \think\Loader::model('RemindLogic','logic\v1\message')->updateRemindTime($data['remind_id'],$this->uid,$this->company_id,$data['remind_time']);
+	}
+
+	/**
+     * 设置提醒已完成
+     * 请求类型 post
+	 * 传入JSON格式: {"remind_id":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/setComplete
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/setComplete
+     * @param remind_id 提醒id
+	 * @return code 200->成功
+	 */
+	public function setComplete(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('RemindLogic','logic\v1\message')->setComplete($data);
 	}
 }
