@@ -171,19 +171,21 @@ class CustomerOperationLogic extends Model {
         $tel = empty($data['tel']) == true ? -1 : $data['tel'];
         $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
 
-        $customer_info_res = Db::name('customer_info')
-        ->partition(
-            ['customer_info_id' => $customer_info_id],
-            'customer_info_id',
-            ['type' => 'md5','num' => config('separate')['customer_info']]
-        )
-        ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
-        ->find();
-        if(!$customer_info_res){
-            return msg(3005,'customer_info_id参数错误');
+        if(!empty($customer_info_id)){
+            $customer_info_res = Db::name('customer_info')
+            ->partition(
+                ['customer_info_id' => $customer_info_id],
+                'customer_info_id',
+                ['type' => 'md5','num' => config('separate')['customer_info']]
+            )
+            ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
+            ->find();
+            if(!$customer_info_res){
+                return msg(3005,'customer_info_id参数错误');
+            }
         }
 
-        if(!$customer_info_res){
+        if(empty($customer_info_res)){
             $customer_info_id = md5(uniqid());
             
             $db_operation_res = Db::name('customer_info')
@@ -430,5 +432,43 @@ class CustomerOperationLogic extends Model {
         }
 
         return msg(200,'success',$customer_info_res);
+    }
+
+    /**
+     * 添加客户意向产品
+     * @param company_id 商户company_id
+     * @param product_name 产品名称
+     * @param product_id 产品id （选传存在则更新）
+	 * @return code 200->成功
+	 */
+    public function addProduct($data){
+        $company_id = $data['comppany_id'];
+        $product_name = $data['product_name'];
+        $product_id = empty($data['product_id']) == true ? '' : $data['product_id'];
+
+        if($product_id){
+            $product_res = Db::name('product')->where(['company_id'=>$company_id,'product_id'=>$product_id])->find();
+            if(!$product_res){
+                return msg(3001,'产品不存在');
+            }
+
+            $update_res = Db::name('product')->where(['product_id'=>$product_id])->update(['product_name'=>$product_name]);
+            if($update_res !== false){
+                return msg(200,'success',['product_id'=>$product_id]);
+            }else{
+                return msg(3002,'更新数据失败');
+            }
+        }
+
+        $product_id = Db::name('product')->insertGetId([
+            'product_name' => $product_name,
+            'company_id' => $company_id,
+        ]);
+
+        if($product_id){
+            return msg(200,'success',['product_id'=>$product_id]);
+        }else{
+            return msg(3003,'插入数据失败');
+        }
     }
 }

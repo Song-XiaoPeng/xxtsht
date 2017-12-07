@@ -78,6 +78,25 @@ class CustomerOperation extends Auth{
 	}
 
     /**
+     * 添加客户意向产品
+     * 请求类型 post
+	 * 传入JSON格式: {"product_name":"测试","product_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"product_id":"12"}}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/addProduct
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/addProduct
+     * @param product_name 产品名称
+     * @param product_id 产品id （选传存在则更新）
+	 * @return code 200->成功
+	 */
+	public function addProduct(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->addProduct($data);
+	}
+
+    /**
      * 模糊搜索获取客户信息
      * 请求类型 post
 	 * 传入JSON格式: {"real_name":"张三","real_phone": 18316314485}
