@@ -45,9 +45,6 @@ class RemindLogic extends Model {
 
         $remind_id = md5(uniqid());
 
-        $redis = Common::createRedis();
-        $redis->select(2);
-
         $insert_data = [
             'remind_id' => $remind_id,
             'remind_content' => $remind_content,
@@ -60,9 +57,7 @@ class RemindLogic extends Model {
             'customer_info_id' => $customer_info['customer_info_id'],
         ];
 
-        Db::name('remind')->insert($insert_data);
-
-        $insert_res = $redis->LPUSH($uid,json_encode($insert_data));
+        $insert_res = Db::name('remind')->insert($insert_data);
 
         if($insert_res){
             return msg(200,'success',['remind_id'=>$remind_id]);
@@ -167,20 +162,6 @@ class RemindLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function delRemind($remind_id,$uid,$company_id){
-        $redis = Common::createRedis();
-        $redis->select(2);
-        $list = $redis->lRange($uid, 0, -1);
-
-        foreach($list as $k=>$v){
-            $arr = json_decode($v,true);
-            if($arr['remind_id'] == $remind_id && 
-            $arr['company_id'] == $company_id &&
-            $arr['uid'] == $uid
-            ){
-                $del_res = $redis->lrem($uid, 1,$v);
-            }
-        }
-
         $del_res = Db::name('remind')->where(['remind_id'=>$remind_id,'company_id'=>$company_id,'uid'=>$uid])->delete();
 
         if($del_res){
@@ -209,34 +190,6 @@ class RemindLogic extends Model {
         $time = date('Y-m-d H:i:s');
         if(strtotime($time) >= strtotime($remind_time)){
             return msg(3002,'提醒时间不合法');
-        }
-
-        $redis = Common::createRedis();
-        $redis->select(2);
-        $list = $redis->lRange($uid, 0, -1);
-
-        $update_res = false;
-
-        foreach($list as $k=>$v){
-            $arr = json_decode($v,true);
-            if($arr['remind_id'] == $remind_id && 
-            $arr['company_id'] == $company_id &&
-            $arr['uid'] == $uid
-            ){
-                $del_res = $redis->lrem($uid, 1,$v);
-                if($del_res){
-                    break;
-                }
-
-                $arr['remind_time'] = $remind_time;
-                $arr['remind_content'] = $remind_content;
-
-                $update_res = $redis->LPUSH($uid,json_encode($arr));
-            }
-        }
-
-        if(!$update_res){
-            return msg(3001,'修改失败');
         }
 
         $update_time_res = Db::name('remind')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['remind_time'=>$remind_time]);
