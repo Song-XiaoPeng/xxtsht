@@ -50,16 +50,29 @@ class MaLogic extends Model {
             }
         }
 
-        $insert_res = Db::name('model_auth')->insert([
-            'model_auth_uid' => $uid,
-            'company_id' => $company_id,
-            'model_list' => json_encode($model_list)
-        ]);
-
-        if($insert_res){
-            return msg(200,'success');
+        $auth_res = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$uid])->find();
+        if($auth_res){
+            $update_res = Db::name('model_auth')->where(['model_auth_id'=>$auth_res['model_auth_id']])->update([
+                'model_list' => json_encode($model_list)
+            ]);
+            
+            if($update_res){
+                return msg(200,'success');
+            }else{
+                return msg(3002,'更新数据失败');
+            }
         }else{
-            return msg(3002,'插入数据失败');
+            $insert_res = Db::name('model_auth')->insert([
+                'model_auth_uid' => $uid,
+                'company_id' => $company_id,
+                'model_list' => json_encode($model_list)
+            ]);
+
+            if($insert_res){
+                return msg(200,'success');
+            }else{
+                return msg(3002,'插入数据失败');
+            }
         }
     }
 }
