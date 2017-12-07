@@ -540,7 +540,7 @@ class BusinessLogic extends Model {
      * @param qrcode_id 二维码id
 	 * @return code 200->成功
 	 */
-    private function addWxUserInfo($appid,$openid,$qrcode_id = ''){
+    private function addWxUserInfo($appid,$openid,$qrcode_id = '',$uid = ''){
         $time = date('Y-m-d H:i:s');
 
         $authinfo_res = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->find();
@@ -568,12 +568,34 @@ class BusinessLogic extends Model {
             return;
         }
 
-        $wx_user_count = Db::name('wx_user')
+        $wx_user_res = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
-        ->count();
+        ->find();
 
-        if($wx_user_count >= 1){
+        $customer_info_res = Db::name('customer_info')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
+        ->where([''])
+        ->find();
+        if(!$customer_info_res){
+            $customer_info_id = md5(uniqid());
+
+            Db::name('customer_info')
+            ->partition(
+                ['customer_info_id' => $customer_info_id],
+                'customer_info_id',
+                ['type' => 'md5','num' => config('separate')['customer_info']]
+            )
+            ->insert([
+                'company_id' => $company_id,
+                'add_time' => $time,
+                'uid' => $uid,
+            ]);
+        }else{
+            $customer_info_id = $customer_info_res['customer_info_id'];
+        }
+
+        if($wx_user_res){
             $update_map = [
                 'nickname' => $wx_info['nickname'],
                 'portrait' => $wx_info['headimgurl'],
@@ -590,7 +612,8 @@ class BusinessLogic extends Model {
                 'unionid' => $wx_info['unionid'],
                 'is_sync' => 1,
                 'subscribe' => $wx_info['subscribe'],
-                'update_time' => $time
+                'update_time' => $time,
+                'customer_info_id' => $customer_info_id,
             ];
 
             if(!empty($qrcode_id)){
@@ -632,7 +655,8 @@ class BusinessLogic extends Model {
             'is_sync' => 1,
             'subscribe' => $wx_info['subscribe'],
             'update_time' => $time,
-            'qrcode_id' => $qrcode_id
+            'qrcode_id' => $qrcode_id,
+            'customer_info_id' => $customer_info_id,
         ]);
 
         $wx_info['is_update'] = false;

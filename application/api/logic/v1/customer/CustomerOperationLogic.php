@@ -10,7 +10,7 @@ class CustomerOperationLogic extends Model {
      * 设置客户信息
      * @param company_id 商户company_id
      * @param appid 客户来源appid
-     * @param customer_type 客户类型 0其他 1意向客户 2订单客户 3追销客户
+     * @param customer_type 客户类型 0线索 1意向客户 2订单客户 3追销客户
      * @param uid 客服账号uid
 	 * @param openid 客户微信openid
 	 * @param real_name 客户真实姓名
