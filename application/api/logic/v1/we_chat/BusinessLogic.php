@@ -501,7 +501,7 @@ class BusinessLogic extends Model {
         $company_id = $customer_service_res['company_id'];
         $customer_service_name = $customer_service_res['name'];
 
-        $wx_info = $this->addWxUserInfo($appid,$openid);
+        $wx_info = $this->addWxUserInfo($appid,$openid,'',$customer_service_uid);
         if(empty($wx_info)){
             return '系统繁忙';
         }
@@ -577,12 +577,8 @@ class BusinessLogic extends Model {
             $customer_info_id = md5(uniqid());
 
             Db::name('customer_info')
-            ->partition(
-                ['customer_info_id' => $customer_info_id],
-                'customer_info_id',
-                ['type' => 'md5','num' => config('separate')['customer_info']]
-            )
             ->insert([
+                'customer_info_id' => $customer_info_id,
                 'company_id' => $company_id,
                 'add_time' => $time,
                 'uid' => $uid,

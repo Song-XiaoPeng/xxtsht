@@ -29,7 +29,6 @@ class RemindLogic extends Model {
         }
 
         $customer_info = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->where(['company_id'=>$company_id,'customer_info_id'=>$customer_info_id])
         ->find();
         if(!$customer_info){
@@ -53,7 +52,6 @@ class RemindLogic extends Model {
             'add_time' => $time,
             'remind_time' => $remind_time,
             'remind_uid' => $remind_uid,
-            'customer_name' => $customer_info['real_name'],
             'customer_info_id' => $customer_info['customer_info_id'],
         ];
 
@@ -78,6 +76,7 @@ class RemindLogic extends Model {
         $company_id = $data['company_id'];
         $customer_info_id = $data['customer_info_id'];
         $uid = $data['uid'];
+        $token = $data['token'];
         $page = empty($data['page']) == true ? '' : $data['page'];
 
         if($customer_info_id){
@@ -95,8 +94,7 @@ class RemindLogic extends Model {
 
         foreach($list as $k=>$v){
             $customer_info_res = Db::name('customer_info')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
-            ->where(['customer_info_id'=>$wx_user_info['customer_info_id']])
+            ->where(['customer_info_id'=>$v['customer_info_id']])
             ->cache(true,10)
             ->find();
             if(!$customer_info_res){
@@ -118,7 +116,7 @@ class RemindLogic extends Model {
             }
 
             if($customer_info_res['wx_user_group_id']){
-                $customer_info_res['product_name'] = Dn::name('product')->where(['product_id'=>$customer_info_res['product_id']])->cache(true,10)->value('product_name');
+                $customer_info_res['product_name'] = Db::name('product')->where(['product_id'=>$customer_info_res['product_id']])->cache(true,10)->value('product_name');
             }else{
                 $customer_info_res['product_name'] = null;
             }
@@ -136,14 +134,13 @@ class RemindLogic extends Model {
                 ]
             );
 
-            $list[$k]['create_user_name'] = array_merge($v,json_decode($request_res->getBody(),true)['body']['user_name']);
+            $list[$k]['create_user_name'] = json_decode($request_res->getBody(),true)['body']['user_name'];
 
             $customer_service_name = Db::name('customer_service')->where(['uid'=>$v['remind_uid'],'company_id'=>$company_id])->cache(true,30)->value('name');
 
-             $list[$k]['customer_service_name'] = empty($customer_service_name) == true ? '客服已删除' : $customer_service_name;
+            $list[$k]['customer_service_name'] = empty($customer_service_name) == true ? '客服已删除' : $customer_service_name;
 
             $list[$k]['customer_info'] = $customer_info_res;
-            $list[$k]['wx_user_info'] = $wx_user_info_res;
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
@@ -211,17 +208,89 @@ class RemindLogic extends Model {
         $comapny_id = $data['company_id'];
         $uid = $data['uid'];
         $remind_id = $data['remind_id'];
+        $complete_content = $data['complete_content'];
         
         $remind_res = Db::name('remind')->where(['company_id'=>$company_id,'remind_id'=>$remind_id])->find();
         if(!$remind_res){
             return msg(3001,'remind_id错误');
         }
 
-        $remind_res = Db::name('remind')->where(['remind_id'=>$remind_id])->update(['is_complete'=>1]);
+        $remind_res = Db::name('remind')->where(['remind_id'=>$remind_id])->update(['is_complete'=>1,'complete_content'=>$complete_content]);
         if($remind_res !== false){
             return msg(200,'success');
         }else{
             return msg(3001,'更新数据失败');
         }
+    }
+
+    /**
+     * 获取客户的跟踪提醒列表
+     * @param company_id 商户company_id
+     * @param page 分页参数 默认1
+     * @param uid 账号uid
+     * @param customer_type 客户类型 0线索 1意向客户 2订单客户 3追销客户
+     * @param time_type 筛选时间条件类型 1今日需联系 2昨日需联系 3本周需联系 4本月需联系 5超时需联系 6已完成
+	 * @return code 200->成功
+	 */
+    public function getAllRemindList($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $customer_type = $data['customer_type'];
+        $time_type = $data['time_type'];
+        $page = $data['page'];
+
+        $time = date('Y-m-d H:i:s');
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $map['tb_remind.company_id'] = $company_id;
+        $map['tb_remind.uid'] = $uid;
+        $map['tb_customer_info.customer_type'] = $customer_type;
+        $map['tb_remind.is_complete'] = -1;
+
+        switch($time_type){
+            case 1:
+                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->field('tb_customer_info.add_time as create_time')->select();
+
+                dump($list);
+                exit;
+                break;
+            case 2:
+                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', 'yesterday')->select();
+                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', 'yesterday')->count();
+                break;
+            case 3:
+                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', 'week')->select();
+                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', 'week')->count();
+                break;
+            case 4:
+                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', 'month')->select();
+                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', 'month')->count();
+                break;
+            case 5:
+                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->whereTime('remind_time', '<', $time)->select();
+                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->whereTime('remind_time', '<', $time)->count();
+                break;
+            case 6:
+                $map['is_complete'] = 1;
+                $list = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->limit($show_page,$page_count)->select();
+                $count = Db::name('remind')->join('tb_customer_info','tb_customer_info.customer_info_id ON tb_remind.customer_info_id')->where($map)->count();
+                break;
+        }
+
+        foreach($list as $k=>$v){
+            $product_name = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
+
+            $list[$k]['product_name'] = empty($product_name) == true ? '暂无产品' : $product_name;
+        }
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
     }
 }

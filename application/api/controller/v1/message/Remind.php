@@ -24,6 +24,26 @@ class Remind extends Auth{
 
 		return \think\Loader::model('RemindLogic','logic\v1\message')->addRemind($data);
 	}
+
+	/**
+     * 获取客户的跟踪提醒列表
+     * 请求类型 post
+	 * 传入JSON格式: {"page":"1","customer_type":"1","time_type":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"remind_id":"4"}}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Remind/getAllRemindList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Remind/getAllRemindList
+     * @param page 分页参数 默认1
+     * @param customer_type 客户类型 0线索 1意向客户 2订单客户 3追销客户
+     * @param time_type 筛选时间条件类型 1今日需联系 2昨日需联系 3本周需联系 4本月需联系 5超时需联系 6已完成
+	 * @return code 200->成功
+	 */
+	public function getAllRemindList(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('RemindLogic','logic\v1\message')->getAllRemindList($data);
+	}
 	
 	/**
      * 获取客户提醒列表
@@ -41,6 +61,7 @@ class Remind extends Auth{
 		$data = input('put.');
 		$data['company_id'] = $this->company_id;
 		$data['uid'] = $this->uid;
+		$data['token'] = $this->token;
 
 		return \think\Loader::model('RemindLogic','logic\v1\message')->getRemindList($data);
 	}

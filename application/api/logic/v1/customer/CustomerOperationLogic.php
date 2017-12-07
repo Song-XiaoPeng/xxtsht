@@ -55,11 +55,6 @@ class CustomerOperationLogic extends Model {
 
         if(!empty($customer_info_id)){
             $customer_info_res = Db::name('customer_info')
-            ->partition(
-                ['customer_info_id' => $customer_info_id],
-                'customer_info_id',
-                ['type' => 'md5','num' => config('separate')['customer_info']]
-            )
             ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
             ->find();
             if(!$customer_info_res){
@@ -71,11 +66,6 @@ class CustomerOperationLogic extends Model {
             $customer_info_id = md5(uniqid());
             
             $db_operation_res = Db::name('customer_info')
-            ->partition(
-                ['customer_info_id' => $customer_info_id],
-                'customer_info_id',
-                ['type' => 'md5','num' => config('separate')['customer_info']]
-            )
             ->insert([
                 'customer_info_id' => $customer_info_id,
                 'real_name' => $real_name,
@@ -99,11 +89,6 @@ class CustomerOperationLogic extends Model {
             $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
 
             $db_operation_res = Db::name('customer_info')
-            ->partition(
-                ['customer_info_id' => $customer_info_id],
-                'customer_info_id',
-                ['type' => 'md5','num' => config('separate')['customer_info']]
-            )
             ->where([
                 'customer_info_id' => $customer_info_id,
                 'company_id' => $company_id
@@ -173,11 +158,6 @@ class CustomerOperationLogic extends Model {
 
         if(!empty($customer_info_id)){
             $customer_info_res = Db::name('customer_info')
-            ->partition(
-                ['customer_info_id' => $customer_info_id],
-                'customer_info_id',
-                ['type' => 'md5','num' => config('separate')['customer_info']]
-            )
             ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
             ->find();
             if(!$customer_info_res){
@@ -189,11 +169,6 @@ class CustomerOperationLogic extends Model {
             $customer_info_id = md5(uniqid());
             
             $db_operation_res = Db::name('customer_info')
-            ->partition(
-                ['customer_info_id' => $customer_info_id],
-                'customer_info_id',
-                ['type' => 'md5','num' => config('separate')['customer_info']]
-            )
             ->insert([
                 'customer_info_id' => $customer_info_id,
                 'real_name' => $real_name,
@@ -217,11 +192,6 @@ class CustomerOperationLogic extends Model {
             $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
 
             $db_operation_res = Db::name('customer_info')
-            ->partition(
-                ['customer_info_id' => $customer_info_id],
-                'customer_info_id',
-                ['type' => 'md5','num' => config('separate')['customer_info']]
-            )
             ->where([
                 'customer_info_id' => $customer_info_id,
                 'company_id' => $company_id
@@ -272,7 +242,6 @@ class CustomerOperationLogic extends Model {
         }
 
         $customer_info = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->where(['customer_info_id'=>$customer_info_id])
         ->find();
         if(!$customer_info){
@@ -329,13 +298,11 @@ class CustomerOperationLogic extends Model {
         }
 
         $customer_info_res = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->limit($show_page,$page_count)
         ->where($map)
         ->select();
 
         $count = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->where($map)
         ->count();
         
@@ -398,7 +365,6 @@ class CustomerOperationLogic extends Model {
         $map['company_id'] = $company_id;
 
         $customer_info_res = Db::name('customer_info')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
         ->where($map)
         ->select();
         
@@ -442,7 +408,7 @@ class CustomerOperationLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function addProduct($data){
-        $company_id = $data['comppany_id'];
+        $company_id = $data['company_id'];
         $product_name = $data['product_name'];
         $product_id = empty($data['product_id']) == true ? '' : $data['product_id'];
 
@@ -510,5 +476,36 @@ class CustomerOperationLogic extends Model {
         $list = Db::name('product')->where(['company_id'=>$company_id,'is_del'=>-1,'product_name'=>['like',"%$product_name%"]])->cache(true,3)->select();
     
         return msg(200,'success',$list);
+    }
+
+    /**
+     * 获取意向产品list
+     * @param company_id 商户company_id
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+    public function getProductList($data){
+        $company_id = $data['company_id'];
+        $page = $data['page'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('product')
+        ->limit($show_page,$page_count)
+        ->where(['company_id'=>$company_id])
+        ->select();
+
+        $count = Db::name('product')
+        ->where(['company_id'=>$company_id])
+        ->count();
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
     }
 }
