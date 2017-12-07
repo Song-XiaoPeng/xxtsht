@@ -36,6 +36,13 @@ class RemindLogic extends Model {
             return msg(3001,'客户信息不存在');
         }
 
+        $customer_service_res = Db::name('customer_service')
+        ->where(['company_id'=>$company_id,'uid'=>$remind_uid])
+        ->find();
+        if(!$customer_service_res){
+            return msg(3003,'提醒账号未开通客服权限');
+        }
+
         $remind_id = md5(uniqid());
 
         $redis = Common::createRedis();
@@ -69,7 +76,6 @@ class RemindLogic extends Model {
      * @param page 分页参数默认1
      * @param customer_info_id 客户基础信息id
 	 * @param uid 账号uid
-	 * @param is_remind 是否已经提醒 1是 -1否
 	 * @param company_id 商户company_id
 	 * @return code 200->成功
 	 */
@@ -78,7 +84,6 @@ class RemindLogic extends Model {
         $customer_info_id = $data['customer_info_id'];
         $uid = $data['uid'];
         $page = empty($data['page']) == true ? '' : $data['page'];
-        $is_remind = $data['is_remind'];
 
         if($customer_info_id){
             $map['customer_info_id'] = $customer_info_id;
@@ -90,34 +95,10 @@ class RemindLogic extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        if($is_remind == 1){
-            $list = Db::name('remind')->where($map)->limit($show_page,$page_count)->select();
-            $count = Db::name('remind')->where($map)->count();
-        }else{
-            $redis = Common::createRedis();
-            $redis->select(2);
-            $list = $redis->lRange($uid, $show_page, $page_count);
-
-            foreach($list as $k=>$v){
-                $list[$k] = json_decode($v,true);
-            }
-
-            $count = $redis->LLEN($uid);
-        }
+        $list = Db::name('remind')->where($map)->limit($show_page,$page_count)->select();
+        $count = Db::name('remind')->where($map)->count();
 
         foreach($list as $k=>$v){
-            // $wx_user_info = Db::name('wx_user')
-            // ->partition('', '', ['type'=>'md5','num'=>config('separate')['wx_user']])
-            // ->where(['wx_user_id'=>$v['remind_openid']])
-            // ->field('nickname,portrait,qrcode_id,customer_info_id,groupid,subscribe_time,appid,subscribe')
-            // ->cache(true,10)
-            // ->find();
-            // if(!$wx_user_info){
-            //     $list[$k]['wx_user_info'] = null;
-            //     $list[$k]['customer_info'] = null;
-            //     continue;
-            // }
-
             $customer_info_res = Db::name('customer_info')
             ->partition('', '', ['type'=>'md5','num'=>config('separate')['customer_info']])
             ->where(['customer_info_id'=>$wx_user_info['customer_info_id']])
@@ -146,6 +127,25 @@ class RemindLogic extends Model {
             }else{
                 $customer_info_res['product_name'] = null;
             }
+
+            $client = new \GuzzleHttp\Client();
+            $request_res = $client->request(
+                'POST', 
+                combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
+                [
+                    'json' => ['uid'=>$v['uid'],'company_id'=>$company_id],
+                    'timeout' => 3,
+                    'headers' => [
+                        'token' => $token
+                    ]
+                ]
+            );
+
+            $list[$k]['create_user_name'] = array_merge($v,json_decode($request_res->getBody(),true)['body']['user_name']);
+
+            $customer_service_name = Db::name('customer_service')->where(['uid'=>$v['remind_uid'],'company_id'=>$company_id])->cache(true,30)->value('name');
+
+             $list[$k]['customer_service_name'] = empty($customer_service_name) == true ? '客服已删除' : $customer_service_name;
 
             $list[$k]['customer_info'] = $customer_info_res;
             $list[$k]['wx_user_info'] = $wx_user_info_res;
@@ -256,7 +256,7 @@ class RemindLogic extends Model {
         
         $remind_res = Db::name('remind')->where(['company_id'=>$company_id,'remind_id'=>$remind_id])->find();
         if(!$remind_res){
-            return msg(3001,'未到设定时间无法设置已完成');
+            return msg(3001,'remind_id错误');
         }
     
         $remind_res = Db::name('remind')->where(['remind_id'=>$remind_id])->update(['is_complete'=>1]);
