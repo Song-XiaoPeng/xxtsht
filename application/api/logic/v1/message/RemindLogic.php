@@ -205,10 +205,10 @@ class RemindLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function setComplete($data){
-        $comapny_id = $data['company_id'];
+        $company_id = $data['company_id'];
         $uid = $data['uid'];
         $remind_id = $data['remind_id'];
-        $complete_content = $data['complete_content'];
+        $complete_content = empty($data['complete_content']) == true ? '' : $data['complete_content'];
         
         $remind_res = Db::name('remind')->where(['company_id'=>$company_id,'remind_id'=>$remind_id])->find();
         if(!$remind_res){
