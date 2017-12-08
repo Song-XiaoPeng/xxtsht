@@ -413,11 +413,12 @@ class BusinessLogic extends Model {
         }
 
         if(!empty($qrcode_res['customer_service_id'])){
-            $this->createSession($appid,$openid,'user',$qrcode_res['customer_service_id']);
+            $uid = Db::name('customer_service')->where(['customer_service_id'=>$qrcode_res['customer_service_id']])->value('uid');
+            return $this->createSession($appid,$openid,'user',$uid);
         }
 
         if(!empty($qrcode_res['customer_service_group_id'])){
-            $this->createSession($appid,$openid,'group',$qrcode_res['customer_service_group_id']);
+            return $this->createSession($appid,$openid,'group',$qrcode_res['customer_service_group_id']);
         }
 
         return '欢迎关注！';

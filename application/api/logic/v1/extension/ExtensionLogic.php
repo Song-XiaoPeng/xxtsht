@@ -36,14 +36,18 @@ class ExtensionLogic extends Model {
             return msg(3004,'专属客服与专属客服分组只能选取一个选项');
         }
 
-        $group_res = Db::name('extension_qrcode_group')->where(['company_id'=>$company_id,'qrcode_group_id'=>$qrcode_group_id,'del'=>-1])->find();
-        if(empty($group_res)){
-            return msg(3002,'分组不存在');
+        if(!empty($customer_service_group_id)){
+            $group_res = Db::name('extension_qrcode_group')->where(['company_id'=>$company_id,'qrcode_group_id'=>$qrcode_group_id,'del'=>-1])->find();
+            if(empty($group_res)){
+                return msg(3002,'分组不存在');
+            }
         }
 
-        $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'company_id'=>$company_id,'customer_service_id'=>$customer_service_id])->find();
-        if(empty($customer_service_res)){
-            return msg(3003,'客服不存在');
+        if(!empty($customer_service_id)){
+            $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'company_id'=>$company_id,'customer_service_id'=>$customer_service_id])->find();
+            if(empty($customer_service_res)){
+                return msg(3003,'客服不存在');
+            }
         }
 
         try{
