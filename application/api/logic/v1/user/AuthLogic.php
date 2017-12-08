@@ -17,6 +17,10 @@ class AuthLogic extends Model {
         $client_network_mac = empty($data['client_network_mac']) == true ? '' : $data['client_network_mac'];
         $time = date('Y-m-d H:i:s');
 
+        if(empty($client_network_mac)){
+            return msg(3001,'客户端硬件识别码不能为空');
+        }
+
         $client = new \GuzzleHttp\Client();
 
         $request_data = [
@@ -105,6 +109,12 @@ class AuthLogic extends Model {
 	 */
     private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac) {
         $auth_res = Db::name('login_token')->where(['uid'=>$uid])->find();
+
+        if (!empty($auth_res['client_network_mac'])) {
+            if($client_network_mac != $auth_res['client_network_mac']){
+                return msg(6090, '不允许在未授权的计算机登录');
+            }
+        }
 
         $time = date('Y-m-d H:i:s');
 
