@@ -15,7 +15,7 @@ class MaLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
 
-        $res = Db::name('model_list')>where(['is_enable'=>1])->cache(true,60)->select();
+        $res = Db::name('model_list')->where(['is_enable'=>1])->cache(true,60)->select();
 
         return msg(200,'success',$res);
     }
