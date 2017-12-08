@@ -14,6 +14,7 @@ class AuthLogic extends Model {
         $phone_no = $data['phone_no'];
         $password = $data['password'];
         $client_version = empty($data['version']) == true ? '' : $data['version'];
+        $client_network_mac = empty($data['client_network_mac']) == true ? '' : $data['client_network_mac'];
         $time = date('Y-m-d H:i:s');
 
         $client = new \GuzzleHttp\Client();
@@ -61,7 +62,7 @@ class AuthLogic extends Model {
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
         }
 
-        $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version);
+        $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac);
 
         if($user_type != 3){
             $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$uid])->value('model_list');
@@ -102,7 +103,7 @@ class AuthLogic extends Model {
 	 * @param expiration_date 模块到期时间
 	 * @return code 200->成功
 	 */
-    private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version) {
+    private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac) {
         $auth_res = Db::name('login_token')->where(['uid'=>$uid])->find();
 
         $time = date('Y-m-d H:i:s');
@@ -117,7 +118,8 @@ class AuthLogic extends Model {
                 'phone_no'=>$phone_no,
                 'user_type'=>$user_type,
                 'user_group_id'=>$user_group_id,
-                'client_version'=>$client_version
+                'client_version'=>$client_version,
+                'client_network_mac'=>$client_network_mac,
             ]);
         }else{
             Db::name('login_token')->insert([
@@ -129,7 +131,8 @@ class AuthLogic extends Model {
                 'phone_no'=>$phone_no,
                 'user_type'=>$user_type,
                 'user_group_id'=>$user_group_id,
-                'client_version'=>$client_version
+                'client_version'=>$client_version,
+                'client_network_mac'=>$client_network_mac,
             ]);
         }
 
