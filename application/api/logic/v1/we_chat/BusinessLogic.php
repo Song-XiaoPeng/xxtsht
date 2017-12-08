@@ -407,6 +407,19 @@ class BusinessLogic extends Model {
             Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id])->setInc('attention');
         }
 
+        $qrcode_res = Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id,'is_del'=>-1])->cache(true,60)->find();
+        if(!$qrcode_res){
+            return '欢迎关注！';
+        }
+
+        if(!empty($qrcode_res['customer_service_id'])){
+            $this->createSession($appid,$openid,'user',$qrcode_res['customer_service_id']);
+        }
+
+        if(!empty($qrcode_res['customer_service_group_id'])){
+            $this->createSession($appid,$openid,'group',$qrcode_res['customer_service_group_id']);
+        }
+
         return '欢迎关注！';
     }
 
@@ -416,7 +429,6 @@ class BusinessLogic extends Model {
      * @param openid 用户微信openid
      * @param type 分配类型 user->指定到具体的客服 group->指定到具体的客服分组
      * @param id 分配的客服id或客服分组id
-     * @param event_key 触发下标值
 	 * @return code 200->成功
 	 */
     private function createSession($appid,$openid,$type,$id = ''){
