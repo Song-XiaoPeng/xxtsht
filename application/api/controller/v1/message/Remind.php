@@ -103,7 +103,7 @@ class Remind extends Auth{
 		$data['company_id'] = $this->company_id;
 		$data['uid'] = $this->uid;
 		
-		return \think\Loader::model('RemindLogic','logic\v1\message')->updateRemindTime($data['remind_id'],$this->uid,$this->company_id,$data['remind_time']);
+		return \think\Loader::model('RemindLogic','logic\v1\message')->updateRemindTime($data);
 	}
 
 	/**

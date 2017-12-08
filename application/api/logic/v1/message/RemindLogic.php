@@ -189,7 +189,7 @@ class RemindLogic extends Model {
             return msg(3002,'提醒时间不合法');
         }
 
-        $update_time_res = Db::name('remind')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['remind_time'=>$remind_time]);
+        $update_time_res = Db::name('remind')->where(['remind_id'=>$remind_id,'company_id'=>$company_id,'uid'=>$uid])->update(['remind_time'=>$remind_time]);
         if($update_time_res !== false){
             return msg(200,'success');
         }else{
