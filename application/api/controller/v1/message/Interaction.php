@@ -52,4 +52,42 @@ class Interaction extends Auth{
 	public function getAlreadyAccess(){
 		return \think\Loader::model('InteractionLogic','logic\v1\message')->getAlreadyAccess($this->company_id,$this->uid);
 	}
+
+	/**
+     * 商户监控会话列表获取
+     * 请求类型 get
+	 * 返回JSON格式: 
+	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/getMonitorSessionList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/getMonitorSessionList
+	 * @return code 200->成功
+	 */
+	public function getMonitorSessionList(){
+		if($this->user_type != 3){
+			return msg(6003,'非管理员权限无权调用此api');
+		}
+
+		return \think\Loader::model('InteractionLogic','logic\v1\message')->getMonitorSessionList($this->company_id);
+	}
+
+	/**
+     * 商户监控获取聊天消息
+     * 请求类型 post
+	 * 请求JSON格式: {"page":"1","session_id":"b3997c0bcf1d4282152685eaad2b67fa"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":{"message_id":"08ff8d0570f2c46498a8dbed3224a74a","company_id":"51454009d703c86c91353f61011ecf2f","appid":"wx88c6052d06eaaf7d","customer_service_id":4,"customer_wx_openid":"oZ8DFwU5HOTs0b4g-P_skZ8wgH7g","add_time":"2017-11-29 13:19:24","opercode":1,"text":"达瓦达瓦就","message_type":1,"file_url":null,"lng":null,"lat":null,"is_read":-1,"session_id":"10ca6ba5afc359d34e348155867f7926","uid":6454,"media_id":null,"page_title":null,"page_desc":null,"map_scale":null,"map_label":null,"map_img":null,"resources_id":null},"page_data":{"count":190,"rows_num":16,"page":"1"}}}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/getMonitorMessage
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/getMonitorMessage
+	 * @param page 分页参数默认1
+	 * @param session_id 会话id
+	 * @return code 200->成功
+	 */
+	public function getMonitorMessage(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		if($this->user_type != 3){
+			return msg(6003,'非管理员权限无权调用此api');
+		}
+
+		return \think\Loader::model('InteractionLogic','logic\v1\message')->getMonitorMessage($data);
+	}
 }

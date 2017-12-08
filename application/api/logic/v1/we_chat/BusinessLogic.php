@@ -8,7 +8,7 @@ use think\Log;
 use app\api\common\Common;
 
 class BusinessLogic extends Model {
-    private $default_message = '系统未识别到您的描述，请再描述一次！';
+    private $default_message = '';
 
     //微信授权事件处理
     public function authCallback(){
@@ -618,6 +618,7 @@ class BusinessLogic extends Model {
             ->update($update_map);
 
             $wx_info['is_update'] = true;
+            $wx_info['wx_user_id'] = $wx_user_res['wx_user_id'];
 
             return $wx_info;
         }

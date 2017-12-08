@@ -2,6 +2,7 @@
 namespace app\api\logic\v1\message;
 use think\Model;
 use think\Db;
+use app\api\common\Common;
 
 class InteractionLogic extends Model {
     /**
@@ -147,14 +148,74 @@ class InteractionLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getMonitorSessionList($company_id){
-        set_time_limit(60);
+        $redis = Common::createRedis();
+        $redis->select(0); 
 
-        while (true) {
-            $message_session = Db::name('message_session')->where(['company_id'=>$company_id,'state'=>1])->select();
+        $redis_data = $redis->sMembers($company_id);
 
-            
+        $pending_access_session = [];
 
-            sleep(2);
+        $line_up_session = [];
+
+        foreach($redis_data as $k=>$v){
+            $session_data = json_decode($v,true);
+            if($session_data['state'] == 0){
+                array_push($pending_access_session,$session_data);
+            }
+
+            if($session_data['state'] == 1){
+                array_push($line_up_session,$session_data);
+            }
         }
+
+        $conversation_session = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['company_id'=>$company_id,'state'=>1])
+        ->select();
+        if(!$conversation_session){
+            $conversation_session = [];
+        }
+
+        return msg(200, 'success', [
+            'pending_access_session' => $pending_access_session,
+            'line_up_session' => $line_up_session,
+            'conversation_session' => $conversation_session
+        ]);
+    }
+
+    /**
+     * 商户监控获取聊天消息
+	 * @param company_id 商户company_id
+	 * @param page 分页参数默认1
+	 * @param session_id 会话id
+	 * @return code 200->成功
+	 */
+    public function getMonitorMessage($data){
+        $company_id = $data['company_id'];
+        $page = empty($data['page']) == true ? 1:$data['page'];
+        $session_id = $data['session_id'];
+
+        //分页
+        $page_count = 200;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('message_data')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
+        ->where(['session_id'=>$session_id,'company_id'=>$company_id])
+        ->limit($show_page, $page_count)
+        ->order('add_time desc')
+        ->select();
+
+        $count = Db::name('message_data')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
+        ->where(['session_id'=>$session_id,'company_id'=>$company_id])
+        ->count();
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+
+        return msg(200,'success',$res);
     }
 }
