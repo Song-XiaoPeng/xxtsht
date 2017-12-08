@@ -13,7 +13,7 @@ class AuthLogic extends Model {
     public function login ($data) {
         $phone_no = $data['phone_no'];
         $password = $data['password'];
-        $client_version = empty($data['client_version']) == true ? '' : $data['client_version'];
+        $client_version = empty($data['version']) == true ? '' : $data['version'];
         $time = date('Y-m-d H:i:s');
 
         $client = new \GuzzleHttp\Client();
