@@ -110,7 +110,7 @@ class AuthLogic extends Model {
     private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac) {
         $auth_res = Db::name('login_token')->where(['uid'=>$uid])->find();
 
-        if (!empty($auth_res['client_network_mac'])) {
+        if (empty($auth_res['client_network_mac']) == false && $auth_res['user_type'] != 3) {
             if($client_network_mac != $auth_res['client_network_mac']){
                 return msg(6090, '不允许在未授权的计算机登录');
             }

@@ -590,4 +590,21 @@ class UserOperationLogic extends Model {
 
         return msg(200,'success');
     }
+
+    /**
+     * 解除子账号硬件绑定
+	 * @param company_id 商户company_id
+	 * @param uid 子账号uid
+	 * @return code 200->成功
+	 */
+    public function relieveUserBind($company_id,$uid){
+        $update_res = Db::name('login_token')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['client_network_mac'=>null]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
+
 }

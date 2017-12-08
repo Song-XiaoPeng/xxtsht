@@ -234,4 +234,24 @@ class UserOperation extends Auth{
 
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->setUserGroup($data);
     }
+
+    /**
+     * 解除子账号硬件绑定
+     * 请求类型 post
+	 * 传入JSON格式: {"uid":"6454"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/relieveUserBind
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/relieveUserBind
+	 * @param uid 设置的子账号uid
+	 * @return code 200->成功
+	 */
+    public function relieveUserBind(){
+        $data = input('put.');
+
+		if($this->user_type != 3){
+			return msg(6003,'非管理员权限无权调用此api');
+		}
+
+        return \think\Loader::model('UserOperationLogic','logic\v1\user')->relieveUserBind($this->company_id,$data['uid']);
+    }
 }
