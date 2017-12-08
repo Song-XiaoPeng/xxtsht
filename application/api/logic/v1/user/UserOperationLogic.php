@@ -105,6 +105,11 @@ class UserOperationLogic extends Model {
             }else{
                 $request_data['body']['user_list'][$k]['model_list'] = null;
             }
+
+            $login_info = Db::name('login_token')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->find();
+
+            $request_data['body']['user_list'][$k]['client_version'] = $login_info['client_version'];
+            $request_data['body']['user_list'][$k]['client_network_mac'] = $login_info['client_network_mac'];
         }
 
         return msg(200,'success',['user_list'=>$request_data['body']['user_list'],'page_data'=>$request_data['body']['page_data']]);
