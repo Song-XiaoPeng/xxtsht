@@ -328,7 +328,7 @@ class SurveyLogic extends Model {
                 break;
         }
 
-        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_customer_info_1 UNION SELECT * FROM tb_customer_info_2 UNION SELECT * FROM tb_customer_info_3 UNION SELECT * FROM tb_customer_info_4 UNION SELECT * FROM tb_customer_info_5) AS customer_info WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        $session_total = Db::name('customer_info')->where(['company_id'=>$company_id,'uid'=>$uid])->where('add_time','between time',[$begin_time,$end_time])->count();
 
         return $session_total;
     }
