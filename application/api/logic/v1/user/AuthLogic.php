@@ -18,7 +18,7 @@ class AuthLogic extends Model {
         $time = date('Y-m-d H:i:s');
 
         if(empty($client_network_mac)){
-            return msg(3001,'客户端硬件识别码不能为空');
+            return msg(3001,'无法获取客户端硬件识别码');
         }
 
         $client = new \GuzzleHttp\Client();
