@@ -32,6 +32,10 @@ class ExtensionLogic extends Model {
         $customer_service_id = empty($data['customer_service_id']) == true ? '' : $data['customer_service_id'];
         $customer_service_group_id = empty($data['customer_service_group_id']) == true ? '' : $data['customer_service_group_id'];
 
+        if(empty($customer_service_id) == false && empty($customer_service_group_id) == false){
+            return msg(3004,'专属客服与专属客服分组只能选取一个选项');
+        }
+
         $group_res = Db::name('extension_qrcode_group')->where(['company_id'=>$company_id,'qrcode_group_id'=>$qrcode_group_id,'del'=>-1])->find();
         if(empty($group_res)){
             return msg(3002,'分组不存在');
