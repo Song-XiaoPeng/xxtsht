@@ -448,7 +448,13 @@ class UserOperationLogic extends Model {
                 ]
             );
 
-            $list[$k] = array_merge($v,json_decode($request_res->getBody(),true)['body']);
+            $portrait_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
+
+            $user_info = json_decode($request_res->getBody(),true)['body'];
+
+            $user_info['avatar_url'] = empty($portrait_id) == true ? $user_info['avatar_url']  : 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$portrait_id;
+
+            $list[$k] = array_merge($v,$user_info);
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
