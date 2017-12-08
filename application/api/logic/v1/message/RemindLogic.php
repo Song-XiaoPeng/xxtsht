@@ -355,6 +355,8 @@ class RemindLogic extends Model {
                 ->where($map)
                 ->count();
                 break;
+            default:
+                return msg(3003,'time_type参数错误');
         }
 
         foreach($list as $k=>$v){
