@@ -832,10 +832,14 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
-        $menu->add($menu_list, $match_rule);
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+            $menu->add($menu_list, $match_rule);
+        }catch (\Exception $e) {
+            return msg(3002,$e->getMessage());
+        }
 
         return msg(200,'success');
     }
@@ -857,9 +861,13 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+        }catch (\Exception $e) {
+            return msg(3002,$e->getMessage());
+        }
 
         return msg(200,'success',$menu->all()['conditionalmenu']);
     }
@@ -883,11 +891,15 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
 
-        $menu->destroy($menuId);
+            $menu->destroy($menuId);
+        }catch (\Exception $e) {
+            return msg(3002,$e->getMessage());
+        }
 
         return msg(200,'success');
     }
@@ -909,11 +921,15 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
 
-        $res = $group->lists();
+            $res = $group->lists();
+        }catch (\Exception $e) {
+            return msg(3002,$e->getMessage());
+        }
 
         return msg(200,'success',$res['groups']);
     }
@@ -938,10 +954,9 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
             $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
@@ -985,9 +1000,9 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
             $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
             $group->delete($group_id);
         }catch (\Exception $e) {
@@ -1156,11 +1171,10 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
-
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
             $userSummary = $stats->userSummary($start_date, $end_date);
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
@@ -1190,11 +1204,10 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
-
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
             $userCumulate = $stats->userCumulate($start_date, $end_date);
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
@@ -1224,11 +1237,10 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
-
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
             $articleSummary = $stats->articleSummary($start_date, $end_date);
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
@@ -1258,11 +1270,10 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
-
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
             $articleTotal = $stats->articleTotal($start_date, $end_date);
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
@@ -1292,11 +1303,11 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
-
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+
             $userShareSummary = $stats->userShareSummary($start_date, $end_date);
         }catch (\Exception $e) {
             return msg(3001,$e->getMessage());
