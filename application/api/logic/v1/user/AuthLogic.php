@@ -94,7 +94,6 @@ class AuthLogic extends Model {
                 'phone_no' => $phone_no,
                 'user_group_id' => $user_group_id,
                 'group_name' => $group_name,
-                'user_type' => $user_type,
                 'uid' => $uid,
                 'avatar_url' => $avatar_url,
                 'model_list' => $model_list,
