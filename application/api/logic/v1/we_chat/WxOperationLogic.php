@@ -64,10 +64,14 @@ class WxOperationLogic extends Model {
             return $token_info;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
-        $menu->add($menu_list);
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+            $menu->add($menu_list);
+        }catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
 
         return msg(200,'success');
     }
