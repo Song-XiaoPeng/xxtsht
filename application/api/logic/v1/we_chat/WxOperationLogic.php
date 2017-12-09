@@ -101,13 +101,13 @@ class WxOperationLogic extends Model {
 
         if($rule_type == 2){
             if(!$uid){
-                return msg('客服未选择');
+                return msg(3006,'客服未选择');
             }
         }
 
         if($rule_type == 3){
             if(!$user_group_id){
-                return msg('客服分组未选择');
+                return msg(3005,'客服分组未选择');
             }
         }
 
