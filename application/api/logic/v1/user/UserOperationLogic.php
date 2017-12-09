@@ -612,4 +612,18 @@ class UserOperationLogic extends Model {
         }
     }
 
+    /**
+     * 账号注销
+	 * @param company_id 商户company_id
+	 * @param uid 子账号uid
+	 * @return code 200->成功
+	 */
+    public function accountCancellation($company_id,$uid){
+        $update_res = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['state'=>-1]);
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新成功');
+        }
+    }
 }

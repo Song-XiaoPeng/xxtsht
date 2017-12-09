@@ -254,4 +254,16 @@ class UserOperation extends Auth{
 
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->relieveUserBind($this->company_id,$data['uid']);
     }
+
+    /**
+     * 账号注销
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/accountCancellation
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/accountCancellation
+	 * @return code 200->成功
+	 */
+    public function accountCancellation(){
+        return \think\Loader::model('UserOperationLogic','logic\v1\user')->accountCancellation($this->company_id,$this->uid);
+    }
 }
