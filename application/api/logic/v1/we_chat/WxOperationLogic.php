@@ -1571,9 +1571,11 @@ class WxOperationLogic extends Model {
                 if($session_data['uid'] == $uid && $session_data['state'] == 0){
                     array_push($waiting,array_merge($session_data,$extra_data));
                     array_push($insert_waiting,$session_data);
-                }else{
-                    array_push($queue_up,$session_data);
                 }
+
+                if($session_data['state'] == 3){
+                    array_push($queue_up,$session_data);
+                } 
             }
 
             if(count($waiting) != 0 || count($queue_up) != 0){
