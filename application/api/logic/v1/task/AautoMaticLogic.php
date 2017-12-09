@@ -42,12 +42,14 @@ class AautoMaticLogic extends Model {
             return;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
         try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
             $list = $userService->lists();
         }catch (\Exception $e) {
+            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>-1,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
+            return;
         } 
 
         if(empty($list['data']['openid'])){
@@ -153,9 +155,14 @@ class AautoMaticLogic extends Model {
             return;
         }
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
+        try{
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
+        }catch (\Exception $e) {
+            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>-1,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
+            return;
+        } 
 
         $total = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
