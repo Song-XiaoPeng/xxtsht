@@ -66,7 +66,10 @@ class AuthLogic extends Model {
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
         }
 
-        $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac);
+        $auth_cache_res = $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac);
+        if($auth_cache_res['meta']['code'] != 200){
+            return $auth_cache_res;
+        }
 
         if($user_type != 3){
             $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$uid])->value('model_list');
