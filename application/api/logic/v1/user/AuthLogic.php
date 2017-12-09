@@ -79,6 +79,8 @@ class AuthLogic extends Model {
             $model_list = [];
         }
 
+        Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['state'=>1]);
+
         return msg(
             200,
             'success',
