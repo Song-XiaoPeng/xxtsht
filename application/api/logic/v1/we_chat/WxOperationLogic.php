@@ -1462,8 +1462,8 @@ class WxOperationLogic extends Model {
                     $data_obj = ['media_id'=>$media_id];
                     break;
                 case 8:
-                    $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
-                    $message = new Material('mpnews', $media_id);
+                    $upload_res = $temporary->uploadFile('..'.$resources_res['resources_route']);
+                    $message = new Material('file', $upload_res['media_id']);
                     $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
                     break;
                 default:
@@ -1792,7 +1792,11 @@ class WxOperationLogic extends Model {
                     'audio/mpeg',
                     'audio/x-wav',
                     'video/x-msvideo',
-                    'video/mp4'
+                    'video/mp4',
+                    'application/msword',
+                    'application/vnd.ms-powerpoint',
+                    'application/pdf',
+                    'application/zip'
                 ]),
             
                 new \Upload\Validation\Size('10M')
