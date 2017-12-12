@@ -1767,8 +1767,8 @@ class WxOperationLogic extends Model {
         $catalog_name = date('Ymd');
         $save_catalog = "../uploads/message/$catalog_name";
         if(!file_exists($save_catalog)){
-            mkdir($save_catalog,0766);
-            chmod($save_catalog,0766);
+            mkdir($save_catalog, 0766);
+            chmod($save_catalog, 0766);
         }
 
         try {
