@@ -520,8 +520,10 @@ class BusinessLogic extends Model {
         }
 
         try{
+            $session_id = md5(uniqid());
+
             $insert_data = [
-                'session_id' => md5(uniqid()),
+                'session_id' => $session_id,
                 'customer_service_id' => $customer_service_id,
                 'customer_wx_openid' => $openid,
                 'add_time' => date('Y-m-d H:i:s'),
@@ -535,6 +537,10 @@ class BusinessLogic extends Model {
             ];
 
             $add_res = $redis->sAdd($customer_service_uid, json_encode($insert_data));
+
+            Db::name('message_session')
+            ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->insert($insert_data);
 
             if($add_res){
                 return '正在为您接入客服'.$customer_service_name.'请稍等！';
