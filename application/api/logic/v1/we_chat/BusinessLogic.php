@@ -536,11 +536,13 @@ class BusinessLogic extends Model {
                 'wx_user_id' => $wx_info['wx_user_id']
             ];
 
-            $add_res = $redis->sAdd($customer_service_uid, json_encode($insert_data));
-
-            Db::name('message_session')
+            $add_res = Db::name('message_session')
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->insert($insert_data);
+
+            $insert_data['type'] = 'session';
+
+            $redis->sAdd($customer_service_uid, json_encode($insert_data));
 
             if($add_res){
                 return '正在为您接入客服'.$customer_service_name.'请稍等！';
