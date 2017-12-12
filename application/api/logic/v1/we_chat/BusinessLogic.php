@@ -534,7 +534,7 @@ class BusinessLogic extends Model {
                 'wx_user_id' => $wx_info['wx_user_id']
             ];
 
-            $add_res = $redis->sAdd($company_id, json_encode($insert_data));
+            $add_res = $redis->sAdd($customer_service_uid, json_encode($insert_data));
 
             if($add_res){
                 return '正在为您接入客服'.$customer_service_name.'请稍等！';
