@@ -84,10 +84,8 @@ class UserOperationLogic extends Model {
         foreach($request_data['body']['user_list'] as $k=>$v){
             $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
             if(!$resources_id){
-                continue;
+                $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
             }
-
-            $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
 
             if($v['user_type'] != 3){
                 $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$v['uid']])->value('model_list');
