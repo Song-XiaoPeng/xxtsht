@@ -11,7 +11,7 @@ class Common {
             $map['company_id'] = $company_id;
         }
 
-        $openweixin_authinfo_res = Db::name('openweixin_authinfo')->where($map)->cache(true,360)->find();
+        $openweixin_authinfo_res = Db::name('openweixin_authinfo')->where($map)->cache(true,30)->find();
         if(!$openweixin_authinfo_res){
             return msg(3001,'appid不存在');
         }
