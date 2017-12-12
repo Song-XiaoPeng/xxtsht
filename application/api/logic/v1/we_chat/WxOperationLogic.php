@@ -1796,7 +1796,8 @@ class WxOperationLogic extends Model {
                     'application/msword',
                     'application/vnd.ms-powerpoint',
                     'application/pdf',
-                    'application/zip'
+                    'application/zip',
+                    'application/vnd.ms-excel',
                 ]),
             
                 new \Upload\Validation\Size('10M')
