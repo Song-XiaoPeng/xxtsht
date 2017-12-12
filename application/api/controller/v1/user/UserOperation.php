@@ -21,7 +21,7 @@ class UserOperation extends Auth{
         $data = input('put.');
         $data['token'] = $this->token;
         
-        return \think\Loader::model('UserOperationModel','logic\v1\user')->addAccountNumber($data);
+        return \think\Loader::model('UserOperationLogic','logic\v1\user')->addAccountNumber($data);
     }
 
     /**

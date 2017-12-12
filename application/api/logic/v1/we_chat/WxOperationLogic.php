@@ -1360,7 +1360,7 @@ class WxOperationLogic extends Model {
      * @param uid 客服uid
      * @param session_id 会话id
      * @param message 消息内容
-     * @param type 1文字 2图片 3声音 4视频 6图文信息素材 7链接
+     * @param type 消息类型 0其他 1文字 2图片 3声音 4视频 5坐标 6图文信息素材 7链接 8普通文件
      * @param resources_id 资源id (图片 视频 声音)
      * @param media_id 素材id (图文素材)
      * @param link_url 链接 (链接)
@@ -1406,7 +1406,7 @@ class WxOperationLogic extends Model {
         $openPlatform = $app->open_platform;
 
         try{
-            if($type == 2 || $type == 4 || $type == 3){
+            if($type == 2 || $type == 3 || $type == 4 || $type == 8){
                 $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
                 
                 if(!$resources_res){return msg(3005,'资源不存在');}
@@ -1422,11 +1422,6 @@ class WxOperationLogic extends Model {
                 case 2:
                     $upload_res = $temporary->uploadImage('..'.$resources_res['resources_route']);
                     $message = new Image(['media_id' => $upload_res['media_id']]);
-                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
-                    break;
-                case 4:
-                    $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
-                    $message = new Video(['media_id' => $upload_res['media_id']]);
                     $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
                     break;
                 case 3:
@@ -1457,9 +1452,19 @@ class WxOperationLogic extends Model {
 
                     $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
                     break;
+                case 4:
+                    $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
+                    $message = new Video(['media_id' => $upload_res['media_id']]);
+                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
+                    break;
                 case 6:
                     $message = new Material('mpnews', $media_id);
                     $data_obj = ['media_id'=>$media_id];
+                    break;
+                case 8:
+                    $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
+                    $message = new Material('mpnews', $media_id);
+                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
                     break;
                 default:
                     return msg(3006,'type参数错误');

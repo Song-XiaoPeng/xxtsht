@@ -247,9 +247,14 @@ class UserOperationLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function setUserPortrait($uid,$company_id,$resources_id){
-        $resources_res = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id,'resources_type'=>2])->find();
+        $resources_res = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id])->find();
         if(!$resources_res){
             return msg(3003,'resources_id参数错误');
+        }
+
+        $file_suffix = ['jpg','png','gif','jpeg','bmp'];
+        if(!in_array($resources_res['file_suffix_name'], $file_suffix)){
+            return msg(3003,'图像文件不合法');
         }
 
         $insert_res = Db::name('user_portrait')->insert([
@@ -396,7 +401,7 @@ class UserOperationLogic extends Model {
 
         $resources_id = Db::name('user_portrait')->where(['uid'=>$uid,'company_id'=>$company_id])->value('resources_id');
         if($resources_id){
-            $resources_route = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id,'resources_type'=>2])->value('resources_route');
+            $resources_route = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id])->value('resources_route');
             if($resources_route){
                 try{
                     $staff->avatar($wx_sign, $resources_res['resources_route']);
