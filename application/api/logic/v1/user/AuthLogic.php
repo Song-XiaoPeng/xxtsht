@@ -176,5 +176,18 @@ class AuthLogic extends Model {
         }
     }
 
-    
+    /**
+     * 校验token
+     * @param uid 用户账号uid
+     * @param token 账号token
+	 * @return code 200->成功
+	 */
+    public function checkToken($uid,$token){
+        $check_res = Db::name('login_token')->where(['token'=>$token,'uid'=>$uid])->find();
+        if($check_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'校验失败');
+        }
+    }
 }

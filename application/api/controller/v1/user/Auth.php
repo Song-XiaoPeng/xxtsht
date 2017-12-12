@@ -39,4 +39,20 @@ class Auth {
         
         return \think\Loader::model('AuthLogic','logic\v1\user')->updateAuthTime($data);
     }
+
+    /**
+     * 校验token
+	 * 传入JSON格式: {"uid":"6454","token":"9b371b663bdbdbbf32ca010c367f29c1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[]}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Auth/checkToken
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Auth/checkToken
+     * @param uid 用户账号uid
+     * @param token 账号token
+	 * @return code 200->成功
+	 */
+    public function checkToken () {
+        $data = input('put.');
+        
+        return \think\Loader::model('AuthLogic','logic\v1\user')->checkToken($data['uid'],$data['token']);
+    }
 }
