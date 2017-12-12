@@ -83,7 +83,7 @@ class UserOperationLogic extends Model {
 
         foreach($request_data['body']['user_list'] as $k=>$v){
             $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
-            if(!$resources_id){
+            if($resources_id){
                 $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
             }
 
