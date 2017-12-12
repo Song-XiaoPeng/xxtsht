@@ -540,8 +540,6 @@ class BusinessLogic extends Model {
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->insert($insert_data);
 
-            $insert_data['type'] = 'session';
-
             $redis->sAdd($customer_service_uid, json_encode($insert_data));
 
             if($add_res){
