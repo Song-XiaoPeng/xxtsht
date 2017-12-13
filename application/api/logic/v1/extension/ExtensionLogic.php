@@ -20,6 +20,10 @@ class ExtensionLogic extends Model {
      * @param customer_service_id 关注的用户专属客服id
      * @param customer_service_group_id 关注的用户专属客服分组id
      * @param reception_type 接待类型 1指定客服 2指定客服分组 3不指定
+     * @param reply_type 自动回复类型 -1不回复 1文本内容 2图片 3微信图文信息
+     * @param media_id 回复微信媒体id
+     * @param resources_id 回复资源id
+     * @param reply_text 回复文本内容
      * @return code 200->成功
 	 */
     public function createQrcode($data){
@@ -28,7 +32,11 @@ class ExtensionLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $activity_name = $data['activity_name'];
+        $reply_type = $data['reply_type'];
         $invalid_time = empty($data['invalid_time']) == true ? '' : $data['invalid_time'];
+        $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
+        $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
+        $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
         $reception_type = $data['reception_type'];
         $qrcode_group_id = $data['qrcode_group_id'];
         $qrcode_id = empty($data['qrcode_id']) == true ? '' : $data['qrcode_id'];
@@ -66,7 +74,11 @@ class ExtensionLogic extends Model {
                 'customer_service_id' => $customer_service_id,
                 'reception_type' => $reception_type,
                 'customer_service_group_id' => $customer_service_group_id,
-                'qrcode_group_id' => $qrcode_group_id
+                'qrcode_group_id' => $qrcode_group_id,
+                'reply_type' => $reply_type,
+                'reply_text' => $reply_text,
+                'resources_id' => $resources_id,
+                'media_id' => $media_id,
             ]);
 
             if($update_res !== false){
@@ -117,7 +129,11 @@ class ExtensionLogic extends Model {
                 'customer_service_id' => $customer_service_id,
                 'reception_type' => $reception_type,
                 'customer_service_group_id' => $customer_service_group_id,
-                'qrcode_group_id' => $qrcode_group_id
+                'qrcode_group_id' => $qrcode_group_id,
+                'reply_type' => $reply_type,
+                'reply_text' => $reply_text,
+                'resources_id' => $resources_id,
+                'media_id' => $media_id
             ]);
 
             return msg(200,'success',['qrcode_id'=>$qrcode_id,'qrcode_url'=>$qrcode_url]);

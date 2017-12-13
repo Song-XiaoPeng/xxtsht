@@ -21,6 +21,10 @@ class Handle extends Auth{
      * @param customer_service_id 关注的用户专属客服id
      * @param customer_service_group_id 关注的用户专属客服分组id
      * @param reception_type 接待类型 1指定客服 2指定客服分组 3不指定
+     * @param reply_type 自动回复类型 -1不回复 1文本内容 2图片 3微信图文信息
+     * @param media_id 回复微信媒体id
+     * @param resources_id 回复资源id
+     * @param reply_text 回复文本内容
      * @return code 200->成功
 	 */
     public function createQrcode () {
