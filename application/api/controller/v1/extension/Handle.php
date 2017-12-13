@@ -5,20 +5,22 @@ use app\api\common\Auth;
 //推广相关操作api
 class Handle extends Auth{
     /**
-     * 创建推广二维码
+     * 创建或编辑推广二维码
      * 请求类型 post
 	 * 传入JSON格式: {"type":"2","appid":"wx88c6052d06eaaf7d","activity_name":"测试推广","qrcode_group_id":"12","invalid_day":"2","label":["集团用户","新服务"],"customer_service_id":"12","customer_service_group_id"::""}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"qrcode_id":"a8ec8596f9fbad831595718dd618eaf6","qrcode_url":"https:\/\/mp.weixin.qq.com\/cgi-bin\/showqrcode?ticket=gQG-8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyYzAyZVJSRDBmNTExMDAwMHcwN0gAAgRyXxpaAwQAAAAA"}}
 	 * API_URL_本地: http://localhost:91/api/v1/extension/Handle/createQrcode
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/createQrcode
-     * @param appid 公众号appid
-     * @param type 二维码类型 1永久二维码 2临时二维码
+     * @param appid 公众号appid (编辑无法修改)
+     * @param qrcode_id 二维码id (修改时传入)
+     * @param type 二维码类型 1永久二维码 2临时二维码 (编辑无法修改)
      * @param activity_name 活动名称或渠道名称
      * @param qrcode_group_id 二维码分组id 活动分组id 或渠道分组id
-     * @param invalid_day 有效天数 单位 日 临时二维码
+     * @param invalid_day 有效天数 单位 日 临时二维码 (编辑无法修改)
      * @param label 关注自动打标签
      * @param customer_service_id 关注的用户专属客服id
      * @param customer_service_group_id 关注的用户专属客服分组id
+     * @param reception_type 接待类型 1指定客服 2指定客服分组 3不指定
      * @return code 200->成功
 	 */
     public function createQrcode () {

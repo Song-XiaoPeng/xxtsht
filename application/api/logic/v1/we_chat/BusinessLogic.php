@@ -415,13 +415,17 @@ class BusinessLogic extends Model {
             return '欢迎关注！';
         }
 
-        if(!empty($qrcode_res['customer_service_id'])){
+        if($qrcode_res['reception_type'] == 1){
             $uid = Db::name('customer_service')->where(['customer_service_id'=>$qrcode_res['customer_service_id']])->value('uid');
             return $this->createSession($appid,$openid,'user',$uid);
         }
 
-        if(!empty($qrcode_res['customer_service_group_id'])){
+        if($qrcode_res['reception_type'] == 2){
             return $this->createSession($appid,$openid,'group',$qrcode_res['customer_service_group_id']);
+        }
+
+        if($qrcode_res['reception_type'] == 3){
+            return $this->createSession($appid,$openid,'other');
         }
 
         return '欢迎关注！';
@@ -431,7 +435,7 @@ class BusinessLogic extends Model {
      * 创建客服会话
      * @param appid 公众号或小程序appid
      * @param openid 用户微信openid
-     * @param type 分配类型 user->指定到具体的客服 group->指定到具体的客服分组
+     * @param type 分配类型 user->指定到具体的客服 group->指定到具体的客服分组 other->不指定客服
      * @param id 分配的客服id或客服分组id
 	 * @return code 200->成功
 	 */
@@ -493,6 +497,8 @@ class BusinessLogic extends Model {
                 if(empty($customer_service_res)){
                     return '暂无可分配的客服！';
                 }
+
+                $session_state = 0;
                 break;
 
             case 'group':
@@ -502,10 +508,16 @@ class BusinessLogic extends Model {
                 }
 
                 $customer_service_res = array_rand($list);
+
+                $session_state = 0;
                 break;
 
             case 'other':
-                return '暂未开通';
+                $customer_service_res['customer_service_id'] = null;
+                $customer_service_res['uid'] = null;
+                $customer_service_res['company_id'] = '';
+
+                $session_state = 3;
                 break;
 
             default:
@@ -535,7 +547,7 @@ class BusinessLogic extends Model {
                 'company_id' => $company_id,
                 'customer_wx_nickname' => $wx_info['nickname'],
                 'customer_wx_portrait' => $wx_info['headimgurl'],
-                'state' => 0,
+                'state' => $session_state,
                 'wx_user_id' => $wx_info['wx_user_id']
             ];
 

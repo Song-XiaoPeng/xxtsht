@@ -7,26 +7,30 @@ use app\api\common\Common;
 
 class ExtensionLogic extends Model {
     /**
-     * 创建推广二维码
-     * @param appid 公众号appid
+     * 创建或编辑推广二维码
+     * @param appid 公众号appid (编辑无法修改)
      * @param company_id 商户company_id
-     * @param type 二维码类型 1永久二维码 2临时二维码
+     * @param qrcode_id 二维码id (修改时传入)
+     * @param type 二维码类型 1永久二维码 2临时二维码 (编辑无法修改)
      * @param uid 创建人uid
      * @param activity_name 活动名称或渠道名称
      * @param qrcode_group_id 二维码分组id 活动分组id 或渠道分组id
-     * @param invalid_day 有效天数 单位 日 临时二维码
+     * @param invalid_day 有效天数 单位 日 临时二维码 (编辑无法修改)
      * @param label 关注自动打标签
      * @param customer_service_id 关注的用户专属客服id
      * @param customer_service_group_id 关注的用户专属客服分组id
+     * @param reception_type 接待类型 1指定客服 2指定客服分组 3不指定
      * @return code 200->成功
 	 */
     public function createQrcode($data){
-        $appid = $data['appid'];
-        $type = $data['type'] == 1 ? 1:2;
+        $appid = empty($data['appid']) == true ? '' : $data['appid'];
+        $type = empty($data['type']) == true ? '' : $data['type'];
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $activity_name = $data['activity_name'];
+        $reception_type = $data['reception_type'];
         $qrcode_group_id = $data['qrcode_group_id'];
+        $qrcode_id = empty($data['qrcode_id']) == true ? '' : $data['qrcode_id'];
         $invalid_day = empty($data['invalid_day']) == true ? '' : $data['invalid_day'];
         $label = empty($data['label']) == true ? '' : $data['label'];
         $customer_service_id = empty($data['customer_service_id']) == true ? '' : $data['customer_service_id'];
@@ -47,6 +51,27 @@ class ExtensionLogic extends Model {
             $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'company_id'=>$company_id,'customer_service_id'=>$customer_service_id])->find();
             if(empty($customer_service_res)){
                 return msg(3003,'客服不存在');
+            }
+        }
+
+        if($qrcode_id){
+            $update_res = Db::name('extension_qrcode')
+            ->where(['qrcode_id'=>$qrcode_id,'company_id'=>$company_id])
+            ->update([
+                'invalid_time' => $invalid_time,
+                'activity_name' => $activity_name,
+                'create_time' => date('Y-m-d H:i:s'),
+                'label' => json_encode($label),
+                'customer_service_id' => $customer_service_id,
+                'reception_type' => $reception_type,
+                'customer_service_group_id' => $customer_service_group_id,
+                'qrcode_group_id' => $qrcode_group_id
+            ]);
+
+            if($update_res !== false){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'更新数据失败');
             }
         }
 
@@ -89,6 +114,7 @@ class ExtensionLogic extends Model {
                 'label' => json_encode($label),
                 'create_uid' => $uid,
                 'customer_service_id' => $customer_service_id,
+                'reception_type' => $reception_type,
                 'customer_service_group_id' => $customer_service_group_id,
                 'qrcode_group_id' => $qrcode_group_id
             ]);
