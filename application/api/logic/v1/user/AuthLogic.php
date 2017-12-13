@@ -197,8 +197,13 @@ class AuthLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getCompanyUidList($company_id){
-        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->cache(true,60)->group('uid')->field('uid')->select();
+        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->cache(true,10)->group('uid')->field('uid')->select();
 
-        return msg(200,'success',$list);
+        $arr = [];
+        foreach($list as $k=>$v){
+            $arr[$k] = $v['uid'];
+        }
+
+        return msg(200,'success',$arr);
     }
 }
