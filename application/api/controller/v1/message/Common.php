@@ -50,4 +50,20 @@ class Common extends Auth{
 
         return \think\Loader::model('CommonLogic','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid,$data['quick_reply_id']);
 	}
+
+    /**
+     * 接入排队中会话
+     * 请求类型 post
+     * 传入JSON格式: {"session_id":"f5013b20d77c15ab0ae9bb1c5a52370b"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[]}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Common/accessQueuingSession
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Common/accessQueuingSession
+     * @param session_id 会话id
+	 * @return code 200->成功
+	 */
+	public function accessQueuingSession(){
+        $data = input('put.');
+
+        return \think\Loader::model('CommonLogic','logic\v1\message')->accessQueuingSession($this->company_id,$this->uid,$data['session_id']);
+	}
 }

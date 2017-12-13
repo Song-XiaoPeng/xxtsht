@@ -1527,7 +1527,7 @@ class WxOperationLogic extends Model {
             'company_id' => $company_id,
             'session_id' => $session_id,
             'uid' => $uid,
-            'state' => ['in',[0,3]],
+            'state' => 0,
         ])->find();
         if(!$session_res){
             return msg(3001,'会话不可接入');
