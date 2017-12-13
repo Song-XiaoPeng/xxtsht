@@ -675,15 +675,6 @@ class BusinessLogic extends Model {
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->find();
 
-        if(!$wx_user_res['customer_info_id']){
-            $customer_info_id = Common::addCustomerInfo([
-                'company_id' => $company_id,
-                'uid' => $uid
-            ]);
-        }else{
-            $customer_info_id = $wx_user_res['customer_info_id'];
-        }
-
         if($wx_user_res){
             $update_map = [
                 'nickname' => $wx_info['nickname'],
@@ -701,8 +692,7 @@ class BusinessLogic extends Model {
                 'unionid' => $wx_info['unionid'],
                 'is_sync' => 1,
                 'subscribe' => $wx_info['subscribe'],
-                'update_time' => $time,
-                'customer_info_id' => $customer_info_id,
+                'update_time' => $time
             ];
 
             if(!empty($qrcode_id)){
@@ -745,8 +735,7 @@ class BusinessLogic extends Model {
             'is_sync' => 1,
             'subscribe' => $wx_info['subscribe'],
             'update_time' => $time,
-            'qrcode_id' => $qrcode_id,
-            'customer_info_id' => $customer_info_id,
+            'qrcode_id' => $qrcode_id
         ]);
 
         $wx_info['is_update'] = false;
