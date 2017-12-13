@@ -145,7 +145,7 @@ class Common {
     public static function addCustomerInfo($data){
         $time = date('Y-m-d H:i:s');
         $company_id = $data['company_id'];
-        $uid = $data['uid'];
+        $uid = empty($data['uid']) == true ? '' : $data['uid'];
         $customer_info_id = md5(uniqid());
 
         $add_res = Db::name('customer_info')
