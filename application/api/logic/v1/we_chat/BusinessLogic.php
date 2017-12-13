@@ -543,8 +543,15 @@ class BusinessLogic extends Model {
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->insert($insert_data);
 
-            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('nick_name');
+            $insert_data['session_frequency'] = Db::name('message_session')
+            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->where(['customer_wx_openid'=>$openid,'company_id'=>$company_id])
+            ->cache(true,60)
+            ->count();
             
+            $insert_data['invitation_frequency'] = 0;
+
+            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('nick_name');
             $insert_data['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
             $redis->sAdd($customer_service_uid, json_encode($insert_data));
