@@ -165,6 +165,24 @@ class CustomerOperation extends Auth{
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->searchCustomerInfo($data);
 	}
 
+    /**
+     * 获取线索客户列表
+     * 请求类型 post
+	 * 传入JSON格式: {"real_name":"张三","page": 1}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"wx_user_id":"fff2da77cb803271a3fb464d2fe5dd0b","nickname":"设计师慧婷","portrait":"http:\/\/wx.qlogo.cn\/mmopen\/3bY8zuTsQSUMrJTZjIee4diaibW1nHZXuAiaUdecsRyOPscDI4Gw64LGUEAnx7Jn6up8KdV2WhH5LlGnAvIQJ22NY1TfjKJW2BL\/0","gender":2,"city":"长治","province":"山西","language":"zh_CN","country":"中国","groupid":"0","subscribe_time":"2015-03-24 21:16:45","openid":"oF_-jjkwH-39lUqPhFoD6NIbNhBA","add_time":"2017-12-13 14:03:01","appid":"wxe30d2c612847beeb","company_id":"51454009d703c86c91353f61011ecf2f","tagid_list":null,"unionid":null,"is_sync":1,"desc":"","subscribe":1,"update_time":"2017-12-13 15:17:15","qrcode_id":null,"customer_info_id":"","app_name":"利亚方舟影楼管理软件"},{"wx_user_id":"ffea2117c9966a25a7bf90aac7f17600","nickname":"建湖摄影师阿D","portrait":"http:\/\/wx.qlogo.cn\/mmopen\/PiajxSqBRaEKBGGH9av8XCvZymibZen9hf3S4d7jr7V1xEKsFGejz5oOr08iahaMmnCjF25arLt4Q86AoEP14rj4Q\/0","gender":1,"city":"盐城","province":"江苏","language":"zh_CN","country":"中国","groupid":"0","subscribe_time":"2014-07-01 13:27:14","openid":"oF_-jjsBzT7J3rFOAM9VlZj-Skjw","add_time":"2017-12-13 14:03:01","appid":"wxe30d2c612847beeb","company_id":"51454009d703c86c91353f61011ecf2f","tagid_list":null,"unionid":null,"is_sync":1,"desc":"","subscribe":1,"update_time":"2017-12-13 15:17:15","qrcode_id":null,"customer_info_id":"","app_name":"利亚方舟影楼管理软件"}],"page_data":{"count":7192,"rows_num":2,"page":1}}}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/getClueCustomer
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getClueCustomer
+     * @param real_name 微信昵称(选传模糊搜索)
+     * @param page 分页参数 默认1
+	 * @return code 200->成功
+	 */
+	public function getClueCustomer(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getClueCustomer($data);
+	}
+
 	/**
      * 获取客户信息列表
      * 请求类型 post

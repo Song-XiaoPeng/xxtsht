@@ -272,7 +272,7 @@ class CustomerOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param page 分页参数 默认1
      * @param uid 登录账号uid
-     * @param type 客户类型 0其他 1意向客户 2订单客户 3追销客户
+     * @param type 客户类型 1意向客户 2订单客户 3追销客户
      * @param ascription 客户归属类型 1我的客户 2其他人
      * @param real_name 客户姓名 (选传)
 	 * @return code 200->成功
@@ -346,11 +346,49 @@ class CustomerOperationLogic extends Model {
     /**
      * 获取线索客户列表
      * @param company_id 商户company_id
-     * @param real_name 客户姓名 (选传)
-     * @param real_phone 客户手机 (选传)
+     * @param real_name 微信昵称(选传模糊搜索)
+     * @param page 分页参数 默认1
 	 * @return code 200->成功
 	 */
+    public function getClueCustomer($data){
+        $company_id = $data['company_id'];
+        $real_name = $data['real_name'];
+        $page = $data['page'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        if($real_name){
+            $map['real_name'] = array('like',"%$real_name%");
+        }
+
+        $map['company_id'] = $company_id;
+        $map['customer_info_id'] = ['not in',[-1]];
+        
+        $wx_user_list = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->limit($show_page,$page_count)
+        ->order('wx_user_id desc')
+        ->select();
+
+        $count = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->count();
     
+        foreach($wx_user_list as $k=>$v){
+            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
+        }
+
+        $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
 
     /**
      * 模糊搜索获取客户信息
