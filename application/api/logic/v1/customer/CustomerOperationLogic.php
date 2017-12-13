@@ -344,6 +344,15 @@ class CustomerOperationLogic extends Model {
     }
 
     /**
+     * 获取线索客户列表
+     * @param company_id 商户company_id
+     * @param real_name 客户姓名 (选传)
+     * @param real_phone 客户手机 (选传)
+	 * @return code 200->成功
+	 */
+    
+
+    /**
      * 模糊搜索获取客户信息
      * @param company_id 商户company_id
      * @param real_name 客户姓名 (选传)
