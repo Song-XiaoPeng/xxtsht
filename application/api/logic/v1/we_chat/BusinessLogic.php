@@ -486,14 +486,14 @@ class BusinessLogic extends Model {
 
         switch($type){
             case 'user':
-                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'uid'=>$id])->find();
+                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$id])->find();
                 if(empty($customer_service_res)){
                     return '暂无可分配的客服！';
                 }
                 break;
 
             case 'group':
-                $list = Db::name('customer_service')->where(['appid'=>$appid,'state'=>1,'user_group_id'=>$id])->select();
+                $list = Db::name('customer_service')->where(['appid'=>$appid,'user_group_id'=>$id])->select();
                 if(empty($list)){
                     return '暂无可分配的客服！';    
                 }
