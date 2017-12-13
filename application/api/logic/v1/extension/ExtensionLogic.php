@@ -28,6 +28,7 @@ class ExtensionLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $activity_name = $data['activity_name'];
+        $invalid_time = empty($data['invalid_time']) == true ? '' : $data['invalid_time'];
         $reception_type = $data['reception_type'];
         $qrcode_group_id = $data['qrcode_group_id'];
         $qrcode_id = empty($data['qrcode_id']) == true ? '' : $data['qrcode_id'];
