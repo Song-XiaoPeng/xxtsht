@@ -55,4 +55,19 @@ class Auth {
         
         return \think\Loader::model('AuthLogic','logic\v1\user')->checkToken($data['uid'],$data['token']);
     }
+
+    /**
+     * 获取商户所有客服uid
+	 * 传入JSON格式: {"company_id":"51454009d703c86c91353f61011ecf2f"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[]}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Auth/getCompanyUidList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Auth/getCompanyUidList
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getCompanyUidList () {
+        $company_id = input('put.company_id');
+        
+        return \think\Loader::model('AuthLogic','logic\v1\user')->getCompanyUidList($company_id);
+    }
 }

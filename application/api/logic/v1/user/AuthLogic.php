@@ -190,4 +190,15 @@ class AuthLogic extends Model {
             return msg(3001,'校验失败');
         }
     }
+
+    /**
+     * 获取商户所有客服uid
+     * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function getCompanyUidList($company_id){
+        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->cache(true,60)->group('uid')->field('uid')->select();
+
+        return msg(200,'success',$list);
+    }
 }
