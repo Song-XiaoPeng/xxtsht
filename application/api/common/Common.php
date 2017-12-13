@@ -140,4 +140,26 @@ class Common {
 
         return $redis;
     }
+
+    //添加初始客户信息
+    public static function addCustomerInfo($data){
+        $time = date('Y-m-d H:i:s');
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $customer_info_id = md5(uniqid());
+
+        $add_res = Db::name('customer_info')
+        ->insert([
+            'customer_info_id' => $customer_info_id,
+            'company_id' => $company_id,
+            'add_time' => $time,
+            'uid' => $uid,
+        ]);
+
+        if($add_res){
+            return $customer_info_id;
+        }else{
+            return false;
+        }
+    }
 }

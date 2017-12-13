@@ -676,14 +676,9 @@ class BusinessLogic extends Model {
         ->find();
 
         if(!$wx_user_res['customer_info_id']){
-            $customer_info_id = md5(uniqid());
-
-            Db::name('customer_info')
-            ->insert([
-                'customer_info_id' => $customer_info_id,
+            $customer_info_id = Common::addCustomerInfo([
                 'company_id' => $company_id,
-                'add_time' => $time,
-                'uid' => $uid,
+                'uid' => $uid
             ]);
         }else{
             $customer_info_id = $wx_user_res['customer_info_id'];
