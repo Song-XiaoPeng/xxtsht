@@ -6,6 +6,8 @@ use EasyWeChat\Foundation\Application;
 use EasyWeChat\OpenPlatform\Guard;
 use think\Log;
 use app\api\common\Common;
+use EasyWeChat\Message\Image;
+use EasyWeChat\Message\Material;
 
 class BusinessLogic extends Model {
     private $default_message = '';
@@ -419,18 +421,64 @@ class BusinessLogic extends Model {
 
         if($qrcode_res['reception_type'] == 1){
             $uid = Db::name('customer_service')->where(['customer_service_id'=>$qrcode_res['customer_service_id']])->value('uid');
-            return $this->createSession($appid,$openid,'user',$uid);
+
+            if($qrcode_res['reply_type'] == -1) {
+                return $this->createSession($appid,$openid,'user',$uid);
+            }else{
+                return $this->authReply($qrcode_res);
+            }
         }
 
         if($qrcode_res['reception_type'] == 2){
-            return $this->createSession($appid,$openid,'group',$qrcode_res['customer_service_group_id']);
+            if($qrcode_res['reply_type'] == -1) {
+                return $this->createSession($appid,$openid,'group',$qrcode_res['customer_service_group_id']);
+            }else{
+                return $this->authReply($qrcode_res);
+            }
         }
 
         if($qrcode_res['reception_type'] == 3){
-            return $this->createSession($appid,$openid,'other');
+            if($qrcode_res['reply_type'] == -1) {
+                return $this->createSession($appid,$openid,'other');
+            }else{
+                return $this->authReply($qrcode_res);
+            }
         }
+    }
 
-        return '欢迎关注！';
+    /**
+     * 自动回复内容
+     * @param appid 公众号或小程序appid
+     * @param reply_text 回复文本内容
+     * @param media_id 回复微信媒体id
+     * @param resources_id 资源id
+     * @param reply_type 回复类型 1文本内容 2图片 3微信图文信息
+	 * @return code 200->成功
+	 */
+    public function authReply($data){
+        $appid = $data['appid'];
+        $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
+        $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
+        $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
+        $reply_type = $data['reply_type'];
+
+        switch($reply_type){
+            case 1:
+                return $reply_text;
+                break;
+            case 2:
+                $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
+                if(!$resources_res){return '回复的图片不存在或已清理';}
+
+                $upload_res = $temporary->uploadImage('..'.$resources_res['resources_route']);
+                return new Image(['media_id' => $upload_res['media_id']]);
+                break;
+            case 3:
+                return new Material('mpnews', $media_id);
+                break;
+            default:
+                return '欢迎关注';
+        }
     }
 
     /**
