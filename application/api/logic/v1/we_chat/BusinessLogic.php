@@ -553,7 +553,7 @@ class BusinessLogic extends Model {
                 $redis->sAdd($customer_service_uid, json_encode($insert_data));
             }else{
                 $redis->select(2);
-                $redis->set($session_id, json_encode($insert_data));
+                $redis->sAdd($company_id, json_encode($insert_data));
             }
 
             if($add_res){
