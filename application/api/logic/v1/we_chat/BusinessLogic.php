@@ -229,6 +229,8 @@ class BusinessLogic extends Model {
             }
         }
 
+        $this->createSession($appid,$openid,'other');
+
         $map['appid'] = $appid;
         $map1['pattern'] = 2;
         $map['key_word'] = array('like',"%$key_word%");
