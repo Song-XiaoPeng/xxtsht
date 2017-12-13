@@ -303,9 +303,9 @@ class ExtensionLogic extends Model {
             }
     
             if($v['reply_type'] = 2){
-                $list[$k]['fiel_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_res['resources_id'];
+                $list[$k]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_res['resources_id'];
             }else{
-                $list[$k]['fiel_url'] = null;
+                $list[$k]['file_url'] = null;
             }
 
             $list[$k]['create_user_name'] = $user_info['body']['user_name'];
