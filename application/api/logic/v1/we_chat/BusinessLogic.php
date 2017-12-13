@@ -423,21 +423,17 @@ class BusinessLogic extends Model {
             $uid = Db::name('customer_service')->where(['customer_service_id'=>$qrcode_res['customer_service_id']])->value('uid');
 
             $this->createSession($appid,$openid,'user',$uid);
-
-            return $this->authReply($qrcode_res);
         }
 
         if($qrcode_res['reception_type'] == 2){
             $this->createSession($appid,$openid,'group',$qrcode_res['customer_service_group_id']);
-            
-            return $this->authReply($qrcode_res);
         }
 
         if($qrcode_res['reception_type'] == 3){
             $this->createSession($appid,$openid,'other');
-            
-            return $this->authReply($qrcode_res);
         }
+
+        return $this->authReply($qrcode_res);
     }
 
     /**
