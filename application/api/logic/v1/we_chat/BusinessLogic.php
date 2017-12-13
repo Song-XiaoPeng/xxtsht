@@ -472,7 +472,7 @@ class BusinessLogic extends Model {
 
         switch($type){
             case 'user':
-                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$id])->find();
+                $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$id])->cache(true,60)->find();
                 if(empty($customer_service_res)){
                     return '暂无可分配的客服！';
                 }
@@ -481,10 +481,8 @@ class BusinessLogic extends Model {
                 break;
 
             case 'group':
-                $list = Db::name('customer_service')->where(['appid'=>$appid,'user_group_id'=>$id])->select();
-                if(empty($list)){
-                    return '暂无可分配的客服！';    
-                }
+                $list = Db::name('customer_service')->where(['appid'=>$appid,'user_group_id'=>$id])->cache(true,60)->select();
+                if(empty($list)){return '暂无可分配的客服！'; }
 
                 $customer_service_res = array_rand($list);
 
@@ -492,12 +490,35 @@ class BusinessLogic extends Model {
                 break;
 
             case 'other':
-                $customer_service_res['customer_service_id'] = null;
-                $customer_service_res['uid'] = null;
-                $customer_service_res['company_id'] = $company_id;
-                $customer_service_res['name'] = '';
+                $wx_user_res = Db::name('wx_user')
+                ->partition([], '', ['type'=>'md5','num'=>config('separate')['wx_user']])
+                ->where(['appid'=>$appid,'openid'=>$openid])
+                ->cache(true,5)
+                ->find();
+                if(!empty($wx_user['qrcode_id'])){
+                    $qrcode_res = Db::name('extension_qrcode')->where(['qrcode_id'=>$wx_user['qrcode_id']])->cache(true,60)->find();
+                    switch($qrcode_res['reception_type']){
+                        case 1:
+                            $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$qrcode_res['customer_service_id']])->cache(true,60)->find();
+                            if(empty($customer_service_res)){return '暂无可分配的客服！';}
+                            break;
+                        case 2:
+                            $list = Db::name('customer_service')->where(['appid'=>$appid,'user_group_id'=>$qrcode_res['customer_service_group_id']])->cache(true,60)->select();
+                            if(empty($list)){return '暂无可分配的客服！';}
 
-                $session_state = 3;
+                            $customer_service_res = array_rand($list);
+                            break;
+                    }
+
+                    $session_state = 0;
+                }else{
+                    $customer_service_res['customer_service_id'] = null;
+                    $customer_service_res['uid'] = null;
+                    $customer_service_res['company_id'] = $company_id;
+                    $customer_service_res['name'] = '';
+                    $session_state = 3;
+                }
+
                 break;
 
             default:
