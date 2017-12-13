@@ -802,6 +802,24 @@ class WxOperation extends Auth{
         return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->uploadResources($data);
     }
 
+    /**
+     * 解除微信绑定
+	 * 请求类型：post
+     * 传入JSON格式: {"appid":"wx52bf4acbefcf4653"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/delWxAuth
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/delWxAuth
+     * @param appid 解除绑定的微信公众号appid
+	 * @return code 200->成功
+	 */
+    public function delWxAuth(){
+        $data = input('post.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->delWxAuth($data);
+    }
+
     public function test(){
         return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->test();
     }

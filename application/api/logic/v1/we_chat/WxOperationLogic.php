@@ -635,9 +635,17 @@ class WxOperationLogic extends Model {
 
         $map['company_id'] = $company_id;
         
-        $wx_user_list = Db::name('wx_user')->where($map)->limit($show_page,$page_count)->order('wx_user_id desc')->select();
+        $wx_user_list = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->limit($show_page,$page_count)
+        ->order('wx_user_id desc')
+        ->select();
 
-        $count = Db::name('wx_user')->where($map)->count();
+        $count = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->count();
     
         foreach($wx_user_list as $k=>$v){
             $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
@@ -1044,7 +1052,10 @@ class WxOperationLogic extends Model {
         $res = $group->moveUsers($openid_list,$group_id);
         if($res['errcode'] == 0){
             foreach($openid_list as $openid){
-                Db::name('wx_user')->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])->update(['groupid'=>$group_id]);
+                Db::name('wx_user')
+                ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+                ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
+                ->update(['groupid'=>$group_id]);
             }
 
             return msg(200,'success');
@@ -1318,6 +1329,24 @@ class WxOperationLogic extends Model {
         }
         
         return msg(200,'success',$userShareSummary['list']);
+    }
+
+    /**
+     * 解除微信绑定
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function delWxAuth($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+
+        $del_res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id,'appid'=>$appid])->delete();
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'解除授权失败');
+        }
     }
 
     /**
