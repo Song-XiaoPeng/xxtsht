@@ -1895,10 +1895,10 @@ class WxOperationLogic extends Model {
         try{
             $redis = Common::createRedis();
             
-            $redis->select(0); 
+            $redis->select(2); 
     
 
-            dump($redis->SREM('51454009d703c86c91353f61011ecf2f','{"session_id":"b00e6c0accec38a23063be032508c1d1","customer_service_id":4,"customer_wx_openid":"oZ8DFwU5HOTs0b4g-P_skZ8wgH7g","add_time":"2017-11-28 09:12:29","uid":6454,"appid":"wx88c6052d06eaaf7d","company_id":"51454009d703c86c91353f61011ecf2f","customer_wx_nickname":"\u4e0d\u4ea6\u4e50\u4e4e","customer_wx_portrait":"http:\/\/wx.qlogo.cn\/mmopen\/WAGxibxwib6EVzMQGErVibk1asnkzib3r2GeiclLKm5J5D5mic4VB9n4f8pWBXJ9aI0rW29CLibGUlwwqIIIF3VataBRC7OqhibY7urF\/0","state":0}'));
+            dump($redis->set('123123','{"session_id":"b00e6c0accec38a23063be032508c1d1","customer_service_id":4,"customer_wx_openid":"oZ8DFwU5HOTs0b4g-P_skZ8wgH7g","add_time":"2017-11-28 09:12:29","uid":6454,"appid":"wx88c6052d06eaaf7d","company_id":"51454009d703c86c91353f61011ecf2f","customer_wx_nickname":"\u4e0d\u4ea6\u4e50\u4e4e","customer_wx_portrait":"http:\/\/wx.qlogo.cn\/mmopen\/WAGxibxwib6EVzMQGErVibk1asnkzib3r2GeiclLKm5J5D5mic4VB9n4f8pWBXJ9aI0rW29CLibGUlwwqIIIF3VataBRC7OqhibY7urF\/0","state":0}'));
             //dump($redis->sMembers('51454009d703c86c91353f61011ecf2f'));
 
            // $res = $redis->sAdd('51454009d703c86c91353f61011ecf2f', '213123123123123123123','214532zzzz21312312');

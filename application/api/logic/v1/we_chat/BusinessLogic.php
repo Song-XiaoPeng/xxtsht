@@ -446,30 +446,7 @@ class BusinessLogic extends Model {
         if(empty($company_id)){
             return '公众号未绑定第三方平台';
         }
-
-        //匹配是否存在待接入或排队中会话数据
-        try {
-            $redis = Common::createRedis();
-            $redis->select(0);
-
-            $line_session_list = $redis->sMembers($company_id);
-            foreach($line_session_list as $v){
-                $session_data = json_decode($v,true);
-
-                if($session_data['customer_wx_openid'] == $openid && $session_data['appid'] == $appid){
-                    if(empty($session_data['customer_service_id'])){
-                        return '正在为您分配客服';
-                    }
-
-                    $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$session_data['customer_service_id']])->value('name');
-                    
-                    return '正在为您接入客服'.$customer_service_name.'请稍等！';
-                }
-            }
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-
+        
         //匹配是否存在正在会话中数据
         $session_res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
@@ -517,7 +494,8 @@ class BusinessLogic extends Model {
             case 'other':
                 $customer_service_res['customer_service_id'] = null;
                 $customer_service_res['uid'] = null;
-                $customer_service_res['company_id'] = '';
+                $customer_service_res['company_id'] = $company_id;
+                $customer_service_res['name'] = '';
 
                 $session_state = 3;
                 break;
@@ -568,7 +546,15 @@ class BusinessLogic extends Model {
             $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('nick_name');
             $insert_data['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
 
-            $redis->sAdd($customer_service_uid, json_encode($insert_data));
+            $redis = Common::createRedis();
+
+            if($customer_service_uid){
+                $redis->select(0);
+                $redis->sAdd($customer_service_uid, json_encode($insert_data));
+            }else{
+                $redis->select(2);
+                $redis->set($session_id, json_encode($insert_data));
+            }
 
             if($add_res){
                 return '正在为您接入客服'.$customer_service_name.'请稍等！';
