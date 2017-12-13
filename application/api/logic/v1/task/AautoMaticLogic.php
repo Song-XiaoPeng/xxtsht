@@ -20,7 +20,7 @@ class AautoMaticLogic extends Model {
 
     //同步微信用户列表
     public function syncWxUserList(){
-        set_time_limit(600);
+        set_time_limit(1800);
 
         $add_time = date('Y-m-d H:i:s');
 
@@ -132,7 +132,7 @@ class AautoMaticLogic extends Model {
     public function syncWxUserDetails($type){
         $is_sync = $type == 1 ? -1 : 1;
 
-        set_time_limit(600);
+        set_time_limit(1800);
 
         $task_type = $type == 1 ? 2 : 3;
 
@@ -225,7 +225,7 @@ class AautoMaticLogic extends Model {
                     'subscribe_time' => date("Y-m-d H:i:s",$value['subscribe_time']),
                     'tagid_list' => $value['tagid_list'],
                     'is_sync' => 1,
-                    'unionid' => $value['unionid'],
+                    'unionid' => empty($value['unionid']) == true ? null : $value['unionid'],
                     'desc' => $value['remark'],
                     'subscribe' => $value['subscribe'],
                     'update_time' => date('Y-m-d H:i:s'),
