@@ -51,13 +51,13 @@ class SurveyLogic extends Model {
     public function getVisitorTotal($company_id){
         $reception_total = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id,'state'=>1])
+        ->where(['company_id'=>$company_id,'state'=>3])
         ->cache(true,10)
         ->count();
 
         $total = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id])
+        ->where(['company_id'=>$company_id,'state'=>1])
         ->cache(true,10)
         ->count();
 
