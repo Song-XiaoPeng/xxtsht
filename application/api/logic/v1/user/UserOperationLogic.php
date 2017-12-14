@@ -304,6 +304,9 @@ class UserOperationLogic extends Model {
 
         $success = 0;
 
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+
         foreach($openweixin_authinfo_res as $value){
             $token_info = Common::getRefreshToken($appid,$company_id);
             if($token_info['meta']['code'] == 200){
@@ -311,9 +314,6 @@ class UserOperationLogic extends Model {
             }else{
                 return $token_info;
             }
-    
-            $app = new Application(wxOptions());
-            $openPlatform = $app->open_platform;
     
             try{
                 $wx_sign = "lyfzkf@$uid";
@@ -379,10 +379,10 @@ class UserOperationLogic extends Model {
 
         $openweixin_authinfo_res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->select();
 
-        foreach($openweixin_authinfo_res as $value){
-            $app = new Application(wxOptions());
-            $openPlatform = $app->open_platform;
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
 
+        foreach($openweixin_authinfo_res as $value){
             $token_info = Common::getRefreshToken($value['appid'],$company_id);
             if($token_info['meta']['code'] == 200){
                 $refresh_token = $token_info['body']['refresh_token'];
