@@ -624,6 +624,16 @@ class BusinessLogic extends Model {
             }
         }
 
+        //判断是否存在专属客服
+        $customer_service_uid_res = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->value('customer_service_uid');
+        if($customer_service_uid_res){
+            $id = $customer_service_uid_res;
+            $type = 'user';
+        }
+
         switch($type){
             case 'user':
                 $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$id])->cache(true,60)->find();
@@ -709,6 +719,13 @@ class BusinessLogic extends Model {
             $add_res = Db::name('message_session')
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->insert($insert_data);
+
+            if ($customer_service_uid) {
+                Db::name('wx_user')
+                ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+                ->where(['appid'=>$appid,'openid'=>$openid])
+                ->update(['customer_service_uid'=>$customer_service_uid]);
+            }
 
             $insert_data['session_frequency'] = Db::name('message_session')
             ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])

@@ -107,6 +107,11 @@ class CommonLogic extends Model {
                     'state' => 1,
                 ]);
 
+                Db::name('wx_user')
+                ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+                ->where(['appid'=>$val['appid'],'openid'=>$val['customer_wx_openid']])
+                ->update(['customer_service_uid'=>$uid]);
+
                 if($update_res){
                     $redis->SREM($company_id, $v);
  
