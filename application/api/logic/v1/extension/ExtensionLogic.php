@@ -79,6 +79,7 @@ class ExtensionLogic extends Model {
                 'reply_text' => $reply_text,
                 'resources_id' => $resources_id,
                 'media_id' => $media_id,
+                'invalid_day' => $invalid_day,
             ]);
 
             if($update_res !== false){
@@ -133,7 +134,8 @@ class ExtensionLogic extends Model {
                 'reply_type' => $reply_type,
                 'reply_text' => $reply_text,
                 'resources_id' => $resources_id,
-                'media_id' => $media_id
+                'media_id' => $media_id,
+                'invalid_day' => $invalid_day,
             ]);
 
             return msg(200,'success',['qrcode_id'=>$qrcode_id,'qrcode_url'=>$qrcode_url]);

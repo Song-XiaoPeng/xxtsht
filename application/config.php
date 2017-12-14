@@ -171,7 +171,7 @@ return [
         // 日志保存目录
         //'path'  => LOG_PATH,
         // 日志记录级别
-        //'level' => ['info','log'],
+        'level' => ['log'],
         'host' => 'slog.thinkphp.cn',
         //日志强制记录到配置的client_id
         'force_client_ids'    => ['slog_07c1b4'],

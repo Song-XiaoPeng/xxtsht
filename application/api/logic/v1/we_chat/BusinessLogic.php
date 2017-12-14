@@ -252,7 +252,7 @@ class BusinessLogic extends Model {
      * @param message_arr 消息内容
 	 * @return code 200->成功
 	 */
-    private function locationEvent($appid,$openid,$message_arr){
+    private function locationEvent($appid,$openid,$message_arr = ''){
         //判断是否存在客服会话
         $session_res = $this->getSession($appid,$openid);
         if($session_res){
@@ -272,6 +272,41 @@ class BusinessLogic extends Model {
             }else{
                 return '系统繁忙请稍候重试!';
             }
+        }
+    }
+
+    /**
+     * 记录微信用户地理位置
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param lng 用户所在经度
+     * @param lat 用户所在纬度
+	 * @return code 200->成功
+	 */
+    public function setWxUserPosition($appid,$openid,$lng,$lat,$precision){
+        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
+        if(empty($company_id)){
+            return false;
+        }
+
+        $update_res = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->update(['lng'=>$lng,'lat'=>$lat,'precision'=>$precision]);
+
+        $update_res2 = Db::name('geographical_position')->insert([
+            'appid' => $appid,
+            'openid' => $openid,
+            'lng' => $lng,
+            'lat' => $lat,
+            'precision' => $precision,
+            'establish_time' => date('Y-m-d H:i:s'),
+        ]);
+
+        if($update_res !== false && $update_res2 !== false){
+            return true;
+        }else{
+            return false;
         }
     }
 
@@ -395,6 +430,8 @@ class BusinessLogic extends Model {
                     return $this->default_message;
                     break;
             }
+        }else if ($message['Event'] == 'LOCATION'){
+            $this->setWxUserPosition($appid,$openid,$message['Longitude'],$message['Latitude'],$message['Precision']);
         }else{
             return '';
         }
