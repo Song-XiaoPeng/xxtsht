@@ -293,54 +293,57 @@ class UserOperationLogic extends Model {
     /**
      * 删除子账号客服权限
 	 * @param company_id 商户company_id
-	 * @param appid 微信公众号appid
 	 * @param uid 账户uid
 	 * @return code 200->成功
 	 */
     public function delUserCustomerService($data){
         $company_id = $data['company_id'];
-        $appid = $data['appid'];
         $uid = $data['uid'];
 
-        $res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])->find();
-        if(!$res){
-            return msg('客户账户权限配置信息不存在');
+        $openweixin_authinfo_res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->select();
+
+        $success = 0;
+
+        foreach($openweixin_authinfo_res as $value){
+            $token_info = Common::getRefreshToken($appid,$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return $token_info;
+            }
+    
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+    
+            try{
+                $wx_sign = "lyfzkf@$uid";
+                $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+                $staff->delete($wx_sign);
+
+                $success++;
+            }catch (\Exception $e) {
+                return msg(3001,$e->getMessage());
+            }
+    
+            Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])->delete();
         }
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
-            $refresh_token = $token_info['body']['refresh_token'];
+        if($success == count($openweixin_authinfo_res)){
+            return msg(200,'success');
         }else{
-            return $token_info;
+            return msg(3001,'删除失败');
         }
-
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-
-        try{
-            $wx_sign = "lyfzkf@$uid";
-            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
-            $staff->delete($wx_sign);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
-        }
-
-        Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])->delete();
-
-        return msg(200,'success');
     }
 
     /**
      * 设置子账户为微信客服账号
 	 * @param company_id 商户company_id
-	 * @param appid 微信公众号appid
 	 * @param uid 账户uid
 	 * @param user_name 客服名称
 	 * @return code 200->成功
 	 */
     public function setUserCustomerService($data){
         $company_id = $data['company_id'];
-        $appid = $data['appid'];
         $uid = $data['uid'];
         $user_name = $data['user_name'];
         $token = $data['token'];
@@ -374,48 +377,52 @@ class UserOperationLogic extends Model {
             return msg(3003,'账户不存在');
         }
 
-        $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$appid,'uid'=>$uid])->find();
-        if($customer_service_res){
-            return msg(3004,'账户已成为微信客服账号');
-        }
+        $openweixin_authinfo_res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->select();
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
-            $refresh_token = $token_info['body']['refresh_token'];
-        }else{
-            return $token_info;
-        }
+        foreach($openweixin_authinfo_res as $value){
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
+            $token_info = Common::getRefreshToken($value['appid'],$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return $token_info;
+            }
 
-        try{
-            $wx_sign = "lyfzkf@$uid";
-            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
-            $staff->create($wx_sign, $user_name);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
-        }
+            $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$value['appid'],'uid'=>$uid])->find();
+            if($customer_service_res){
+                continue;
+            }
 
-        $resources_id = Db::name('user_portrait')->where(['uid'=>$uid,'company_id'=>$company_id])->value('resources_id');
-        if($resources_id){
-            $resources_route = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id])->value('resources_route');
-            if($resources_route){
-                try{
-                    $staff->avatar($wx_sign, $resources_res['resources_route']);
-                }catch (\Exception $e) {
+            try{
+                $wx_sign = "lyfzkf@$uid";
+                $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+                $staff->create($wx_sign, $user_name);
+            }catch (\Exception $e) {
+                return msg(3001,$e->getMessage());
+            }
+    
+            $resources_id = Db::name('user_portrait')->where(['uid'=>$uid,'company_id'=>$company_id])->value('resources_id');
+            if($resources_id){
+                $resources_route = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id])->value('resources_route');
+                if($resources_route){
+                    try{
+                        $staff->avatar($wx_sign, $resources_route);
+                    }catch (\Exception $e) {
+                    }
                 }
             }
+    
+            Db::name('customer_service')->insert([
+                'name' => $user_name,
+                'wx_sign' => $wx_sign,
+                'appid' => $value['appid'],
+                'uid' => $uid,
+                'company_id' => $company_id,
+                'user_group_id' => $user_info['user_group_id']
+            ]);    
         }
-
-        Db::name('customer_service')->insert([
-            'name' => $user_name,
-            'wx_sign' => $wx_sign,
-            'appid' => $appid,
-            'uid' => $uid,
-            'company_id' => $company_id,
-            'user_group_id' => $user_info['user_group_id']
-        ]);
 
         return msg(200,'success');
     }
