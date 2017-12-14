@@ -649,6 +649,12 @@ class WxOperationLogic extends Model {
     
         foreach($wx_user_list as $k=>$v){
             $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
+
+            if($v['qrcode_id']){
+                $wx_user_list[$k]['source_qrcode_name'] = Db::name('activity_name')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
+            }else{
+                $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
+            }
         }
 
         $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
