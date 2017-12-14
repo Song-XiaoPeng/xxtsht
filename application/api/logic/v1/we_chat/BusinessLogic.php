@@ -276,14 +276,11 @@ class BusinessLogic extends Model {
     }
 
     /**
-     * 记录微信用户地理位置
+     * 记录微信用户公众号点击进入次数
      * @param appid 公众号或小程序appid
      * @param openid 用户openid
-     * @param lng 用户所在经度
-     * @param lat 用户所在纬度
-	 * @return code 200->成功
 	 */
-    public function setWxUserPosition($appid,$openid,$lng,$lat,$precision){
+    private function setIntoCount($appid,$openid){
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
         if(empty($company_id)){
             return false;
@@ -292,9 +289,37 @@ class BusinessLogic extends Model {
         $update_res = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
+        ->setInc('get_into_count');
+
+        if($update_res){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 记录微信用户地理位置
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param lng 用户所在经度
+     * @param lat 用户所在纬度
+	 */
+    private function setWxUserPosition($appid,$openid,$lng,$lat,$precision){
+        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
+        if(empty($company_id)){
+            return false;
+        }
+
+        $this->setIntoCount($appid,$openid);
+
+        $update_res = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
         ->update(['lng'=>$lng,'lat'=>$lat,'precision'=>$precision]);
 
         $update_res2 = Db::name('geographical_position')->insert([
+            'geographical_position_id' => md5(uniqid()),
             'appid' => $appid,
             'openid' => $openid,
             'lng' => $lng,
@@ -432,8 +457,60 @@ class BusinessLogic extends Model {
             }
         }else if ($message['Event'] == 'LOCATION'){
             $this->setWxUserPosition($appid,$openid,$message['Longitude'],$message['Latitude'],$message['Precision']);
+        }else if ($message['Event'] == 'unsubscribe'){
+            $this->unSubScribe($appid,$openid);
+        }else if ($message['Event'] == 'subscribe'){
+            $this->subScribe($appid,$openid);
         }else{
             return '';
+        }
+    }
+
+    /**
+     * 订阅事件处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+	 * @return code 200->成功
+	 */
+    private function subScribe($appid,$openid){
+        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
+        if(empty($company_id)){
+            return false;
+        }
+
+        $update_res = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->update(['subscribe'=>1]);
+
+        if($update_res !== false){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 取消订阅事件处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+	 * @return code 200->成功
+	 */
+    private function unSubScribe($appid,$openid){
+        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
+        if(empty($company_id)){
+            return false;
+        }
+
+        $update_res = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->update(['subscribe'=>0]);
+
+        if($update_res !== false){
+            return true;
+        }else{
+            return false;
         }
     }
 
