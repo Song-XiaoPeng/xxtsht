@@ -397,7 +397,7 @@ class UserOperationLogic extends Model {
 
             try{
                 $wx_sign = "lyfzkf@$uid";
-                $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+                $staff = $openPlatform->createAuthorizerApplication($value['appid'],$refresh_token)->staff;
                 $staff->create($wx_sign, $user_name);
             }catch (\Exception $e) {
                 return msg(3001,$e->getMessage());
