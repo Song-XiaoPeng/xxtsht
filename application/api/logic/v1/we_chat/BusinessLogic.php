@@ -629,7 +629,7 @@ class BusinessLogic extends Model {
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->value('customer_service_uid');
-        if($customer_service_uid_res){
+        if($customer_service_uid_res != '-1'){
             $id = $customer_service_uid_res;
             $type = 'user';
         }
