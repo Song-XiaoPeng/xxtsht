@@ -65,5 +65,22 @@ class Common extends Auth{
         $data = input('put.');
 
         return \think\Loader::model('CommonLogic','logic\v1\message')->accessQueuingSession($this->company_id,$this->uid,$data['session_id']);
+    }
+    
+    /**
+     * 获取会话微信用户基本信息
+     * 请求类型 post
+     * 传入JSON格式: {"openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","appid":"wx88c6052d06eaaf7d"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"user_info":{"wx_user_id":"ed112ace4826075039fb174fe5576e61","nickname":"Junwen","portrait":"http:\/\/wx.qlogo.cn\/mmopen\/YCOL3hU8ffVqHh18vG77VtZ9KpWGX7PFunR9cO0oTbS1SqmS8DBUJxwvI4ZZnY2mQqEb020ULBv1SBcibYeI3ey1BEa0dbSHB\/0","gender":1,"city":"惠州","province":"广东","language":"zh_CN","country":"中国","groupid":"0","subscribe_time":"2017-12-12 14:08:26","openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","add_time":"2017-11-27 11:24:54","appid":"wx88c6052d06eaaf7d","company_id":"51454009d703c86c91353f61011ecf2f","tagid_list":null,"unionid":null,"is_sync":1,"desc":"","subscribe":1,"update_time":"2017-12-13 23:37:24","qrcode_id":"9c01fc4903da18b16fa166f181b93b62","customer_info_id":"2357fc7de3f269187e6d7c442970a049","lng":114.410263,"lat":23.056023,"precision":30,"get_into_count":11},"position_locus":[{"geographical_position_id":"04525bca8d3c802a9b49db0d60219d79","appid":"wx88c6052d06eaaf7d","openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","lng":114.410126,"lat":23.056034,"precision":30,"establish_time":"2017-12-14 10:22:18","company_id":"51454009d703c86c91353f61011ecf2f"},{"geographical_position_id":"3e25dea312942f93ce974e21f74d4b6c","appid":"wx88c6052d06eaaf7d","openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","lng":114.410965,"lat":23.055668,"precision":30,"establish_time":"2017-12-14 10:00:18","company_id":"51454009d703c86c91353f61011ecf2f"}],"session_frequency":63,"invitation_frequency":0}}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Common/getWxUserInfo
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Common/getWxUserInfo
+     * @param openid 微信用户openid
+     * @param appid 微信用户appid
+	 * @return code 200->成功
+	 */
+	public function getWxUserInfo(){
+        $data = input('put.');
+
+        return \think\Loader::model('CommonLogic','logic\v1\message')->getWxUserInfo($this->company_id,$data['openid'],$data['appid']);
 	}
 }

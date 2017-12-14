@@ -119,4 +119,37 @@ class CommonLogic extends Model {
 
         return msg(3002, '接入失败');
     }
+
+    /**
+     * 获取会话微信用户基本信息
+     * @param company_id 商户company_id
+     * @param openid 客户微信openid
+     * @param appid 客户微信appid
+	 * @return code 200->成功
+	 */
+    public function getWxUserInfo($company_id,$openid,$appid){
+        $user_info = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
+        ->find();
+
+        $position_locus = Db::name('geographical_position')
+        ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
+        ->select();
+
+        $session_frequency = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['customer_wx_openid'=>$openid,'appid'=>$appid,'company_id'=>$company_id])
+        ->cache(true,60)
+        ->count();
+        
+        $invitation_frequency = 0;
+
+        return msg(200,'success',[
+            'user_info' => $user_info,
+            'position_locus' => $position_locus,
+            'session_frequency' => $session_frequency,
+            'invitation_frequency' => $invitation_frequency,
+        ]);
+    }
 }

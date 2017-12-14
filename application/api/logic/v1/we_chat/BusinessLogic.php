@@ -325,6 +325,7 @@ class BusinessLogic extends Model {
             'lng' => $lng,
             'lat' => $lat,
             'precision' => $precision,
+            'company_id' => $company_id,
             'establish_time' => date('Y-m-d H:i:s'),
         ]);
 
