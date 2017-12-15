@@ -174,6 +174,8 @@ class CustomerOperation extends Auth{
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getClueCustomer
      * @param real_name 微信昵称(选传模糊搜索)
      * @param page 分页参数 默认1
+     * @param ascription 客户线索归属 1我的 2其他人
+     * @param type 类型 1线索池客户 2线索客户
 	 * @return code 200->成功
 	 */
 	public function getClueCustomer(){
