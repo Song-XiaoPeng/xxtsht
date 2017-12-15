@@ -348,12 +348,18 @@ class CustomerOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param real_name 微信昵称(选传模糊搜索)
      * @param page 分页参数 默认1
+     * @param uid 登录账号uid
+     * @param ascription 客户线索归属 1我的 2其他人
+     * @param type 类型 1线索池客户 2线索客户
 	 * @return code 200->成功
 	 */
     public function getClueCustomer($data){
         $company_id = $data['company_id'];
-        $real_name = $data['real_name'];
+        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
         $page = $data['page'];
+        $ascription = empty($data['ascription']) == true ? 1 : $data['ascription'];
+        $uid = $data['uid'];
+        $type = empty($data['type']) == true ? 1:$data['type'];
 
         //分页
         $page_count = 16;
@@ -364,7 +370,18 @@ class CustomerOperationLogic extends Model {
         }
 
         $map['company_id'] = $company_id;
-        $map['customer_info_id'] = ['not in',[-1]];
+
+        if($type == 1){
+            $map['customer_service_uid'] = -1;
+        }else if($type == 2){
+            $map['customer_service_uid'] = array('not in',[-1]);
+        }
+
+        if($ascription == 1){
+            $map['customer_service_uid'] = $uid;
+        }else if($ascription == 2){
+            $map['customer_service_uid'] = array('not in',[$uid,-1]);
+        }
         
         $wx_user_list = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
