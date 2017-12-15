@@ -57,8 +57,8 @@ class CommonLogic extends Model {
 	 * @param text 快捷回复语句
 	 * @return code 200->成功
 	 */
-    public function getQuickReplyList($company_id,$uid){
-        $list = Db::name('quick_reply')->where(['company_id'=>$company_id,'uid'=>$uid,'type'=>1])->select();
+    public function getQuickReplyList($company_id,$uid,$type = 1){
+        $list = Db::name('quick_reply')->where(['company_id'=>$company_id,'uid'=>$uid,'type'=>$type])->select();
     
         return msg(200,'success',$list);
     }
