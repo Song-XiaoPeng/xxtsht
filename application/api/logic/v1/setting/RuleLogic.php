@@ -302,6 +302,60 @@ class RuleLogic extends Model {
     }
 
     /**
+     * 会话规则设置
+     * @param company_id 商户company_id
+     * @param rule_type 无所属咨询分配规则 1平均分配 2抢单模式
+     * @param overtime 超时会话 多少分钟未回复客户自动关闭
+	 * @return code 200->成功
+	 */
+    public function setSessionRule($data){
+        $company_id = $data['company_id'];
+        $rule_type = $data['rule_type'];
+        $overtime = $data['overtime'];
+
+        $configure_value = [
+            'rule_type' => $rule_type,
+            'overtime' => $overtime
+        ];
+
+        $company_baseinfo_id = Db::name('company_baseinfo')->where(['company_id'=>$company_id,'configure_key'=>'session_rule'])->value('company_baseinfo_id');
+        if($company_baseinfo_id){
+            $insert_res = Db::name('company_baseinfo')
+            ->where(['company_id'=>$company_id,'company_baseinfo_id'=>$company_baseinfo_id])
+            ->update([
+                'configure_key' => 'session_rule',
+                'configure_value' => json_encode($configure_value)
+            ]);
+        }else{
+            $insert_res = Db::name('company_baseinfo')->insert([
+                'company_id' => $company_id,
+                'configure_key' => 'session_rule',
+                'configure_value' => json_encode($configure_value)
+            ]);
+        }
+
+        if($insert_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'插入数据失败');
+        }
+    }
+
+    /**
+     * 获取会话规则
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getSessionRule($company_id){
+        $configure_value = Db::name('company_baseinfo')->where(['company_id'=>$company_id,'configure_key'=>'session_rule'])->value('configure_value');
+        if($configure_value){
+            return msg(200,'success',json_decode($configure_value));
+        }else{
+            return msg(200,'success',['rule_type'=>'','overtime'=>'']);
+        }
+    }
+
+    /**
      * 同步所有公众号标签
      * @param company_id 商户company_id
 	 * @return code 200->成功

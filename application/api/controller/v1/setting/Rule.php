@@ -80,6 +80,24 @@ class Rule extends Auth{
 	}
 
 	/**
+     * 会话规则设置
+     * 请求类型 post
+	 * 传入JSON格式: {"rule_type":"","overtime":""}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/setSessionRule
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/setSessionRule
+     * @param rule_type 无所属咨询分配规则 1平均分配 2抢单模式
+     * @param overtime 超时会话 多少分钟未回复客户自动关闭
+	 * @return code 200->成功
+	 */
+	public function setSessionRule(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->setSessionRule($data);
+	}
+
+	/**
      * 添加修改标签分组
      * 请求类型 post
 	 * 传入JSON格式: {"label_group_id":"","group_name":"标签分组名称"}
@@ -112,6 +130,18 @@ class Rule extends Auth{
 		$data['company_id'] = $this->company_id;
 
 		return \think\Loader::model('RuleLogic','logic\v1\setting')->delLabelGroup($data);
+	}
+
+	/**
+     * 获取会话规则
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"rule_type":"1","overtime":"2"}}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/getSessionRule
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/getSessionRule
+	 * @return code 200->成功
+	 */
+	public function getSessionRule(){
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->getSessionRule($this->company_id);
 	}
 
 	/**
