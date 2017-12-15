@@ -43,14 +43,13 @@ class Rule extends Auth{
 	}
 	
 	/**
-     * 设置标签
+     * 设置公众号标签
      * 请求类型 post
 	 * 传入JSON格式: {"label_group_id":"","label_name":"标签名称"}
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"quick_reply_id":"16"}}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
 	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/setLabel
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/setLabel
      * @param label_group_id 标签分组id
-     * @param label_id 存在则是编辑
 	 * @param label_name 标签名称
 	 * @return code 200->成功
 	 */
@@ -59,6 +58,77 @@ class Rule extends Auth{
 		$data['company_id'] = $this->company_id;
 
 		return \think\Loader::model('RuleLogic','logic\v1\setting')->setLabel($data);
+	}
+
+	/**
+     * 修改标签
+     * 请求类型 post
+	 * 传入JSON格式: {"label_group_id":"","label_name":"标签名称","label_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/updateLabel
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/updateLabel
+     * @param label_id 标签id
+     * @param label_group_id 标签分组id
+	 * @param label_name 标签名称
+	 * @return code 200->成功
+	 */
+	public function updateLabel(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->updateLabel($data);
+	}
+
+	/**
+     * 添加修改标签分组
+     * 请求类型 post
+	 * 传入JSON格式: {"label_group_id":"","group_name":"标签分组名称"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/updateLabelGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/updateLabelGroup
+     * @param label_group_id 标签分组id(修改选传)
+	 * @param group_name 标签分组名称
+	 * @return code 200->成功
+	 */
+	public function updateLabelGroup(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->updateLabelGroup($data);
+	}
+
+	/**
+     * 删除标签分组
+     * 请求类型 post
+	 * 传入JSON格式: {"label_group_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/delLabelGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/delLabelGroup
+     * @param label_group_id 标签分组id
+	 * @return code 200->成功
+	 */
+	public function delLabelGroup(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->delLabelGroup($data);
+	}
+
+	/**
+     * 删除标签
+     * 请求类型 post
+	 * 传入JSON格式: {"label_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/delLabel
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/delLabel
+     * @param label_id 标签id
+	 * @return code 200->成功
+	 */
+	public function delLabel(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->delLabel($data);
 	}
 	
 	/**
