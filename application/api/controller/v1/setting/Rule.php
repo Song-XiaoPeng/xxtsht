@@ -40,5 +40,36 @@ class Rule extends Auth{
 		$data['company_id'] = $this->company_id;
 
 		return \think\Loader::model('RuleLogic','logic\v1\setting')->setCommonQuickReplyText($data);
+	}
+	
+	/**
+     * 设置标签
+     * 请求类型 post
+	 * 传入JSON格式: {"label_group_id":"","label_name":"标签名称"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"quick_reply_id":"16"}}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/setLabel
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/setLabel
+     * @param label_group_id 标签分组id
+     * @param label_id 存在则是编辑
+	 * @param label_name 标签名称
+	 * @return code 200->成功
+	 */
+	public function setLabel(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->setLabel($data);
+	}
+	
+	/**
+     * 同步所有公众号标签
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/syncWxLabel
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/syncWxLabel
+	 * @return code 200->成功
+	 */
+	public function syncWxLabel(){
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->syncWxLabel($this->company_id);
     }
 }
