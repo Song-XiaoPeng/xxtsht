@@ -3,6 +3,7 @@ namespace app\api\logic\v1\setting;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
+use EasyWeChat\Foundation\Application;
 
 class RuleLogic extends Model {
     /**
@@ -92,5 +93,55 @@ class RuleLogic extends Model {
         }else{
             return msg(3001,'更新数据失败');
         }
+    }
+
+    /**
+     * 同步所有公众号标签
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function syncWxLabel($company_id){
+        $wx_list = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->select();
+    
+
+        foreach($wx_list as $value){
+            try{
+                $token_info = Common::getRefreshToken($value['appid'],$company_id);
+                if($token_info['meta']['code'] == 200){
+                    $refresh_token = $token_info['body']['refresh_token'];
+                }else{
+                    return $token_info;
+                }
+
+                $app = new Application(wxOptions());
+                $openPlatform = $app->open_platform;
+                $tag = $openPlatform->createAuthorizerApplication($value['appid'],$refresh_token)->user_tag;
+                $tag_list = $tag->lists()->tags;
+            }catch (\Exception $e) {
+                continue;
+            }
+
+            foreach($tag_list as $v){
+                $label_id = Db::name('label_tag')->where(['company_id'=>$company_id,'tag_id'=>$v['id'],'appid'=>$value['appid']])->value('label_id');
+                if($label_id){
+                    Db::name('label')->where(['label_id'=>$label_id])->update(['label_name'=>$v['name']]);
+                    continue;
+                }
+
+                $label_id = Db::name('label')->insertGetId([
+                    'company_id' => $company_id,
+                    'label_name' => $v['name']
+                ]);
+
+                Db::name('label_tag')->insert([
+                    'company_id' => $company_id,
+                    'label_id' => $label_id,
+                    'appid' => $value['appid'],
+                    'tag_id' => $v['id'],
+                ]);
+            }
+        }
+    
+        return msg(200,'success');
     }
 }
