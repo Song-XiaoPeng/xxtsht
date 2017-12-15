@@ -485,9 +485,10 @@ class BusinessLogic extends Model {
         ->where(['appid'=>$appid,'openid'=>$openid])
         ->update(['subscribe'=>1]);
 
-        if($update_res !== false){
+        if($update_res){
             return true;
         }else{
+            $this->addWxUserInfo($appid,$openid);
             return false;
         }
     }
@@ -525,7 +526,6 @@ class BusinessLogic extends Model {
 	 */
     private function qrcodeEvent($appid,$openid,$qrcode_id){
         $info = $this->addWxUserInfo($appid,$openid,$qrcode_id);
-
         if(!$info['is_update']){
             Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id])->setInc('attention');
         }
@@ -811,11 +811,12 @@ class BusinessLogic extends Model {
                 'subscribe_time' => date("Y-m-d H:i:s",$wx_info['subscribe_time']),
                 'desc' => $wx_info['remark'],
                 'company_id' => $company_id,
-                'tagid_list' => $wx_info['tagid_list'],
+                'tagid_list' => json_encode($wx_info['tagid_list']),
                 'unionid' => $wx_info['unionid'],
                 'is_sync' => 1,
                 'subscribe' => $wx_info['subscribe'],
-                'update_time' => $time
+                'update_time' => $time,
+                'customer_service_uid' => $uid
             ];
 
             if(!empty($qrcode_id)){
@@ -853,12 +854,13 @@ class BusinessLogic extends Model {
             'appid' => $appid,
             'desc' => $wx_info['remark'],
             'company_id' => $company_id,
-            'tagid_list' => $wx_info['tagid_list'],
+            'tagid_list' => json_encode($wx_info['tagid_list']),
             'unionid' => $wx_info['unionid'],
             'is_sync' => 1,
             'subscribe' => $wx_info['subscribe'],
             'update_time' => $time,
-            'qrcode_id' => $qrcode_id
+            'qrcode_id' => $qrcode_id,
+            'customer_service_uid' => $uid
         ]);
 
         $wx_info['is_update'] = false;

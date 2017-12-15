@@ -152,6 +152,8 @@ class CommonLogic extends Model {
         
         $invitation_frequency = 0;
 
+        
+
         return msg(200,'success',[
             'user_info' => $user_info,
             'position_locus' => $position_locus,

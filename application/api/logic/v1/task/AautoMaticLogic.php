@@ -199,6 +199,7 @@ class AautoMaticLogic extends Model {
             try{
                 $users = $userService->batchGet($openid_list);
             }catch (\Exception $e) {
+                Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>-1,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
             }
 
             foreach($users['user_info_list'] as $value){
@@ -223,7 +224,7 @@ class AautoMaticLogic extends Model {
                     'country' => $value['country'],
                     'groupid' => $value['groupid'],
                     'subscribe_time' => date("Y-m-d H:i:s",$value['subscribe_time']),
-                    'tagid_list' => $value['tagid_list'],
+                    'tagid_list' => json_encode($value['tagid_list']),
                     'is_sync' => 1,
                     'unionid' => empty($value['unionid']) == true ? null : $value['unionid'],
                     'desc' => $value['remark'],

@@ -159,6 +159,32 @@ class RuleLogic extends Model {
     }
 
     /**
+     * 获取标签列表
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getLabelList($company_id){
+        $label_res = Db::name('label')->where(['company_id'=>$company_id])->select();
+        
+        foreach($label_res as $key=>$value){
+            $label_res[$key]['group_name'] = Db::name('label_group')->where(['company_id'=>$company_id,'label_group_id'=>$value['label_group_id']])->value('group_name');
+        }
+
+        return msg(200,'success',$label_res);
+    }
+
+     /**
+     * 获取所有标签分组
+     * @param company_id 商户company_id
+	 * @return code 200->成功
+	 */
+    public function getLabelGroup($company_id){
+        $label_res = Db::name('label_group')->where(['company_id'=>$company_id])->select();
+        
+        return msg(200,'success',$label_res);
+    }
+
+    /**
      * 修改标签
      * @param company_id 商户company_id
      * @param label_id 标签id

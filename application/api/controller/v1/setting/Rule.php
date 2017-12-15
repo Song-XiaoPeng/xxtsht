@@ -145,6 +145,31 @@ class Rule extends Auth{
 	}
 
 	/**
+     * 获取所有标签分组
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"label_group_id":2,"group_name":"测试","company_id":"51454009d703c86c91353f61011ecf2f"}]}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/getLabelGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/getLabelGroup
+	 * @return code 200->成功
+	 */
+	public function getLabelGroup(){
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->getLabelGroup($this->company_id);
+	}
+
+	/**
+     * 获取标签列表
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"label_id":23,"label_name":"星标组","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null},{"label_id":24,"label_name":"已成交","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null},{"label_id":25,"label_name":"意向","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null},{"label_id":26,"label_name":"同事","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null},{"label_id":27,"label_name":"商家","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null},{"label_id":28,"label_name":"利亚官网","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null},{"label_id":29,"label_name":"同行","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null},{"label_id":30,"label_name":"ERP内小程序","company_id":"51454009d703c86c91353f61011ecf2f","label_group_id":-1,"group_name":null}]}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/getLabelList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/getLabelList
+	 * @return code 200->成功
+	 */
+	public function getLabelList(){
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->getLabelList($this->company_id);
+	}
+
+
+	/**
      * 删除标签
      * 请求类型 post
 	 * 传入JSON格式: {"label_id":"12"}
