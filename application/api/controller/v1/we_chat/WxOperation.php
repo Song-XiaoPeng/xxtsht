@@ -718,6 +718,44 @@ class WxOperation extends Auth{
     }
 
     /**
+     * 设置微信用户标签
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx88c6052d06eaaf7d","openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","label_id":"25"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/setWxUserLabel
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/setWxUserLabel
+     * @param appid 公众号appid
+     * @param openid 微信用户openid
+     * @param label_id 设置的标签id
+	 * @return code 200->成功
+	 */
+    public function setWxUserLabel(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->setWxUserLabel($data);
+    }
+
+    /**
+     * 取消微信用户标签
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wx88c6052d06eaaf7d","openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","label_id":"25"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/canelWxUserLabel
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/canelWxUserLabel
+     * @param appid 公众号appid
+     * @param openid 微信用户openid
+     * @param label_id 取消的标签id
+	 * @return code 200->成功
+	 */
+    public function canelWxUserLabel(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->canelWxUserLabel($data);
+    }
+
+    /**
      * 会话接入
 	 * 请求类型：post
 	 * 传入JSON格式: {"session_id":"38a3843d6d2c733e5b7212f993af453e"}
@@ -736,21 +774,6 @@ class WxOperation extends Auth{
     }
 
     /**
-     * 获取会话消息
-	 * 请求类型：get
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"bdff9bb74cab59e104fa035a881c203b":[{"text":"5555","opercode":2,"file_url":null,"lng":null,"lat":null,"add_time":"2017-11-24 19:58:39","message_type":1,"page_title":null,"page_desc":null,"map_scale":null,"map_label":null,"map_img":null,"media_id":null}]}}
-	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getMessage
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getMessage
-	 * @return code 200->成功
-	 */
-    public function getMessage(){
-        $data['company_id'] = $this->company_id;
-        $data['uid'] = $this->uid;
-
-        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getMessage($data);
-    }
-
-    /**
      * 结束会话
 	 * 请求类型：post
 	 * 传入JSON格式: {"session_list":["294bbb5b94de0c044e66f6caec067856","b2fe3202dff09473cf9aa2b9f15ad79f"]}
@@ -766,22 +789,6 @@ class WxOperation extends Auth{
         $data['uid'] = $this->uid;
 
         return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->closeSession($data);
-    }
-
-    /**
-     * 获取待接入会话列表
-	 * 请求类型：get
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
-	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/getSessionList
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/getSessionList
-	 * @return code 200->成功
-	 */
-    public function getSessionList(){
-        $data = input('get.');
-        $data['company_id'] = $this->company_id;
-        $data['uid'] = $this->uid;
-
-        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->getSessionList($data);
     }
 
     /**

@@ -74,7 +74,7 @@ class RemindLogic extends Model {
 	 */
     public function getRemindList($data){
         $company_id = $data['company_id'];
-        $customer_info_id = $data['customer_info_id'];
+        $customer_info_id = empty($data['customer_info_id']) == true ? '' : $data['customer_info_id'];
         $uid = $data['uid'];
         $token = $data['token'];
         $page = empty($data['page']) == true ? '' : $data['page'];

@@ -62,7 +62,7 @@ class CustomerOperationLogic extends Model {
             }
         }
 
-        if(empty($wx_user_res['customer_info_id']) == true && empty($customer_info_id) == true){
+        if($wx_user_res['customer_info_id'] == -1 && empty($customer_info_id) == true){
             $customer_info_id = md5(uniqid());
             
             $db_operation_res = Db::name('customer_info')
@@ -110,10 +110,15 @@ class CustomerOperationLogic extends Model {
             ]);
         }
 
+        $wx_user_data['customer_info_id'] = $customer_info_id;
+        if($customer_type == 1 || $customer_type == 2 || $customer_type == 3){
+            $wx_user_data['is_clue'] = -1;
+        }
+
         $db_operation_res = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], 'company_id', ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
-        ->update(['customer_info_id'=>$customer_info_id]);
+        ->update($wx_user_data);
 
         if($db_operation_res !== false){
             return msg(200,'success',['customer_info_id'=>$customer_info_id]);
@@ -245,7 +250,7 @@ class CustomerOperationLogic extends Model {
         ->where(['customer_info_id'=>$customer_info_id])
         ->find();
         if(!$customer_info){
-            return msg(3001,'暂无客户信息');
+            return msg(3002,'暂无客户信息');
         }
 
         if($customer_info['wx_user_group_id'] != -1){
@@ -370,6 +375,7 @@ class CustomerOperationLogic extends Model {
         }
 
         $map['company_id'] = $company_id;
+        $map['is_clue'] = 1;
 
         if($type == 1){
             $map['customer_service_uid'] = -1;

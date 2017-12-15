@@ -28,6 +28,7 @@ class CustomerOperation extends Auth{
     public function setCustomerInfo () {
         $data = input('put.');
         $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
         
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->setCustomerInfo($data);
 	}
@@ -195,7 +196,7 @@ class CustomerOperation extends Auth{
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getCustomerList
      * @param page 分页参数 默认1
      * @param real_name 客户姓名 (选传)
-     * @param type 客户类型 0其他 1意向客户 2订单客户 3追销客户
+     * @param type 客户类型 0线索 1意向客户 2订单客户 3追销客户
      * @param ascription 客户归属类型 1我的客户 2其他人
 	 * @return code 200->成功
 	 */

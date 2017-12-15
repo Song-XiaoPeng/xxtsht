@@ -152,13 +152,24 @@ class CommonLogic extends Model {
         
         $invitation_frequency = 0;
 
-        
+        $label_arr = [];
+
+        $tagid_list = json_decode($user_info['tagid_list'],true);
+        foreach($tagid_list as $v){
+            $label_id = Db::name('label_tag')->where(['tag_id'=>$v])->cache(true,60)->value('label_id');
+            if($label_id){
+                $label_res = Db::name('label')->where(['label_id'=>$label_id])->find();
+
+                array_push($label_arr,$label_res);
+            }
+        }
 
         return msg(200,'success',[
             'user_info' => $user_info,
             'position_locus' => $position_locus,
             'session_frequency' => $session_frequency,
             'invitation_frequency' => $invitation_frequency,
+            'label' => $label_arr
         ]);
     }
 }

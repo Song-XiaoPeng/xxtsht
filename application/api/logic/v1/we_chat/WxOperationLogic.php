@@ -1271,6 +1271,124 @@ class WxOperationLogic extends Model {
     }
 
     /**
+     * 设置微信用户标签
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param openid 微信用户openid
+     * @param label_id 设置的标签id
+	 * @return code 200->成功
+	 */
+    public function setWxUserLabel($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+        $label_id = $data['label_id'];
+
+        $tag_id = Db::name('label_tag')->where(['company_id'=>$company_id,'label_id'=>$label_id,'appid'=>$appid])->value('tag_id');
+        if(!$tag_id){
+            return msg(3001,'标签不存在');
+        }
+
+        try{
+            $token_info = Common::getRefreshToken($appid,$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return $token_info;
+            }
+
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $tag = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_tag;
+            $tag->batchTagUsers([$openid], $tag_id);
+        }catch (\Exception $e) {
+            return msg(3002,$e->getMessage());
+        }
+
+        $tagid_list = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->value('tagid_list');
+        if($tagid_list){
+            $tagid_arr = json_decode($tagid_list,true);
+
+            foreach($tagid_arr as $k=>$v){
+                if($v == (int)$tag_id){
+                    unset($tagid_arr[$k]);
+                }
+            }
+
+            $tagid_data = json_encode(array_merge($tagid_arr,[(int)$tag_id]));
+ 
+            Db::name('wx_user')
+            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['appid'=>$appid,'openid'=>$openid])
+            ->update(['tagid_list'=>$tagid_data]);
+        }
+
+        return msg(200,'success');
+    }
+
+    /**
+     * 取消微信用户标签
+     * @param appid 公众号appid
+     * @param company_id 商户company_id
+     * @param openid 微信用户openid
+     * @param label_id 设置的标签id
+	 * @return code 200->成功
+	 */
+    public function canelWxUserLabel($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+        $label_id = $data['label_id'];
+
+        $tag_id = Db::name('label_tag')->where(['company_id'=>$company_id,'label_id'=>$label_id,'appid'=>$appid])->value('tag_id');
+        if(!$tag_id){
+            return msg(3001,'标签不存在');
+        }
+
+        try{
+            $token_info = Common::getRefreshToken($appid,$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return $token_info;
+            }
+
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $tag = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_tag;
+            $tag->batchUntagUsers([$openid], $tag_id);
+        }catch (\Exception $e) {
+            return msg(3002,$e->getMessage());
+        }
+
+        $tagid_list = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->value('tagid_list');
+        if($tagid_list){
+            $tagid_arr = json_decode($tagid_list,true);
+
+            foreach($tagid_arr as $k=>$v){
+                if($v == (int)$tag_id){
+                    unset($tagid_arr[$k]);
+                }
+            }
+
+            $tagid_data = json_encode($tagid_arr);
+ 
+            Db::name('wx_user')
+            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['appid'=>$appid,'openid'=>$openid])
+            ->update(['tagid_list'=>$tagid_data]);
+        }
+
+        return msg(200,'success');
+    }
+
+    /**
      * 获取图文群发总数据(最大时间跨度：1)
      * @param appid 公众号appid
      * @param company_id 商户company_id
@@ -1576,132 +1694,6 @@ class WxOperationLogic extends Model {
             return msg(200,'success');
         }else{
             return msg(3001,'接入失败');
-        }
-    }
-
-    /**
-     * 获取待接入会话列表
-     * @param company_id 商户id
-     * @param uid 客服uid
-	 * @return code 200->成功
-	 */
-    public function getSessionList($data){
-        set_time_limit(60);
-
-        $company_id = $data['company_id'];
-        $uid = $data['uid'];
-
-        $redis = Common::createRedis();
-        $redis->select(0); 
-
-        while (true) {
-            $arr = $redis->sMembers($company_id);
-
-            $waiting = [];
-            $insert_waiting = [];
-            $queue_up = [];
-
-            foreach($arr as $k=>$v){
-                $session_data = json_decode($v,true);
-
-                $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$session_data['appid']])->cache(true,60)->value('nick_name');
-                
-                $extra_data['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
-
-                $extra_data['session_frequency'] = Db::name('message_session')->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])->where(['customer_wx_openid'=>$session_data['customer_wx_openid'],'company_id'=>$company_id])->cache(true,60)->count();
-
-                $extra_data['invitation_frequency'] = 0;
-
-                if($session_data['uid'] == $uid && $session_data['state'] == 0){
-                    array_push($waiting,array_merge($session_data,$extra_data));
-                    array_push($insert_waiting,$session_data);
-                }
-
-                if($session_data['state'] == 3){
-                    array_push($queue_up,$session_data);
-                } 
-            }
-
-            if(count($waiting) != 0 || count($queue_up) != 0){
-                foreach($insert_waiting as $key=>$value){
-                    Db::name('message_session')->partition(['session_id'=>$value['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])->insert($insert_waiting[$key]);
-                }
-
-                foreach($arr as $v){
-                    $redis->SREM($company_id,$v);
-                }
-
-                return msg(200,'success',['waiting'=>$waiting,'queue_up'=>$queue_up]);
-            }
-
-            sleep(2);
-        }
-    }
-
-    /**
-     * 获取会话消息
-     * @param company_id 商户company_id
-     * @param uid 客服uid
-	 * @return code 200->成功
-	 */
-    public function getMessage($data){
-        set_time_limit(60);
-
-        $company_id = $data['company_id'];
-        $uid = $data['uid'];
-
-        $redis = Common::createRedis();
-        $redis->select(1); 
-
-        while (true) {
-            $arr = [];
-
-            $openid_list = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-            ->where(['uid'=>$uid,'company_id'=>$company_id])
-            ->field('customer_wx_openid')
-            ->select();
-
-            foreach($openid_list as $k=>$v){
-                $raw_data = $redis->zRange($v['customer_wx_openid'], 0, -1);
-                if(empty($raw_data)){
-                    continue;
-                }
-
-                foreach($raw_data as $z=>$c){
-                    $content[$z] = json_decode($c,true);
-                }
-
-                foreach($content as $i=>$c){
-                    if(!empty($c['text'])){
-                        $content[$i]['text'] = emoji_decode($c['text']);
-                    }else{
-                        $content[$i]['text'] = '';
-                    }
-                }
-
-                Db::name('message_data')
-                ->partition(['customer_wx_openid'=>$v['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>config('separate')['message_data']])
-                ->insertAll($content);
-
-                foreach($content as $i=>$c){
-                    if($c['message_type'] == 2){
-                        $content[$i]['file_url'] = getWximg($c['file_url']);
-                    }
-                }
-
-                if($content){
-                    $arr[$v['customer_wx_openid']] = $content;
-                }
-
-                $redis->del($v['customer_wx_openid']);
-            }
-
-            if(count($arr) != 0){
-                return msg(200,'success',$arr);
-            }
-
-            sleep(2);
         }
     }
 
