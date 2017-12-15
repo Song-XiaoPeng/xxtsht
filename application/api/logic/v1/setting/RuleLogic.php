@@ -50,4 +50,47 @@ class RuleLogic extends Model {
             return msg(3001,'插入数据失败');
         }
     }
+
+    /**
+     * 设置商户公共快捷回复语句
+     * @param quick_reply_id 存在则是编辑
+	 * @param text 快捷回复语句
+	 * @return code 200->成功
+	 */
+    public function setCommonQuickReplyText($data){
+        $quick_reply_id = empty($data['quick_reply_id']) == true ? false : $data['quick_reply_id'];
+        $text = $data['text'];
+        $company_id = $data['company_id'];
+
+        if($quick_reply_id){
+            $update_res = Db::name('quick_reply')
+            ->where([
+                'quick_reply_id' => $quick_reply_id,
+                'company_id' => $company_id,
+                'type' => 2
+            ])
+            ->update([
+                'quick_reply_text' => $text
+            ]);
+
+            if($update_res !== false){
+                return msg(200,'success');
+            }else{
+                return msg(3002,'更新数据失败');
+            }
+        }
+
+        $quick_reply_id = Db::name('quick_reply')
+        ->insertGetId([
+            'quick_reply_text' => $text,
+            'company_id' => $company_id,
+            'type' => 2
+        ]);
+
+        if($quick_reply_id){
+            return msg(200,'success',['quick_reply_id'=>$quick_reply_id]);
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
 }

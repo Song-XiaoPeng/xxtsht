@@ -22,7 +22,8 @@ class CommonLogic extends Model {
             ->where([
                 'quick_reply_id' => $quick_reply_id,
                 'company_id' => $company_id,
-                'uid' => $uid
+                'uid' => $uid,
+                'type' => 1,
             ])
             ->update([
                 'quick_reply_text' => $text
@@ -40,6 +41,7 @@ class CommonLogic extends Model {
             'quick_reply_text' => $text,
             'company_id' => $company_id,
             'uid' => $uid,
+            'type' => 1,
         ]);
 
         if($insert_res){
@@ -56,7 +58,7 @@ class CommonLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getQuickReplyList($company_id,$uid){
-        $list = Db::name('quick_reply')->where(['company_id'=>$company_id,'uid'=>$uid])->select();
+        $list = Db::name('quick_reply')->where(['company_id'=>$company_id,'uid'=>$uid,'type'=>1])->select();
     
         return msg(200,'success',$list);
     }

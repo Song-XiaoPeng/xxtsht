@@ -22,5 +22,23 @@ class Rule extends Auth{
 		$data['company_id'] = $this->company_id;
 
 		return \think\Loader::model('RuleLogic','logic\v1\setting')->setCustomerResourcesRule($data);
+	}
+	
+	/**
+     * 设置商户公共快捷回复语句
+     * 请求类型 post
+	 * 传入JSON格式: {"quick_reply_id":"","text":"测试快捷回复语句"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"quick_reply_id":"16"}}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/setCommonQuickReplyText
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/setCommonQuickReplyText
+     * @param quick_reply_id 存在则是编辑
+	 * @param text 快捷回复语句
+	 * @return code 200->成功
+	 */
+	public function setCommonQuickReplyText(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->setCommonQuickReplyText($data);
     }
 }
