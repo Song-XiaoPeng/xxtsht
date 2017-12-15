@@ -103,7 +103,7 @@ class RuleLogic extends Model {
     public function syncWxLabel($company_id){
         $wx_list = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->select();
     
-
+        //同步微信端至本地系统
         foreach($wx_list as $value){
             try{
                 $token_info = Common::getRefreshToken($value['appid'],$company_id);
@@ -128,10 +128,15 @@ class RuleLogic extends Model {
                     continue;
                 }
 
-                $label_id = Db::name('label')->insertGetId([
-                    'company_id' => $company_id,
-                    'label_name' => $v['name']
-                ]);
+                $label_res = Db::name('label')->where(['company_id'=>$company_id,'label_name'=>$v['name']])->find();
+                if(!$label_res){
+                    $label_id = Db::name('label')->insertGetId([
+                        'company_id' => $company_id,
+                        'label_name' => $v['name']
+                    ]);
+                }else{
+                    $label_id = $label_res['label_id'];
+                }
 
                 Db::name('label_tag')->insert([
                     'company_id' => $company_id,
@@ -141,7 +146,41 @@ class RuleLogic extends Model {
                 ]);
             }
         }
-    
+
+        //同步微信端至本地系统
+        $label_arr = Db::name('label')->where(['company_id'=>$company_id])->select();
+        foreach($label_arr as $value){
+            foreach($wx_list as $index){
+                $label_tag_res = Db::name('label_tag')->where(['company_id'=>$company_id,'appid'=>$index['appid'],'label_id'=>$value['label_id']])->find();
+                if(!$label_tag_res){
+                    try{
+                        $token_info = Common::getRefreshToken($index['appid'],$company_id);
+                        if($token_info['meta']['code'] == 200){
+                            $refresh_token = $token_info['body']['refresh_token'];
+                        }else{
+                            return $token_info;
+                        }
+        
+                        $app = new Application(wxOptions());
+                        $openPlatform = $app->open_platform;
+                        $tag = $openPlatform->createAuthorizerApplication($index['appid'],$refresh_token)->user_tag;
+
+                        $tag_id = $tag->create($value['label_name'])['tag']['id'];
+
+                        Db::name('label_tag')->insert([
+                            'company_id' => $company_id,
+                            'tag_id' => $tag_id,
+                            'label_id' => $value['label_id'],
+                            'appid' => $index['appid'],
+                            'company_id' => $company_id,
+                        ]);
+                    }catch (\Exception $e) {
+                        continue;
+                    }
+                }
+            }
+        }
+
         return msg(200,'success');
     }
 }
