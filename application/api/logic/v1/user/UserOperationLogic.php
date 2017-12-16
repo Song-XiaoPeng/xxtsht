@@ -30,6 +30,11 @@ class UserOperationLogic extends Model {
             'create_time' => date('Y-m-d H:i:s'),
         ];
 
+        $user_info = Db::name('user')->where(['phone_no'=>$phone_no])->find();
+        if($user_info){
+            return msg(3002,'账号已存在请更换');
+        }
+
         $add_res = Db::name('user')->insert($insert_data);
         if($add_res){
             return msg(200,'success');
