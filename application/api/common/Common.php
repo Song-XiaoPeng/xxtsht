@@ -130,6 +130,30 @@ class Common {
         }
     }
 
+    /**
+     * 记录微信用户与公众号交互时间
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+	 * @return code 200->成功
+	 */
+    public static function setWxUserLastTime($appid,$openid){
+        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
+        if(empty($company_id)){
+            return false;
+        }
+
+        $update_res = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid])
+        ->update(['last_time'=>date('Y-m-d H:i:s')]);
+
+        if($update_res !== false){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     //创建redis连接
     public static function createRedis(){
         $redis = new \Predis\Client([
