@@ -237,9 +237,8 @@ class UserOperationLogic extends Model {
             $openPlatform = $app->open_platform;
     
             try{
-                $wx_sign = 'lyfzkf@'.$v['uid'];
                 $staff = $openPlatform->createAuthorizerApplication($v['appid'],$refresh_token)->staff;
-                $staff->avatar($wx_sign, $resources_res['resources_route']);
+                $staff->avatar($v['wx_sign'], $resources_res['resources_route']);
             }catch (\Exception $e) {
                 continue;
             }
