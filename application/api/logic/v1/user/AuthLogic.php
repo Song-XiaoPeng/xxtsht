@@ -31,6 +31,10 @@ class AuthLogic extends Model {
             return msg(3003,'账号或密码错误');
         }
 
+        if($user_info['client_network_mac'] != $client_network_mac && $user_info['is_bind_hardware'] != 1){
+            return msg(3009,'不允许在未授权的设备登录');
+        }
+
         $token = md5(uniqid());
 
         Db::name('user')->where(['company_id'=>$user_info['company_id'],'uid'=>$user_info['uid']])->update([
