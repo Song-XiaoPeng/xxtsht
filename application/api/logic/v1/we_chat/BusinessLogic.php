@@ -768,6 +768,10 @@ class BusinessLogic extends Model {
     private function addWxUserInfo($appid,$openid,$qrcode_id = '',$uid = ''){
         $time = date('Y-m-d H:i:s');
 
+        if($uid == 0){
+            $uid = -1;
+        }
+
         $authinfo_res = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->find();
         if(empty($authinfo_res)){
             return;
@@ -816,7 +820,7 @@ class BusinessLogic extends Model {
                 'is_sync' => 1,
                 'subscribe' => $wx_info['subscribe'],
                 'update_time' => $time,
-                'customer_service_uid' => $uid
+                'customer_service_uid' => empty($uid) == true ? -1 : $uid
             ];
 
             if(!empty($qrcode_id)){
@@ -860,7 +864,7 @@ class BusinessLogic extends Model {
             'subscribe' => $wx_info['subscribe'],
             'update_time' => $time,
             'qrcode_id' => $qrcode_id,
-            'customer_service_uid' => $uid
+            'customer_service_uid' => empty($uid) == true ? -1 : $uid
         ]);
 
         $wx_info['is_update'] = false;
