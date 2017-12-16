@@ -21,6 +21,11 @@ class AuthLogic extends Model {
             return msg(3001,'无法获取客户端硬件识别码');
         }
 
+        $client_version_res = Db::name('client_version')->where(['client_version_id'=>'6'])->cache(true,60)->find();
+        if($client_version_res['version'] != $client_version){
+            return msg(3006,'请升级到最新版本'.$client_version_res['version']);
+        }
+
         $user_info = Db::name('user')->where(['phone_no'=>$phone_no,'password'=>$password])->find();
         if(!$user_info){
             return msg(3003,'账号或密码错误');
