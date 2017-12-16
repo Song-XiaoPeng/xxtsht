@@ -27,6 +27,7 @@ class UserOperationLogic extends Model {
             'password' => $password,
             'company_id' => $company_id,
             'user_name' => $user_name,
+            'user_type' => 4,
             'create_time' => date('Y-m-d H:i:s'),
         ];
 
