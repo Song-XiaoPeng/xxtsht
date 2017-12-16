@@ -183,6 +183,7 @@ class CustomerOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
+        $data['user_type'] = $this->user_type;
         
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getClueCustomer($data);
 	}

@@ -364,6 +364,7 @@ class CustomerOperationLogic extends Model {
         $page = $data['page'];
         $ascription = empty($data['ascription']) == true ? 1 : $data['ascription'];
         $uid = $data['uid'];
+        $user_type = $data['user_type'];
         $type = empty($data['type']) == true ? 1:$data['type'];
 
         //分页
@@ -377,17 +378,30 @@ class CustomerOperationLogic extends Model {
         $map['company_id'] = $company_id;
         $map['is_clue'] = 1;
 
-        if($type == 1){
-            $map['customer_service_uid'] = -1;
-        }else if($type == 2){
-            $map['customer_service_uid'] = array('not in',[-1]);
+        switch($user_type){
+            case '3':
+                if($type == 1){
+                    $map['customer_service_uid'] = -1;
+                }else if($type == 2){
+                    $map['customer_service_uid'] = array('not in',[-1]);
+                }
+                break;
+            case '4':
+                if($type == 1 && $ascription == 1){
+                    $map['customer_service_uid'] = $uid;
+                    $map['is_clue'] = -1;
+                }else if ($type == 1 && $ascription == 2) {
+                    $map['customer_service_uid'] = $uid;
+                    $map['is_clue'] = 1;
+                }else if ($type == 2 && $ascription == 1) {
+                    $map['customer_service_uid'] = array('not in',[$uid]);
+                    $map['is_clue'] = -1;
+                }else if ($type == 2 && $ascription == 2) {
+                    $map['customer_service_uid'] = array('not in',[$uid]);
+                    $map['is_clue'] = 1;
+                }
+                break;
         }
-
-        // if($ascription == 1){
-        //     $map['customer_service_uid'] = $uid;
-        // }else if($ascription == 2){
-        //     $map['customer_service_uid'] = array('not in',[$uid,-1]);
-        // }
 
         $wx_user_list = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
