@@ -14,10 +14,6 @@ class ModelAuth extends Auth{
 	 * @return code 200->成功
 	 */
     public function getModelAuthList () {
-        if($this->user_type != 3){
-            return msg(6009,'非管理员账户无权操作');
-        }
-
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
         
