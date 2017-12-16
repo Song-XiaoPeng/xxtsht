@@ -114,6 +114,7 @@ class Common {
 
             Db::name('message_session')
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->where(['session_id'=>$session_id])
             ->update(['send_time'=>$time]);
         }else if($opercode == 2){
             $insert_res = Db::name('message_data')
@@ -122,6 +123,7 @@ class Common {
 
             Db::name('message_session')
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->where(['session_id'=>$session_id])
             ->update(['receive_message_time'=>$time]);
 
             $redis = self::createRedis();
@@ -150,10 +152,12 @@ class Common {
             return false;
         }
 
+        $time = date('Y-m-d H:i:s');
+
         $update_res = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
-        ->update(['last_time'=>date('Y-m-d H:i:s')]);
+        ->update(['last_time'=>$time]);
 
         if($update_res !== false){
             return true;
