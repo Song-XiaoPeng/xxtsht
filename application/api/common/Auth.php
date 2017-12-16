@@ -23,7 +23,7 @@ class Auth extends Controller{
             $this->token = $header_token;
         }
 
-        $user_res = Db::name('login_token')->where(['token'=>$this->token])->cache(true,10)->find();
+        $user_res = Db::name('user')->where(['token'=>$this->token])->cache(true,10)->find();
         if(!$user_res){
             $this->returnJson(6001,'token无效');
         }

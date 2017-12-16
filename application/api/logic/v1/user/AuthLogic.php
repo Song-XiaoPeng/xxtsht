@@ -66,7 +66,7 @@ class AuthLogic extends Model {
             return msg(3010,'账号已过期',['expiration_date'=>$expiration_date]);
         }
 
-        $auth_cache_res = $this->addAuthCache($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac);
+        $auth_cache_res = $this->addAuth($uid,$login_token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac);
         if($auth_cache_res['meta']['code'] != 200){
             return $auth_cache_res;
         }
@@ -104,15 +104,15 @@ class AuthLogic extends Model {
     }
 
     /**
-     * 添加授权缓存
+     * 添加授权
      * @param token 登录的token
 	 * @param uid 账户uid
 	 * @param company_id 商户company_id
 	 * @param expiration_date 模块到期时间
 	 * @return code 200->成功
 	 */
-    private function addAuthCache ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac) {
-        $auth_res = Db::name('login_token')->where(['uid'=>$uid])->find();
+    private function addAuth ($uid,$token,$company_id,$phone_no,$user_type,$user_group_id,$expiration_date,$client_version,$client_network_mac) {
+        $auth_res = Db::name('user')->where(['uid'=>$uid])->find();
 
         if (empty($auth_res['client_network_mac']) == false && $auth_res['user_type'] != 3) {
             if($client_network_mac != $auth_res['client_network_mac']){
@@ -123,7 +123,7 @@ class AuthLogic extends Model {
         $time = date('Y-m-d H:i:s');
 
         if($auth_res){
-            Db::name('login_token')
+            Db::name('user')
             ->where(['tid'=>$auth_res['tid']])
             ->update([
                 'token'=>$token,
@@ -136,7 +136,7 @@ class AuthLogic extends Model {
                 'client_network_mac'=>$client_network_mac,
             ]);
         }else{
-            Db::name('login_token')->insert([
+            Db::name('user')->insert([
                 'token'=>$token,
                 'company_id'=>$company_id,
                 'uid'=>$uid,
@@ -150,9 +150,9 @@ class AuthLogic extends Model {
             ]);
         }
 
-        $count = Db::name('login_token')->where(['company_id'=>$company_id])->count();
+        $count = Db::name('user')->where(['company_id'=>$company_id])->count();
         if($count > 1){
-            Db::name('login_token')->where(['company_id'=>$company_id])->update(['expiration_date'=>$expiration_date]);
+            Db::name('user')->where(['company_id'=>$company_id])->update(['expiration_date'=>$expiration_date]);
         }
 
         return msg(200,'success');
@@ -168,7 +168,7 @@ class AuthLogic extends Model {
         $company_id = $data['company_id'];
         $expiration_date = $data['expiration_date'];
 
-        $res = Db::name('login_token')->where(['company_id'=>$company_id])->update(['expiration_date'=>$expiration_date]);
+        $res = Db::name('user')->where(['company_id'=>$company_id])->update(['expiration_date'=>$expiration_date]);
         if($res){
             return msg(200,'success');
         }else{
@@ -183,7 +183,7 @@ class AuthLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function checkToken($uid,$token){
-        $check_res = Db::name('login_token')->where(['token'=>$token,'uid'=>$uid])->find();
+        $check_res = Db::name('user')->where(['token'=>$token,'uid'=>$uid])->find();
         if($check_res){
             return msg(200,'success');
         }else{
@@ -197,7 +197,7 @@ class AuthLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getUidCompanyId($uid){
-        $company_id = Db::name('login_token')->where(['uid'=>$uid])->cache(true,120)->value('company_id');
+        $company_id = Db::name('user')->where(['uid'=>$uid])->cache(true,120)->value('company_id');
         
         return msg(200,'success',['company_id'=>$company_id]);
     }

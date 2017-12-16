@@ -383,12 +383,12 @@ class CustomerOperationLogic extends Model {
             $map['customer_service_uid'] = array('not in',[-1]);
         }
 
-        if($ascription == 1){
-            $map['customer_service_uid'] = $uid;
-        }else if($ascription == 2){
-            $map['customer_service_uid'] = array('not in',[$uid,-1]);
-        }
-        
+        // if($ascription == 1){
+        //     $map['customer_service_uid'] = $uid;
+        // }else if($ascription == 2){
+        //     $map['customer_service_uid'] = array('not in',[$uid,-1]);
+        // }
+
         $wx_user_list = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)

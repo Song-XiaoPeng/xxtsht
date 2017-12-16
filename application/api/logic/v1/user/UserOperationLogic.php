@@ -104,7 +104,7 @@ class UserOperationLogic extends Model {
                 $request_data['body']['user_list'][$k]['model_list'] = null;
             }
 
-            $login_info = Db::name('login_token')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->find();
+            $login_info = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->find();
 
             $request_data['body']['user_list'][$k]['client_version'] = empty($login_info['client_version']) == true ? null : $login_info['client_version'];
             $request_data['body']['user_list'][$k]['client_network_mac'] = empty($login_info['client_network_mac']) == true ? null : $login_info['client_network_mac'];
@@ -564,7 +564,7 @@ class UserOperationLogic extends Model {
         $user_group_id = $data['user_group_id'];
         $token = $data['token'];
         
-        $login_res = Db::name('login_token')->where(['uid'=>$uid])->find();
+        $login_res = Db::name('user')->where(['uid'=>$uid])->find();
         if($login_res['user_type'] != 3){
             return msg(3001,'非管理员无权设置账户分组');
         }
@@ -592,7 +592,7 @@ class UserOperationLogic extends Model {
             return $user_info;
         }
 
-        $update_res = Db::name('login_token')->where(['uid'=>$set_uid])->update(['user_group_id'=>$user_group_id]);
+        $update_res = Db::name('user')->where(['uid'=>$set_uid])->update(['user_group_id'=>$user_group_id]);
         if($update_res === false){
             return msg(3001,'更新数据失败');
         }   
@@ -613,7 +613,7 @@ class UserOperationLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function relieveUserBind($company_id,$uid){
-        $update_res = Db::name('login_token')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['client_network_mac'=>null]);
+        $update_res = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['client_network_mac'=>null]);
 
         if($update_res !== false){
             return msg(200,'success');
