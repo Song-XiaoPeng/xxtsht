@@ -161,7 +161,7 @@ class CustomerOperationLogic extends Model {
         $tel = empty($data['tel']) == true ? -1 : $data['tel'];
         $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
 
-        if(!empty($customer_info_id)){
+        if(empty($customer_info_id) == false && $customer_info_id != -1){
             $customer_info_res = Db::name('customer_info')
             ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
             ->find();
