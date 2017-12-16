@@ -111,10 +111,18 @@ class Common {
             $insert_res = Db::name('message_data')
             ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>10])
             ->insert($add_data);
+
+            Db::name('message_session')
+            ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->update(['send_time'=>$time]);
         }else if($opercode == 2){
             $insert_res = Db::name('message_data')
             ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>10])
             ->insert($add_data);
+
+            Db::name('message_session')
+            ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->update(['receive_message_time'=>$time]);
 
             $redis = self::createRedis();
             $redis->select(1);

@@ -702,19 +702,22 @@ class BusinessLogic extends Model {
         }
 
         try{
+            $time = date('Y-m-d H:i:s');
+
             $session_id = md5(uniqid());
 
             $insert_data = [
                 'session_id' => $session_id,
                 'customer_service_id' => $customer_service_id,
                 'customer_wx_openid' => $openid,
-                'add_time' => date('Y-m-d H:i:s'),
+                'add_time' => $time,
                 'uid' => $customer_service_uid,
                 'appid' => $appid,
                 'company_id' => $company_id,
                 'customer_wx_nickname' => $wx_info['nickname'],
                 'customer_wx_portrait' => $wx_info['headimgurl'],
                 'state' => $session_state,
+                'receive_message_time' => $time,
                 'wx_user_id' => $wx_info['wx_user_id']
             ];
 
