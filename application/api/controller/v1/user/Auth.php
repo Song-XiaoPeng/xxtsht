@@ -19,26 +19,6 @@ class Auth {
         
         return \think\Loader::model('AuthLogic','logic\v1\user')->login($data);
     }
-    
-    /**
-     * 更新授权时间
-	 * 传入JSON格式: {"token":"9339912335lyfz","company_id":"15916035572","expiration_date":"2015-05-11 12:20:12"}
-	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[]}
-	 * API_URL_本地: http://localhost:91/api/v1/user/Auth/updateAuthTime
-	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Auth/updateAuthTime
-     * @param company_id 商户id
-	 * @param expiration_date 授权到期时间
-	 * @return code 200->成功
-	 */
-    public function updateAuthTime () {
-        $data = input('put.');
-        
-        if($data['token'] != '9339912335lyfz'){
-            return msg(3001,'token错误');
-        }
-        
-        return \think\Loader::model('AuthLogic','logic\v1\user')->updateAuthTime($data);
-    }
 
     /**
      * 校验token

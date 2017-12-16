@@ -19,7 +19,7 @@ class UserOperation extends Auth{
 	 */
     public function addAccountNumber () {
         $data = input('put.');
-        $data['token'] = $this->token;
+        $data['company_id'] = $this->company_id;
         
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->addAccountNumber($data);
     }
@@ -71,7 +71,7 @@ class UserOperation extends Auth{
 	 * @return code 200->成功
 	 */
     public function getUserGroup () {
-        return \think\Loader::model('UserOperationLogic','logic\v1\user')->getUserGroup($this->token);
+        return \think\Loader::model('UserOperationLogic','logic\v1\user')->getUserGroup($this->company_id);
     }
 
     /**
@@ -86,7 +86,7 @@ class UserOperation extends Auth{
 	 */
     public function addUserGroup () {
         $data = input('put.');
-        $data['token'] = $this->token;
+        $data['company_id'] = $this->company_id;
         
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->addUserGroup($data);
     }
@@ -103,7 +103,7 @@ class UserOperation extends Auth{
 	 */
     public function delUserGroup () {
         $data = input('put.');
-        $data['token'] = $this->token;
+        $data['company_id'] = $this->company_id;
         
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->delUserGroup($data);
     }
@@ -121,7 +121,7 @@ class UserOperation extends Auth{
 	 */
     public function setUserState () {
         $data = input('put.');
-        $data['token'] = $this->token;
+        $data['company_id'] = $this->company_id;
         
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->setUserState($data);
     }
@@ -191,7 +191,6 @@ class UserOperation extends Auth{
     public function getCustomerServiceList(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
-        $data['token'] = $this->token;
         
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->getCustomerServiceList($data);
     }

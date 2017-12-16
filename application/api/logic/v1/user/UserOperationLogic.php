@@ -11,41 +11,31 @@ class UserOperationLogic extends Model {
 	 * @param user_group_id 权限分组id
 	 * @param phone_no 子账号手机(账号)
 	 * @param password 子账号登录密码md5值
+	 * @param company_id 商户id
 	 * @return code 200->成功
 	 */
     public function addAccountNumber($data){
-        $token = $data['token'];
         $phone_no = $data['phone_no'];
         $password = $data['password'];
         $user_name = $data['user_name'];
         $user_group_id = $data['user_group_id'];
+        $company_id = $data['company_id'];
 
-        $request_data = [
+        $insert_data = [
             'user_group_id' => $user_group_id,
             'phone_no' => $phone_no,
             'password' => $password,
-            'user_name' => $user_name
+            'company_id' => $company_id,
+            'user_name' => $user_name,
+            'create_time' => date('Y-m-d H:i:s'),
         ];
 
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'PUT', 
-            combinationApiUrl('/api.php/MeiBackstage/addSonUser'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
-
-        $body = json_decode($res->getBody(),true);
-        if($body['meta']['code'] != 200){
-            return msg($body['meta']['code'],$body['meta']['message']);
+        $add_res = Db::name('user')->insert($insert_data);
+        if($add_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'插入数据失败');
         }
-
-        return msg(200,'success');
     }
 
     /**
@@ -61,36 +51,25 @@ class UserOperationLogic extends Model {
         $company_id = $data['company_id'];
         $user_group_id = empty($data['user_group_id']) == true ? '' : $data['user_group_id'];
 
-        $request_data = [
-            'page' => $page,
-            'user_group_id' => $user_group_id
-        ];
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
 
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'PUT', 
-            combinationApiUrl('/api.php/MeiBackstage/getSonUserList'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
+        $user_list = Db::name('user')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $count = Db::name('user')->where(['company_id'=>$company_id])->count();
 
-        $request_data = json_decode($res->getBody(),true);
-
-        foreach($request_data['body']['user_list'] as $k=>$v){
+        foreach($user_list as $k=>$v){
             $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
             if($resources_id){
-                $request_data['body']['user_list'][$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+                $user_list[$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+            }else{
+                $user_list[$k]['avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
             }
 
             if($v['user_type'] != 3){
                 $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$v['uid']])->value('model_list');
                 
-                $request_data['body']['user_list'][$k]['model_list'] = json_decode($model_list);
+                $user_list[$k]['model_list'] = json_decode($model_list);
 
 
                 $customer_service_list = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->select();
@@ -99,18 +78,33 @@ class UserOperationLogic extends Model {
                     $customer_service_list[$key]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$value['appid']])->cache(true,60)->value('nick_name');
                 }
 
-                $request_data['body']['user_list'][$k]['customer_service_list'] = empty($customer_service_list) == true ? null : $customer_service_list;
+                $user_list[$k]['customer_service_list'] = empty($customer_service_list) == true ? null : $customer_service_list;
             }else{
-                $request_data['body']['user_list'][$k]['model_list'] = null;
+                $user_list[$k]['model_list'] = null;
             }
 
-            $login_info = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->find();
+            $user_list[$k]['client_version'] = empty($v['client_version']) == true ? null : $v['client_version'];
+            $user_list[$k]['client_network_mac'] = empty($v['client_network_mac']) == true ? null : $v['client_network_mac'];
 
-            $request_data['body']['user_list'][$k]['client_version'] = empty($login_info['client_version']) == true ? null : $login_info['client_version'];
-            $request_data['body']['user_list'][$k]['client_network_mac'] = empty($login_info['client_network_mac']) == true ? null : $login_info['client_network_mac'];
+            $user_group_name = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$v['user_group_id']])->cache(true,60)->value('user_group_name');
+
+            $user_list[$k]['user_group_name'] = empty($user_group_name) == true ? '未分组' : $user_group_name;
+
+            if($v['user_state'] == 1){
+                $user_list[$k]['user_state_name'] = '正常';
+            }else{
+                $user_list[$k]['user_state_name'] = '禁用';
+            }
         }
 
-        return msg(200,'success',['user_list'=>$request_data['body']['user_list'],'page_data'=>$request_data['body']['page_data']]);
+        $page_data['count'] = $count;
+        $page_data['rows_num'] = $page_count;
+        $page_data['page'] = $page;
+
+        return msg(200,'success',[
+            'user_list' => $user_list,
+            'page_data' => $page_data
+        ]);
     }
 
     /**
@@ -118,50 +112,32 @@ class UserOperationLogic extends Model {
 	 * @param token 账号登录token
 	 * @return code 200->成功
 	 */
-    public function getUserGroup($token){
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'GET', 
-            combinationApiUrl('/api.php/MeiBackstage/getUserGroup'), 
-            [
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
+    public function getUserGroup($company_id){
+        $group_res = Db::name('user_group')->where(['company_id'=>$company_id])->select();
 
-        return json_decode($res->getBody(),true);
+        return msg(200,'success',$group_res);
     }
 
     /**
      * 添加子账号账户分组
-	 * @param token 账号登录token
+	 * @param company_id 商户company_id
 	 * @param user_group_name 分组名称
 	 * @return code 200->成功
 	 */
     public function addUserGroup($data){
-        $token = $data['token'];
+        $company_id = $data['company_id'];
         $user_group_name = $data['user_group_name'];
 
-        $request_data = [
-            'user_group_name' => $user_group_name
-        ];
+        $add_res = Db::name('user_group')->insert([
+            'user_group_name' => $user_group_name,
+            'company_id' => $company_id
+        ]);
 
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'POST', 
-            combinationApiUrl('/api.php/MeiBackstage/addUserGroup'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
-
-        return json_decode($res->getBody(),true);
+        if($add_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'插入数据失败');
+        }
     }
 
     /**
@@ -171,31 +147,19 @@ class UserOperationLogic extends Model {
 	 */
     public function delUserGroup($data){
         $user_group_id = $data['user_group_id'];
-        $token = $data['token'];
+        $company_id = $data['company_id'];
 
-        $request_data = [
-            'user_group_id' => $user_group_id
-        ];
-
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'POST', 
-            combinationApiUrl('/api.php/MeiBackstage/delUserGroup'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
-
-        return json_decode($res->getBody(),true);
+        $del_res = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->delete();
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
+        }
     }
 
     /**
      * 设置子账号状态
-	 * @param token 登录token
+	 * @param company_id 商户company_id
 	 * @param uid 要设置离职的用户uid
 	 * @param state -1 设置为离职 1恢复正常
 	 * @return code 200->成功 3001->更新数据失败
@@ -203,27 +167,19 @@ class UserOperationLogic extends Model {
     public function setUserState($data){
         $uid = $data['uid'];
         $state = $data['state'] == 1 ? 1 : -1;
-        $token = $data['token'];
+        $company_id = $data['company_id'];
 
-        $request_data = [
-            'uid' => $uid,
-            'state' => $state
-        ];
+        $update_res = Db::name('user')
+        ->where(['company_id'=>$company_id,'uid'=>$uid])
+        ->update([
+            'user_state'=>$state
+        ]);
 
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'POST', 
-            combinationApiUrl('/api.php/MeiBackstage/setUserQuit'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
-
-        return json_decode($res->getBody(),true);
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }   
     } 
 
     /**
@@ -346,35 +302,10 @@ class UserOperationLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $user_name = $data['user_name'];
-        $token = $data['token'];
 
-        $request_data = [
-            'uid' => $uid,
-            'company_id' => $company_id
-        ];
-
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'POST', 
-            combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
-
-        $user_info = json_decode($res->getBody(),true);
-        if($user_info['meta']['code'] != 200){
-            return $user_info;
-        }
-
-        $user_info = $user_info['body'];
-
-        if($user_info['company_id'] !== $company_id){
-            return msg(3003,'账户不存在');
+        $user_info = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
+        if($user_info){
+            return msg(3001,'子账号不存在');
         }
 
         $openweixin_authinfo_res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->select();
@@ -438,7 +369,6 @@ class UserOperationLogic extends Model {
         $company_id = $data['company_id'];
         $appid = empty($data['appid']) == true ? '' : $data['appid'];
         $page = $data['page'];
-        $token = $data['token'];
         
         //分页
         $page_count = 16;
@@ -450,24 +380,11 @@ class UserOperationLogic extends Model {
         foreach($list as $k=>$v){
             $v['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
 
-            $client = new \GuzzleHttp\Client();
-            $request_res = $client->request(
-                'POST', 
-                combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
-                [
-                    'json' => ['uid'=>$v['uid'],'company_id'=>$company_id],
-                    'timeout' => 3,
-                    'headers' => [
-                        'token' => $token
-                    ]
-                ]
-            );
-
             $portrait_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
 
-            $user_info = json_decode($request_res->getBody(),true)['body'];
+            $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid'],'company_id'=>$company_id])->value('resources_id');
 
-            $user_info['avatar_url'] = empty($portrait_id) == true ? $user_info['avatar_url']  : 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$portrait_id;
+            $user_info['avatar_url'] = empty($resources_id) == true ? 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg' : 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
 
             $list[$k] = array_merge($v,$user_info);
         }
@@ -495,30 +412,7 @@ class UserOperationLogic extends Model {
         $user_name = $data['user_name'];
         $token = $data['token'];
 
-        $request_data = [
-            'uid' => $uid,
-            'company_id' => $company_id
-        ];
-
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request(
-            'POST', 
-            combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
-
-        $user_info = json_decode($res->getBody(),true);
-        if($user_info['meta']['code'] != 200){
-            return $user_info;
-        }
-
-        $user_info = $user_info['body'];
+        $user_info = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
 
         if($user_info['company_id'] !== $company_id){
             return msg(3003,'账户不存在');
@@ -569,32 +463,14 @@ class UserOperationLogic extends Model {
             return msg(3001,'非管理员无权设置账户分组');
         }
 
-        $request_data = [
-            'uid' => $set_uid,
-            'user_group_id' => $user_group_id
-        ];
-
-        $client = new \GuzzleHttp\Client();
-        $request_res = $client->request(
-            'POST', 
-            combinationApiUrl('/api.php/IvisionBackstage/setUserGroup'), 
-            [
-                'json' => $request_data,
-                'timeout' => 3,
-                'headers' => [
-                    'token' => $token
-                ]
-            ]
-        );
-
-        $request_res = json_decode($request_res->getBody(),true);
-        if($request_res['meta']['code'] != 200){
-            return $user_info;
+        $group_res = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->find();
+        if(!$group_res){
+            return msg(3005,'分组不存在');
         }
 
         $update_res = Db::name('user')->where(['uid'=>$set_uid])->update(['user_group_id'=>$user_group_id]);
         if($update_res === false){
-            return msg(3001,'更新数据失败');
+            return msg(3004,'更新数据失败');
         }   
     
         $customer_service_update_res = Db::name('customer_service')->where(['uid'=>$set_uid])->update(['user_group_id'=>$user_group_id]);

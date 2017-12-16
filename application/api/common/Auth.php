@@ -27,16 +27,18 @@ class Auth extends Controller{
         if(!$user_res){
             $this->returnJson(6001,'token无效');
         }
+        
+        $company_info = Db::name('company')->where(['company_id'=>$user_res['company_id']])->cache(true,60)->find();
 
-        if (strtotime(date('Y-m-d H:i:s')) > strtotime($user_res['expiration_date'])) {
-            $this->returnJson(3010,'账号已过期',['expiration_date'=>$user_res['expiration_date']]);
+        if(strtotime(date('Y-m-d H:i:s')) > strtotime($company_info['expiration_date'])){
+            return msg(3010,'账号已过期',['expiration_date'=>$company_info['expiration_date']]);
         }
 
         $this->company_id = $user_res['company_id'];
 
         $this->uid = $user_res['uid'];
 
-        $this->expiration_date = $user_res['expiration_date'];
+        $this->expiration_date = $company_info['expiration_date'];
 
         $this->user_type = $user_res['user_type'];
     }
