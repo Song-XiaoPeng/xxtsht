@@ -170,7 +170,7 @@ class CustomerOperationLogic extends Model {
             }
         }
 
-        if(empty($customer_info_res)){
+        if(empty($customer_info_res) == true || $customer_info_id == -1){
             $customer_info_id = md5(uniqid());
             
             $db_operation_res = Db::name('customer_info')
@@ -426,11 +426,15 @@ class CustomerOperationLogic extends Model {
 
             if($v['customer_info_id'] == -1 && $type == 2){
                 continue;
+            }else{
+                $wx_user_list[$k]['customer_info'] = null;
             }
 
             $customer_info = Db::name('customer_info')->where(['customer_info_id'=>$v['customer_info_id']])->find();
             if(!$customer_info){
                 continue;
+            }else{
+                $wx_user_list[$k]['customer_info'] = null;
             }
 
             if($customer_info['wx_user_group_id'] != -1){
