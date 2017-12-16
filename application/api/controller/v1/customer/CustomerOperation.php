@@ -55,6 +55,7 @@ class CustomerOperation extends Auth{
     public function crmUpdate () {
         $data = input('put.');
         $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
         
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->crmUpdate($data);
 	}

@@ -146,7 +146,7 @@ class CustomerOperationLogic extends Model {
     public function crmUpdate($data){
         $company_id = $data['company_id'];
         $uid = $data['uid'];
-        $real_name = $data['real_name'];
+        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
         $customer_type = $data['customer_type'];
         $real_sex = $data['real_sex'] == '' ? 0 : $data['real_sex'];
         $customer_info_id = empty($data['customer_info_id']) == true ? '' : $data['customer_info_id'];
@@ -423,6 +423,44 @@ class CustomerOperationLogic extends Model {
             }else{
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
+
+            if($v['customer_info_id'] == -1 && $type == 2){
+                continue;
+            }
+
+            $customer_info = Db::name('customer_info')->where(['customer_info_id'=>$v['customer_info_id']])->find();
+            if(!$customer_info){
+                continue;
+            }
+
+            if($customer_info['wx_user_group_id'] != -1){
+                $customer_info['wx_user_group_name'] = Db::name('wx_user_group')
+                ->where(['wx_user_group_id'=>$customer_info['wx_user_group_id']])
+                ->cache(true,60)
+                ->value('group_name');
+            }else{
+                $customer_info['wx_user_group_name'] = null;
+            }
+    
+            if($customer_info['wx_company_id'] != -1){
+                $customer_info['wx_company_name'] = Db::name('wx_user_company')
+                ->where(['wx_company_id'=>$customer_info['wx_company_id']])
+                ->cache(true,60)
+                ->value('wx_company_name');
+            }else{
+                $customer_info['wx_company_name'] = null;
+            }
+
+            if($customer_info['product_id'] != -1){
+                $customer_info['product_name'] = Db::name('product')
+                ->where(['product_id'=>$customer_info['product_id']])
+                ->cache(true,60)
+                ->value('product_name');
+            }else{
+                $customer_info['product_name'] = null;
+            }
+
+            $wx_user_list[$k]['customer_info'] = $customer_info;
         }
 
         $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
