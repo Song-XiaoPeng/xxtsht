@@ -326,4 +326,25 @@ class AautoMaticLogic extends Model {
             Db::name('mass_news')->where(['news_id'=>$item['news_id']])->update(['state'=>-1]);
         }
     }
+
+    //关闭超过48小时排队会话
+    public function colseQueuingSession(){
+        $redis = Common::createRedis();
+            
+        $redis->select(2); 
+
+        $company_list = $redis->keys('*');
+
+        foreach($company_list as $company_id){
+            $str_list = $redis->sMembers($company_id);
+            foreach($str_list as $str){
+                $arr = json_decode($str,true);
+                if(){
+                    
+                }
+
+                $redis->SREM($company_id, $val);
+            }
+        }
+    }
 }

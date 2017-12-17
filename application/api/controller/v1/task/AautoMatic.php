@@ -23,4 +23,9 @@ class AautoMatic {
 
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->massNews();
     }
+
+    //关闭超过48小时排队会话 url: http://kf.lyfz.net/api/v1/task/AautoMatic/colseQueuingSession
+    public function colseQueuingSession(){
+        return \think\Loader::model('AautoMaticLogic','logic\v1\task')->colseQueuingSession();
+    }
 }
