@@ -38,7 +38,10 @@ class AuthLogic extends Model {
         $token = md5(uniqid());
 
         Db::name('user')->where(['company_id'=>$user_info['company_id'],'uid'=>$user_info['uid']])->update([
-            'token' => $token
+            'token' => $token,
+            'client_network_mac' => $client_network_mac,
+            'client_version' => $client_version,
+            'login_time' => date('Y-m-d H:i:s')
         ]);
 
         $user_group_name = Db::name('user_group')->where(['user_group_id'=>$user_info['user_group_id']])->value('user_group_name');
