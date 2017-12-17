@@ -327,7 +327,7 @@ class AautoMaticLogic extends Model {
         }
     }
 
-    //关闭超过48小时排队会话
+    //关闭超过1天的排队会话
     public function colseQueuingSession(){
         $redis = Common::createRedis();
             
@@ -339,11 +339,18 @@ class AautoMaticLogic extends Model {
             $str_list = $redis->sMembers($company_id);
             foreach($str_list as $str){
                 $arr = json_decode($str,true);
-                if(){
-                    
-                }
 
-                $redis->SREM($company_id, $val);
+                $day = distanceDay($arr['add_time']);
+                if($day >= 1){
+                    $redis->SREM($company_id, $str);
+
+                    Db::name('message_session')
+                    ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+                    ->where(['session_id'=>$arr['session_id']])
+                    ->update([
+                        'state' => -3
+                    ]);
+                }
             }
         }
     }

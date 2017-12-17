@@ -179,3 +179,8 @@ function getWeekTimeSolt(){
         'end_time' => $week_end
     ];
 }
+
+//计算相差天数
+function distanceDay($time){
+    return floor((strtotime(date('YmdHis'))-strtotime($time))/86400);
+}
