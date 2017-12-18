@@ -1627,7 +1627,11 @@ class WxOperationLogic extends Model {
             $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
             $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();
         }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+            if($e->getCode() == 45015){
+                return msg(3020,'此客户近期未与公众号发生消息交互,不得主动发送消息');
+            }else{
+                return msg(3001,$e->getMessage());
+            }
         }
 
         Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,1,$data_obj);
