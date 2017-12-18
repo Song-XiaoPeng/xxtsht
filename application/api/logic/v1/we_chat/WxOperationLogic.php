@@ -639,19 +639,19 @@ class WxOperationLogic extends Model {
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->limit($show_page,$page_count)
-        ->order('wx_user_id desc')
+        ->order('subscribe_time desc')
         ->select();
 
         $count = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->count();
-    
+
         foreach($wx_user_list as $k=>$v){
             $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
 
             if($v['qrcode_id']){
-                $wx_user_list[$k]['source_qrcode_name'] = Db::name('activity_name')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
+                $wx_user_list[$k]['source_qrcode_name'] = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
             }else{
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
