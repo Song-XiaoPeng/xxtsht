@@ -595,7 +595,7 @@ class BusinessLogic extends Model {
      * @param is_code 是否返回code码
 	 * @return code 200->成功
 	 */
-    private function createSession($appid, $openid, $type, $id = '', $is_code = false){
+    public function createSession($appid, $openid, $type, $id = '', $is_code = false){
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,120)->value('company_id');
         if(empty($company_id)){
             return '公众号未绑定第三方平台';

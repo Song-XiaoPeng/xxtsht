@@ -3,6 +3,7 @@ namespace app\api\logic\v1\message;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
+use app\api\logic\v1\we_chat\BusinessLogic;
 
 class CommonLogic extends Model {
     /**
@@ -165,7 +166,8 @@ class CommonLogic extends Model {
             return msg(3001,'未设置客服账号信息');
         }
 
-        $createSession = $this->createSession($appid,$openid,'user',$uid,true);
+        $BusinessLogic = new BusinessLogic();
+        $createSession = $BusinessLogic->createSession($appid,$openid,'user',$uid,true);
         if($createSession['meta']['code'] == 200){
             return msg(200,'success',['session_id'=>$createSession['body']['session_id']]);
         }else{
