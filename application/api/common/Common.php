@@ -126,9 +126,11 @@ class Common {
             ->where(['session_id'=>$session_id])
             ->update(['receive_message_time'=>$time]);
 
-            $redis = self::createRedis();
-            $redis->select(1);
-            $redis->zAdd($uid,time(),json_encode($add_data));
+            if (empty($customer_service_id) == false && empty($uid) == false) {
+                $redis = self::createRedis();
+                $redis->select(1);
+                $redis->zAdd($uid,time(),json_encode($add_data));
+            }
         }else{
             return false;
         }
