@@ -162,7 +162,7 @@ class CommonLogic extends Model {
         ->find();
 
         if(!$customer_service_res){
-            return msg(3001,'未设置客户账号信息');
+            return msg(3001,'未设置客服账号信息');
         }
 
         $createSession = $this->createSession($appid,$openid,'user',$uid,true);
