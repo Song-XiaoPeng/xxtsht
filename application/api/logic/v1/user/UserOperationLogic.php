@@ -309,7 +309,7 @@ class UserOperationLogic extends Model {
         $user_name = $data['user_name'];
 
         $user_info = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
-        if($user_info){
+        if(!$user_info){
             return msg(3001,'子账号不存在');
         }
 
