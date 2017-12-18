@@ -329,7 +329,6 @@ class AautoMaticLogic extends Model {
 
     //关闭超过1天的排队会话
     public function colseQueuingSession(){
-        exit;
         $redis = Common::createRedis();
             
         $redis->select(2); 
