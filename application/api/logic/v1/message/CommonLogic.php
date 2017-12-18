@@ -159,15 +159,19 @@ class CommonLogic extends Model {
 
         $customer_service_res = Db::name('customer_service')
         ->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])
-        >find();
+        ->find();
 
         if(!$customer_service_res){
             return msg(3001,'未设置客户账号信息');
         }
 
-        $createSession = $this->createSession($appid,$openid,$event_arr[1],$id);
+        $createSession = $this->createSession($appid,$openid,'user',$uid,true);
+        if($createSession['meta']['code'] == 200){
+            return msg(200,'success',['session_id'=>$createSession['body']['session_id']]);
+        }else{
+            return $createSession;
+        }
     }
-
 
     /**
      * 获取会话微信用户基本信息

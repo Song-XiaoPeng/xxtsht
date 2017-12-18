@@ -614,7 +614,7 @@ class BusinessLogic extends Model {
             switch($session_res['state']){
                 case 0:
                     if($is_code){
-
+                        return msg(200,'success',['session_id'=>$session_res['session_id']]);
                     }else{
                         return '正在为您接入客服'.$customer_service_name.'请稍等！';
                     }
@@ -622,7 +622,7 @@ class BusinessLogic extends Model {
                     break;
                 case 1:
                     if($is_code){
-
+                        return msg(200,'success',['session_id'=>$session_res['session_id']]);
                     }else{
                         return '客服'.$customer_service_name.'正在为您服务！';
                     }
@@ -630,11 +630,11 @@ class BusinessLogic extends Model {
                     break;
                 case 3:
                     if($is_code){
-
+                        return msg(200,'success',['session_id'=>$session_res['session_id']]);
                     }else{
                         return '正在为您分配客服，请稍等！';
                     }
-                    
+
                     break;
             }
         }
@@ -653,7 +653,11 @@ class BusinessLogic extends Model {
             case 'user':
                 $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$id])->cache(true,60)->find();
                 if(empty($customer_service_res)){
-                    return '暂无可分配的客服！';
+                    if($is_code){
+                        return msg(3001,'暂无可分配的客服');
+                    }else{
+                        return '暂无可分配的客服！';
+                    }
                 }
 
                 $session_state = 0;
@@ -661,7 +665,13 @@ class BusinessLogic extends Model {
 
             case 'group':
                 $list = Db::name('customer_service')->where(['appid'=>$appid,'user_group_id'=>$id])->cache(true,60)->select();
-                if(empty($list)){return '暂无可分配的客服！'; }
+                if(empty($list)){
+                    if($is_code){
+                        return msg(3002,'暂无可分配的客服');
+                    }else{
+                        return '暂无可分配的客服！';
+                    }
+                }
 
                 $customer_service_res = array_rand($list);
 
@@ -679,11 +689,23 @@ class BusinessLogic extends Model {
                     switch($qrcode_res['reception_type']){
                         case 1:
                             $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$qrcode_res['customer_service_id']])->cache(true,60)->find();
-                            if(empty($customer_service_res)){return '暂无可分配的客服！';}
+                            if(empty($customer_service_res)){
+                                if($is_code){
+                                    return msg(3003,'暂无可分配的客服');
+                                }else{
+                                    return '暂无可分配的客服！';
+                                }
+                            }
                             break;
                         case 2:
                             $list = Db::name('customer_service')->where(['appid'=>$appid,'user_group_id'=>$qrcode_res['customer_service_group_id']])->cache(true,60)->select();
-                            if(empty($list)){return '暂无可分配的客服！';}
+                            if(empty($list)){
+                                if($is_code){
+                                    return msg(3004,'暂无可分配的客服');
+                                }else{
+                                    return '暂无可分配的客服！';
+                                }
+                            }
 
                             $customer_service_res = array_rand($list);
                             break;
@@ -711,7 +733,11 @@ class BusinessLogic extends Model {
 
         $wx_info = $this->addWxUserInfo($appid,$openid,'',$customer_service_uid);
         if(empty($wx_info)){
-            return '系统繁忙';
+            if($is_code){
+                return msg(3005,'系统繁忙');
+            }else{
+                return '系统繁忙';
+            }
         }
 
         try{
@@ -766,9 +792,17 @@ class BusinessLogic extends Model {
             }
 
             if($add_res){
-                return '正在为您接入客服'.$customer_service_name.'请稍等！';
+                if($is_code){
+                    return msg(200,'success',['session_id'=>$session_id]);
+                }else{
+                    return '正在为您接入客服'.$customer_service_name.'请稍等！';
+                }
             }else{
-                return '系统繁忙';
+                if($is_code){
+                    return msg(3006,'系统繁忙');
+                }else{
+                    return '系统繁忙';
+                }
             }
         } catch (\Exception $e) {
             return $e->getMessage();

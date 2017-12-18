@@ -85,5 +85,24 @@ class Common extends Auth{
         $data = input('put.');
 
         return \think\Loader::model('CommonLogic','logic\v1\message')->getWxUserInfo($this->company_id,$data['openid'],$data['appid']);
+    }
+    
+    /**
+     * 创建微信用户会话
+     * 请求类型 post
+	 * 传入JSON格式: {"openid":"openid...","appid":"appid..."}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"session_id":"sessionid..."}}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Common/createWxUserSession
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Common/createWxUserSession
+     * @param openid 客户微信openid
+     * @param appid 客户微信appid
+	 * @return code 200->成功
+	 */
+	public function createWxUserSession(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+        
+        return \think\Loader::model('CommonLogic','logic\v1\message')->createWxUserSession($data);
 	}
 }
