@@ -118,7 +118,7 @@ class Common {
             ->update(['send_time'=>$time]);
         }else if($opercode == 2){
             $insert_res = Db::name('message_data')
-            ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>10])
+            ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>config('separate')['message_data']])
             ->insert($add_data);
 
             Db::name('message_session')

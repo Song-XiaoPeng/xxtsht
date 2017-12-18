@@ -425,8 +425,8 @@ class BusinessLogic extends Model {
             return [
                 'session_id'=>$res['session_id'],
                 'session_state'=>$res['state'],
-                'uid'=> empty($res['uid']) == true ? null : $res['uid'],
-                'customer_service_id' => empty($res['customer_service_id']) == true ? null : $res['uid'],
+                'uid'=> empty($res['uid']) == true ? '' : $res['uid'],
+                'customer_service_id' => empty($res['customer_service_id']) == true ? '' : $res['uid'],
             ];
         }else{
             return false;

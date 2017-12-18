@@ -116,7 +116,23 @@ class CommonLogic extends Model {
 
                 if($update_res){
                     $redis->SREM($company_id, $v);
+
+                    //插入会话消息
+                    Db::name('message_data')
+                    ->partition(['customer_wx_openid'=>$val['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>config('separate')['message_data']])
+                    ->where(['session_id'=>$session_id,'company_id'=>$company_id])
+                    ->update(['customer_service_id'=>$customer_service_id,'uid'=>$uid]);
  
+                    $message_list = Db::name('message_data')
+                    ->partition(['customer_wx_openid'=>$val['customer_wx_openid']], "customer_wx_openid", ['type'=>'md5','num'=>config('separate')['message_data']])
+                    ->where(['session_id'=>$session_id,'company_id'=>$company_id])
+                    ->select();
+
+                    foreach($message_list as $add_data){
+                        $redis->select(1);
+                        $redis->zAdd($uid,time(),json_encode($add_data));
+                    }
+
                     return msg(200, 'success');
                 }else{
                     return msg(3001, '已被其他客服接入');
