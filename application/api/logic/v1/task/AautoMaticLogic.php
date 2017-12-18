@@ -342,14 +342,16 @@ class AautoMaticLogic extends Model {
 
                 $day = distanceDay($arr['add_time']);
                 if($day >= 1){
-                    $redis->SREM($company_id, $str);
-
-                    Db::name('message_session')
-                    ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+                    $update_res = Db::name('message_session')
+                    ->partition(['session_id'=>$arr['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
                     ->where(['session_id'=>$arr['session_id']])
                     ->update([
                         'state' => -3
                     ]);
+
+                    if($update_res){
+                        $redis->SREM($company_id, $str);
+                    }
                 }
             }
         }
