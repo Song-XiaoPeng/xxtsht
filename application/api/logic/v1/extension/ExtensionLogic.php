@@ -266,6 +266,7 @@ class ExtensionLogic extends Model {
         $list = Db::name('extension_qrcode')
         ->where($map)
         ->limit($show_page,$page_count)
+        ->order('create_time desc')
         ->select();
 
         $count = Db::name('extension_qrcode')
