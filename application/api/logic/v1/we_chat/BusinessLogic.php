@@ -450,6 +450,11 @@ class BusinessLogic extends Model {
                     return $this->createSession($appid,$openid,$event_arr[1],$id);
                     break;
                 case 'qrscene':
+                    // 兼容数据处理
+                    if($event_arr[1] == 'qrscene'){
+                        $event_arr[1] = $event_arr[2];
+                    }
+
                     return $this->qrcodeEvent($appid,$openid,$event_arr[1]);
                     break;
                 default:
