@@ -79,7 +79,7 @@ class BusinessLogic extends Model {
             }
         }
 
-        Db::name('openweixin_authinfo')->insert([
+        $auth_id = Db::name('openweixin_authinfo')->insertGetId([
             'appid' => $authorization_info['authorizer_appid'],
             'access_token' => $authorization_info['authorizer_access_token'],
             'refresh_token' => $authorization_info['authorizer_refresh_token'],
@@ -92,6 +92,11 @@ class BusinessLogic extends Model {
             'principal_name' => $authorizer_info['principal_name'],
             'account_number' => $authorizer_info['user_name'],
             'alias' => $authorizer_info['alias']
+        ]);
+
+        Db::name('wx_api_count')->insert([
+            'auth_id' => $auth_id,
+            'company_id' => $data['company_id']
         ]);
 
         echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>授权成功</title><style>.box{height:250px;text-align:center}.btn{text-align:center}#btn{background-color:#0c6;color:#fff;font-size:18px;border:0;padding:5px 20px;border-radius:5px;cursor:pointer}#btn:hover{background-color:#0c0}</style></head><body><div class="box"><img src="http://kf.lyfz.net/static/images/auth_success.png" alt=""></div><div class="btn"><button id="btn">关闭</button></div><script>const btn = document.getElementById("btn");btn.addEventListener("click", () => {window.close();
