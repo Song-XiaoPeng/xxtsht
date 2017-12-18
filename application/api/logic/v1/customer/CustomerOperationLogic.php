@@ -384,7 +384,7 @@ class CustomerOperationLogic extends Model {
         $show_page = ($page - 1) * $page_count;
 
         if($real_name){
-            $map['real_name'] = array('like',"%$real_name%");
+            $map['nickname'] = array('like',"%$real_name%");
         }
 
         $map['company_id'] = $company_id;
