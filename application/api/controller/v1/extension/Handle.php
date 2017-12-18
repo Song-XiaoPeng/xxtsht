@@ -139,7 +139,6 @@ class Handle extends Auth{
     public function getQrcodList(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
-        $data['token'] = $this->token;
         
         return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getQrcodList($data);
     }

@@ -254,7 +254,6 @@ class ExtensionLogic extends Model {
         $company_id = $data['company_id'];
         $type = $data['type'] == 1 ? 1:2;
         $page = $data['page'];
-        $token = $data['token'];
     
         //分页
         $page_count = 16;
@@ -281,37 +280,18 @@ class ExtensionLogic extends Model {
             $list[$k]['attention_num'] = 0;
             $list[$k]['label'] = json_decode($v['label']);
 
-            $request_data = [
-                'uid' => $v['create_uid'],
-                'company_id' => $company_id
-            ];
+            $user_info = Db::name('user')->where(['uid'=>$v['create_uid'],'company_id'=>$company_id])->cache(true,60)->find();
+    
+            $user_group_name = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_info['user_group_id']])->cache(true,60)->value('user_group_name');
 
-            $client = new \GuzzleHttp\Client();
-            $request_res = $client->request(
-                'POST', 
-                combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
-                [
-                    'json' => $request_data,
-                    'timeout' => 3,
-                    'headers' => [
-                        'token' => $token
-                    ]
-                ]
-            );
-    
-            $user_info = json_decode($request_res->getBody(),true);
-            if($user_info['meta']['code'] != 200){
-                return $user_info;
-            }
-    
             if($v['reply_type'] = 2){
                 $list[$k]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['resources_id'];
             }else{
                 $list[$k]['file_url'] = null;
             }
 
-            $list[$k]['create_user_name'] = $user_info['body']['user_name'];
-            $list[$k]['create_user_group_name'] = $user_info['body']['user_group_name'];
+            $list[$k]['create_user_name'] = $user_info['user_name'];
+            $list[$k]['create_user_group_name'] = $user_group_name;
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;

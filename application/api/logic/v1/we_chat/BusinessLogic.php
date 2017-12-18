@@ -422,14 +422,14 @@ class BusinessLogic extends Model {
     private function getSession($appid,$openid){
         $res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>1])
+        ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>[0,1,3]])
         ->find();
 
         if($res){
             return [
                 'session_id'=>$res['session_id'],
-                'uid'=>$res['uid'],
-                'customer_service_id'=>$res['customer_service_id']
+                'uid'=> empty($res['uid']) == true ? null : $res['uid'],
+                'customer_service_id' => empty($res['customer_service_id']) == true ? null : $res['uid'],
             ];
         }else{
             return false;
