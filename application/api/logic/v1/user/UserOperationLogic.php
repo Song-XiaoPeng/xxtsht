@@ -336,7 +336,7 @@ class UserOperationLogic extends Model {
                 $staff = $openPlatform->createAuthorizerApplication($value['appid'],$refresh_token)->staff;
                 $staff->create($wx_sign, $user_name);
             }catch (\Exception $e) {
-                return msg(3001,$e->getMessage());
+                continue;
             }
     
             $resources_id = Db::name('user_portrait')->where(['uid'=>$uid,'company_id'=>$company_id])->value('resources_id');
@@ -346,6 +346,7 @@ class UserOperationLogic extends Model {
                     try{
                         $staff->avatar($wx_sign, $resources_route);
                     }catch (\Exception $e) {
+                        continue;
                     }
                 }
             }

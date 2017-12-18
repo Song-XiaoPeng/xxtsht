@@ -1890,11 +1890,17 @@ class WxOperationLogic extends Model {
     }
 
     public function test(){
-        $count = Db::name('message_session')
-        ->partition([], '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['state'=>3])
-        ->count();
+        $token_info = Common::getRefreshToken('wx88c6052d06eaaf7d','51454009d703c86c91353f61011ecf2f');
+        if($token_info['meta']['code'] == 200){
+            $refresh_token = $token_info['body']['refresh_token'];
+        }else{
+            return $token_info;
+        }
 
-        dump($count);
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+
+        $staff = $openPlatform->createAuthorizerApplication('wx88c6052d06eaaf7d',$refresh_token)->staff;
+        dump($staff->lists());
     }
 }
