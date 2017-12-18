@@ -619,7 +619,7 @@ class BusinessLogic extends Model {
             switch($session_res['state']){
                 case 0:
                     if($is_code){
-                        return msg(200,'success',['session_id'=>$session_res['session_id']]);
+                        return msg(3001,'已被'.$customer_service_name.'客服接入');
                     }else{
                         return '正在为您接入客服'.$customer_service_name.'请稍等！';
                     }
@@ -627,7 +627,7 @@ class BusinessLogic extends Model {
                     break;
                 case 1:
                     if($is_code){
-                        return msg(200,'success',['session_id'=>$session_res['session_id']]);
+                        return msg(3002,'已被'.$customer_service_name.'客服接入');
                     }else{
                         return '客服'.$customer_service_name.'正在为您服务！';
                     }
@@ -635,7 +635,7 @@ class BusinessLogic extends Model {
                     break;
                 case 3:
                     if($is_code){
-                        return msg(200,'success',['session_id'=>$session_res['session_id']]);
+                        return msg(3003,'此客户正在排队会话中');
                     }else{
                         return '正在为您分配客服，请稍等！';
                     }
