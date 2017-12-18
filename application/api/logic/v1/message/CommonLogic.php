@@ -178,7 +178,7 @@ class CommonLogic extends Model {
 	 */
     public function getWxUserInfo($company_id,$openid,$appid){
         $user_info = Db::name('wx_user')
-        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->partition([], '', ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
         ->find();
 
@@ -187,7 +187,7 @@ class CommonLogic extends Model {
         ->select();
 
         $session_frequency = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->partition([], '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['customer_wx_openid'=>$openid,'appid'=>$appid,'company_id'=>$company_id])
         ->cache(true,60)
         ->count();
