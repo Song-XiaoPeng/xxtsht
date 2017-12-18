@@ -407,7 +407,7 @@ class CustomerOperationLogic extends Model {
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->limit($show_page,$page_count)
-        ->order('wx_user_id desc')
+        ->order('subscribe_time desc')
         ->select();
 
         $count = Db::name('wx_user')
