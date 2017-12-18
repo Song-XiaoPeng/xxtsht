@@ -238,7 +238,7 @@ class UserOperationLogic extends Model {
     
             try{
                 $staff = $openPlatform->createAuthorizerApplication($v['appid'],$refresh_token)->staff;
-                $staff->avatar($v['wx_sign'], $resources_res['resources_route']);
+                $staff->avatar($v['wx_sign'], '..'.$resources_res['resources_route']);
             }catch (\Exception $e) {
                 continue;
             }
@@ -336,7 +336,9 @@ class UserOperationLogic extends Model {
                 $staff = $openPlatform->createAuthorizerApplication($value['appid'],$refresh_token)->staff;
                 $staff->create($wx_sign, $user_name);
             }catch (\Exception $e) {
-                continue;
+                if($e->getCode() != 65406){
+                    continue;
+                }
             }
     
             $resources_id = Db::name('user_portrait')->where(['uid'=>$uid,'company_id'=>$company_id])->value('resources_id');
@@ -344,7 +346,7 @@ class UserOperationLogic extends Model {
                 $resources_route = Db::name('resources')->where(['company_id'=>$company_id,'resources_id'=>$resources_id])->value('resources_route');
                 if($resources_route){
                     try{
-                        $staff->avatar($wx_sign, $resources_route);
+                        $staff->avatar($wx_sign, '..'.$resources_route);
                     }catch (\Exception $e) {
                         continue;
                     }
