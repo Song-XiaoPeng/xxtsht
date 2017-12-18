@@ -332,7 +332,7 @@ class BusinessLogic extends Model {
         ]);
 
         if($update_res !== false && $update_res2 !== false){
-            $this->createSession($appid,$openid,'other');
+            // $this->createSession($appid,$openid,'other');
             return true;
         }else{
             return false;
