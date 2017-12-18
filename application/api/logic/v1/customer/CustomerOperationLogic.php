@@ -44,6 +44,8 @@ class CustomerOperationLogic extends Model {
         $tel = empty($data['tel']) == true ? -1 : $data['tel'];
         $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
 
+        $time = date('Y-m-d H:i:s');
+
         $wx_user_res = Db::name('wx_user')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
@@ -119,6 +121,7 @@ class CustomerOperationLogic extends Model {
         $wx_user_data['customer_info_id'] = $customer_info_id;
         if($customer_type == 1 || $customer_type == 2 || $customer_type == 3){
             $wx_user_data['is_clue'] = -1;
+            $wx_user_data['set_clue_time'] = $time;
         }
 
         $db_operation_res = Db::name('wx_user')
