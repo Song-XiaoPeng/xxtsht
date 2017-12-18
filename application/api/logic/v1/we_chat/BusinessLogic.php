@@ -223,28 +223,24 @@ class BusinessLogic extends Model {
 	 * @return code 200->成功
 	 */
     private function textEvent($appid,$openid,$key_word){
+        $this->createSession($appid,$openid,'other');
+
         //判断是否存在客服会话
         $session_res = $this->getSession($appid,$openid);
         if($session_res){
-            if(Common::addMessagge($appid,$openid,$session_res['session_id'],$session_res['customer_service_id'],$session_res['uid'],1,2,['text'=>$key_word])){
-                return '';
-            }else{
-                return '系统繁忙请稍候重试!';
+            Common::addMessagge($appid,$openid,$session_res['session_id'],$session_res['customer_service_id'],$session_res['uid'],1,2,['text'=>$key_word]);
+
+            $map['appid'] = $appid;
+            $map1['pattern'] = 2;
+            $map['key_word'] = array('like',"%$key_word%");
+            $reply_text = Db::name('message_rule')->where($map)->where($map1)->cache(true,60)->value('reply_text');
+            if(!$reply_text){
+                $map2['pattern'] = 1;
+                $reply_text = Db::name('message_rule')->where($map)->where($map2)->value('reply_text');
             }
+    
+            return empty($reply_text) == true ? '' : emoji_decode($reply_text);
         }
-
-        $this->createSession($appid,$openid,'other');
-
-        $map['appid'] = $appid;
-        $map1['pattern'] = 2;
-        $map['key_word'] = array('like',"%$key_word%");
-        $reply_text = Db::name('message_rule')->where($map)->where($map1)->value('reply_text');
-        if(!$reply_text){
-            $map2['pattern'] = 1;
-            $reply_text = Db::name('message_rule')->where($map)->where($map2)->value('reply_text');
-        }
-
-        return empty($reply_text) == true ? $this->default_message : emoji_decode($reply_text);
     }
 
     /**
@@ -422,12 +418,13 @@ class BusinessLogic extends Model {
     private function getSession($appid,$openid){
         $res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>[0,1,3]])
+        ->where(['appid'=>$appid,'customer_wx_openid'=>$openid,'state'=>array('in',[0,1,3])])
         ->find();
 
         if($res){
             return [
                 'session_id'=>$res['session_id'],
+                'session_state'=>$res['state'],
                 'uid'=> empty($res['uid']) == true ? null : $res['uid'],
                 'customer_service_id' => empty($res['customer_service_id']) == true ? null : $res['uid'],
             ];
