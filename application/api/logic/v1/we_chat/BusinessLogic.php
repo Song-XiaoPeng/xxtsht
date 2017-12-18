@@ -763,7 +763,7 @@ class BusinessLogic extends Model {
                 'uid' => $customer_service_uid,
                 'appid' => $appid,
                 'company_id' => $company_id,
-                'customer_wx_nickname' => $wx_info['nickname'],
+                'customer_wx_nickname' => empty($wx_info['nickname']) == true ? '昵称字符异常' : $wx_info['nickname'],
                 'customer_wx_portrait' => $wx_info['headimgurl'],
                 'state' => $session_state,
                 'wx_user_id' => $wx_info['wx_user_id']
@@ -815,7 +815,7 @@ class BusinessLogic extends Model {
                 }
             }
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return msg(3003,$e->getMessage());
         }
     }
 
