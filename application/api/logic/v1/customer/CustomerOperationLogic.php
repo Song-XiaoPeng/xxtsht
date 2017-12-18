@@ -442,9 +442,14 @@ class CustomerOperationLogic extends Model {
 
             $customer_info = Db::name('customer_info')->where(['customer_info_id'=>$v['customer_info_id']])->find();
             if(!$customer_info){
-                continue;
-            }else{
                 $wx_user_list[$k]['customer_info'] = null;
+                continue;
+            }
+
+            if($customer_info['customer_type'] != 0){
+                $count--;
+                unset($wx_user_list[$k]);
+                continue;
             }
 
             if($customer_info['wx_user_group_id'] != -1){
