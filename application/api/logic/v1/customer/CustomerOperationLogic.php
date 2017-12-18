@@ -53,6 +53,10 @@ class CustomerOperationLogic extends Model {
             return msg(3001,'客户微信基础信息不存在或未同步');
         }
 
+        if($customer_info_id == -1){
+            $customer_info_id = '';
+        }
+
         if(!empty($customer_info_id)){
             $customer_info_res = Db::name('customer_info')
             ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
@@ -85,6 +89,8 @@ class CustomerOperationLogic extends Model {
                 'customer_type' => $customer_type,
                 'add_time' => date('Y-m-d H:i:s'),
             ]);
+
+            $wx_user_data['customer_service_uid'] = $uid;
         }else{
             $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
 
@@ -193,6 +199,12 @@ class CustomerOperationLogic extends Model {
                 'customer_type' => $customer_type,
                 'add_time' => date('Y-m-d H:i:s'),
             ]);
+
+            if($db_operation_res){
+                return msg(200,'success',['customer_info_id'=>$customer_info_id]);
+            }else{
+                return msg(3002,'数据操作失败');
+            }
         }else{
             $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
 
@@ -216,12 +228,12 @@ class CustomerOperationLogic extends Model {
                 'product_id' => $product_id,
                 'customer_type' => $customer_type,
             ]);
-        }
 
-        if($db_operation_res !== false){
-            return msg(200,'success',['customer_info_id'=>$customer_info_id]);
-        }else{
-            return msg(3002,'数据操作失败');
+            if($db_operation_res !== false){
+                return msg(200,'success',['customer_info_id'=>$customer_info_id]);
+            }else{
+                return msg(3002,'数据操作失败');
+            }
         }
     }
 
@@ -354,7 +366,7 @@ class CustomerOperationLogic extends Model {
      * @param real_name 微信昵称(选传模糊搜索)
      * @param page 分页参数 默认1
      * @param uid 登录账号uid
-     * @param ascription 客户线索归属 1我的 2其他人
+     * @param ascription 客户线索归属 1我的 2其他人 3全部
      * @param type 类型 1线索池客户 2线索客户
 	 * @return code 200->成功
 	 */
@@ -387,18 +399,14 @@ class CustomerOperationLogic extends Model {
                 }
                 break;
             case '4':
-                if($type == 1 && $ascription == 1){
+                if ($type == 2 && $ascription == 1) {
                     $map['customer_service_uid'] = $uid;
-                    $map['is_clue'] = -1;
-                }else if ($type == 1 && $ascription == 2) {
-                    $map['customer_service_uid'] = $uid;
-                    $map['is_clue'] = 1;
-                }else if ($type == 2 && $ascription == 1) {
-                    $map['customer_service_uid'] = array('not in',[$uid]);
                     $map['is_clue'] = -1;
                 }else if ($type == 2 && $ascription == 2) {
                     $map['customer_service_uid'] = array('not in',[$uid]);
-                    $map['is_clue'] = 1;
+                    $map['is_clue'] = -1;
+                }else if ($type == 2 && $ascription == 3) {
+                    $map['is_clue'] = -1;
                 }
                 break;
         }
@@ -424,10 +432,9 @@ class CustomerOperationLogic extends Model {
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
 
-            if($v['customer_info_id'] == -1 && $type == 2){
-                continue;
-            }else{
+            if($v['customer_info_id'] == -1){
                 $wx_user_list[$k]['customer_info'] = null;
+                continue;
             }
 
             $customer_info = Db::name('customer_info')->where(['customer_info_id'=>$v['customer_info_id']])->find();

@@ -144,6 +144,32 @@ class CommonLogic extends Model {
     }
 
     /**
+     * 创建微信用户会话
+     * @param company_id 商户company_id
+     * @param openid 客户微信openid
+     * @param appid 客户微信appid
+     * @param uid 登录账号uid
+	 * @return code 200->成功
+	 */
+    public function createWxUserSession($data){
+        $company_id = $data['company_id'];
+        $openid = $data['openid'];
+        $appid = $data['appid'];
+        $uid = $data['uid'];
+
+        $customer_service_res = Db::name('customer_service')
+        ->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])
+        >find();
+
+        if(!$customer_service_res){
+            return msg(3001,'未设置客户账号信息');
+        }
+
+        $createSession = $this->createSession($appid,$openid,$event_arr[1],$id);
+    }
+
+
+    /**
      * 获取会话微信用户基本信息
      * @param company_id 商户company_id
      * @param openid 客户微信openid

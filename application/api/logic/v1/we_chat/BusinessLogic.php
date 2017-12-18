@@ -592,9 +592,10 @@ class BusinessLogic extends Model {
      * @param openid 用户微信openid
      * @param type 分配类型 user->指定到具体的客服 group->指定到具体的客服分组 other->不指定客服
      * @param id 分配的客服id或客服分组id
+     * @param is_code 是否返回code码
 	 * @return code 200->成功
 	 */
-    private function createSession($appid,$openid,$type,$id = ''){
+    private function createSession($appid, $openid, $type, $id = '', $is_code = false){
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,120)->value('company_id');
         if(empty($company_id)){
             return '公众号未绑定第三方平台';
@@ -612,13 +613,28 @@ class BusinessLogic extends Model {
 
             switch($session_res['state']){
                 case 0:
-                    return '正在为您接入客服'.$customer_service_name.'请稍等！';
+                    if($is_code){
+
+                    }else{
+                        return '正在为您接入客服'.$customer_service_name.'请稍等！';
+                    }
+
                     break;
                 case 1:
-                    return '客服'.$customer_service_name.'正在为您服务！';
+                    if($is_code){
+
+                    }else{
+                        return '客服'.$customer_service_name.'正在为您服务！';
+                    }
+
                     break;
                 case 3:
-                    return '正在为您分配客服，请稍等！';
+                    if($is_code){
+
+                    }else{
+                        return '正在为您分配客服，请稍等！';
+                    }
+                    
                     break;
             }
         }
@@ -714,7 +730,6 @@ class BusinessLogic extends Model {
                 'customer_wx_nickname' => $wx_info['nickname'],
                 'customer_wx_portrait' => $wx_info['headimgurl'],
                 'state' => $session_state,
-                'receive_message_time' => $time,
                 'wx_user_id' => $wx_info['wx_user_id']
             ];
 
