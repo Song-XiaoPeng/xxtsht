@@ -1890,35 +1890,11 @@ class WxOperationLogic extends Model {
     }
 
     public function test(){
-        $token_info = Common::getRefreshToken('wxe30d2c612847beeb','51454009d703c86c91353f61011ecf2f');
-        if($token_info['meta']['code'] == 200){
-            $refresh_token = $token_info['body']['refresh_token'];
-        }else{
-            return;
-        }
+        $count = Db::name('message_session')
+        ->partition([], '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['state'=>3])
+        ->count();
 
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $accessToken = $openPlatform->createAuthorizerApplication('wxe30d2c612847beeb',$refresh_token)->access_token;
-
-        $token = $accessToken->getToken();
-dump($token);
-
-exit;
-
-        $openPlatform = $app->open_platform;
-        $session = $openPlatform->createAuthorizerApplication('wxe30d2c612847beeb',$refresh_token)->staff_session;
-
-        $staff = $openPlatform->createAuthorizerApplication('wxe30d2c612847beeb',$refresh_token)->staff;
-
-        $openId = 'oF_-jjooPVtAcp-wOR8fa3w6Fqzo';
-
-        $message = new Text(['content' => '系统测试']);
-
-        //dump($session->create('lyfzkf@7836', $openId));
-
-
-        //dump($staff->message($message)->to($openId)->send());
-        //$staff->message($message)->by('lyfzkf@7836')->to($openId)->send();
+        dump($count);
     }
 }
