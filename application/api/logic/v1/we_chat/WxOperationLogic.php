@@ -1678,7 +1678,9 @@ class WxOperationLogic extends Model {
             $message = new Text(['content' => '您好，我是客服'.$customer_service_res['name'].'请问有什么需要帮助吗？']);
             $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();            
         }catch (\Exception $e) {
-            return msg(3002,$e->getMessage());
+            if($e->getCode() != 45015){
+                return msg(3002,$e->getMessage());
+            }
         }
 
         $update_res = Db::name('message_session')
