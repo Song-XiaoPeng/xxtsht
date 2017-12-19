@@ -1832,6 +1832,7 @@ class WxOperationLogic extends Model {
                     'application/pdf',
                     'application/zip',
                     'application/vnd.ms-excel',
+                    'application/x-rar'
                 ]),
             
                 new \Upload\Validation\Size('10M')
