@@ -55,6 +55,28 @@ class Common extends Auth{
 	}
 
     /**
+     * 强制发送会话消息
+	 * 请求类型：post
+	 * 传入JSON格式: {"session_id":"4f56b7fd6021401b5b476c4e4eab9200","message":"测试","type":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Common/forcedSendMessage
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Common/forcedSendMessage
+     * @param session_id 会话id
+     * @param message 消息内容
+     * @param type 消息类型 1文字 2图片 3声音 4视频 6图文信息素材
+     * @param resources_id 资源id
+     * @param media_id 素材id
+	 * @return code 200->成功
+	 */
+	public function forcedSendMessage(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('CommonLogic','logic\v1\message')->forcedSendMessage($data);
+    }
+
+    /**
      * 接入排队中会话
      * 请求类型 post
      * 传入JSON格式: {"session_id":"f5013b20d77c15ab0ae9bb1c5a52370b"}
