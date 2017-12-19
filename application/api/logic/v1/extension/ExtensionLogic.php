@@ -288,13 +288,15 @@ class ExtensionLogic extends Model {
             $list[$k]['qrcode_group_name'] = Db::name('extension_qrcode_group')->where(['qrcode_group_id'=>$v['qrcode_group_id']])->cache(true,60)->value('qrcode_group_name');
 
             $list[$k]['attention_num'] = 0;
-            $label = json_decode($v['label']);
-            foreach($label as $label_id){
+            $label = json_decode($v['label'],true);
+            foreach($label as $index=>$label_id){
                 $label_name = Db::name('label')->where(['label_id'=>$label_id])->value('label_name');
 
-                $label[$k]['label_id'] = $label_id;
-                $label[$k]['label_name'] = $label_name;
+                $label_arr[$index]['label_id'] = $label_id;
+                $label_arr[$index]['label_name'] = $label_name;
             }
+
+            $list[$k]['label'] = $label_arr;
 
             $user_info = Db::name('user')->where(['uid'=>$v['create_uid'],'company_id'=>$company_id])->cache(true,60)->find();
     
