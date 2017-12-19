@@ -667,12 +667,12 @@ class BusinessLogic extends Model {
         }
 
         //判断是否存在专属客服
-        $customer_service_uid_res = Db::name('wx_user')
+        $wx_user_res = Db::name('wx_user')
         ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid])
-        ->value('customer_service_uid');
-        if($customer_service_uid_res != '-1'){
-            $id = $customer_service_uid_res;
+        ->find();
+        if($wx_user_res['customer_service_uid'] != '-1'){
+            $id = $wx_user_res['customer_service_uid'];
             $type = 'user';
         }
 
@@ -803,7 +803,7 @@ class BusinessLogic extends Model {
             ->cache(true,60)
             ->count();
             
-            $insert_data['invitation_frequency'] = 0;
+            $insert_data['invitation_frequency'] = $wx_user_res['active_count'];
 
             $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('nick_name');
             $insert_data['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
