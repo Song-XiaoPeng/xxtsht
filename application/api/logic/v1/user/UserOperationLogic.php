@@ -217,11 +217,20 @@ class UserOperationLogic extends Model {
             return msg(3003,'图像文件不合法');
         }
 
-        $insert_res = Db::name('user_portrait')->insert([
-            'uid' => $uid,
-            'company_id' => $company_id,
-            'resources_id' => $resources_id,
-        ]);
+        $user_portrait = Db::name('user_portrait')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
+        if($user_portrait){
+            $insert_res = Db::name('user_portrait')
+            ->where(['company_id'=>$company_id,'uid'=>$uid])
+            ->update([
+                'resources_id' => $resources_id,
+            ]);
+        }else{
+            $insert_res = Db::name('user_portrait')->insert([
+                'uid' => $uid,
+                'company_id' => $company_id,
+                'resources_id' => $resources_id,
+            ]);
+        }
 
         $customer_service_list = Db::name('customer_service')->where(['uid'=>$uid,'company_id'=>$company_id])->select();
 
