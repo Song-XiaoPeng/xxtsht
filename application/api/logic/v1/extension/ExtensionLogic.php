@@ -63,6 +63,15 @@ class ExtensionLogic extends Model {
             }
         }
 
+        if($label){
+            foreach($label as $label_id){
+                $label_res = Db::name('label')->where(['company_id'=>$company_id,'label_id'=>$label_id])->find();
+                if(!$label_res){
+                    return msg(3009,'标签不存在');
+                }
+            }
+        }
+
         if($qrcode_id){
             $update_res = Db::name('extension_qrcode')
             ->where(['qrcode_id'=>$qrcode_id,'company_id'=>$company_id])
