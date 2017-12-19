@@ -167,6 +167,17 @@ class CommonLogic extends Model {
             return msg(3001,'未设置客服账号信息');
         }
 
+        $wx_user_res = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['appid'=>$appid,'openid'=>$openid,'company_id'=>$company_id])
+        ->select();
+
+        if($wx_user_res['customer_service_uid'] != $uid && $wx_user_res['customer_service_uid'] != 1){
+            $name = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$appid,'uid'=>$uid])->cache(true,60)->value('name');
+
+            return msg(3002,'此客户是'.$name.'的专属客户不得接入');
+        }
+
         $BusinessLogic = new BusinessLogic();
         $createSession = $BusinessLogic->createSession($appid,$openid,'user',$uid,true);
         if($createSession['meta']['code'] == 200){
