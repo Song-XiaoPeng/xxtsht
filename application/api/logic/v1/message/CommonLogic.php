@@ -181,6 +181,16 @@ class CommonLogic extends Model {
         $BusinessLogic = new BusinessLogic();
         $createSession = $BusinessLogic->createSession($appid,$openid,'user',$uid,true);
         if($createSession['meta']['code'] == 200){
+            Db::name('wx_user')
+            ->partition(['wx_user_id'=>$wx_user_res['wx_user_id']], "wx_user_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['wx_user_id'=>$wx_user_res['wx_user_id'],'company_id'=>$company_id])
+            ->setInc('active_count');
+
+            Db::name('wx_user')
+            ->partition(['wx_user_id'=>$wx_user_res['wx_user_id']], "wx_user_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['wx_user_id'=>$wx_user_res['wx_user_id'],'company_id'=>$company_id])
+            ->update(['active_time'=>date('Y-m-d H:i:s')]);
+
             return msg(200,'success',['session_id'=>$createSession['body']['session_id']]);
         }else{
             return $createSession;
