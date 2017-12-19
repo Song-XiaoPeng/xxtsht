@@ -170,9 +170,9 @@ class CommonLogic extends Model {
         $wx_user_res = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where(['appid'=>$appid,'openid'=>$openid,'company_id'=>$company_id])
-        ->select();
+        ->find();
 
-        if($wx_user_res['customer_service_uid'] != $uid && $wx_user_res['customer_service_uid'] != 1){
+        if($wx_user_res['customer_service_uid'] != $uid && $wx_user_res['customer_service_uid'] != -1){
             $name = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$appid,'uid'=>$uid])->cache(true,60)->value('name');
 
             return msg(3002,'此客户是'.$name.'的专属客户不得接入');
