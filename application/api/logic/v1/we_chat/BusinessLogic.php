@@ -558,11 +558,12 @@ class BusinessLogic extends Model {
             $this->createSession($appid,$openid,'other');
         }
 
-        if(count($qrcode_res['label']) != 0){
+        if(count(json_decode($qrcode_res['label'],true)) != 0){
             try{
-                $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid,'openid'=>$openid])->value('company_id');
+                $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->value('company_id');
+                $label_list = json_decode($qrcode_res['label'],true);
 
-                foreach($qrcode_res['label'] as $label_id){
+                foreach($label_list as $label_id){
                     $WxOperationLogic = new WxOperationLogic();
                     $data['company_id'] = $company_id;
                     $data['appid'] = $appid;
