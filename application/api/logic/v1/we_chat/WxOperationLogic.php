@@ -1060,7 +1060,7 @@ class WxOperationLogic extends Model {
         if($res['errcode'] == 0){
             foreach($openid_list as $openid){
                 Db::name('wx_user')
-                ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+                ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
                 ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
                 ->update(['groupid'=>$group_id]);
             }
