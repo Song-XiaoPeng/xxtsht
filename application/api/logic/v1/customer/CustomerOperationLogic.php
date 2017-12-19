@@ -426,6 +426,18 @@ class CustomerOperationLogic extends Model {
         ->where($map)
         ->count();
     
+        $wx_user_list = $this->combinedCustomerData($wx_user_list,$count);
+
+        $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    //组合线索客户数据
+    private function combinedCustomerData($wx_user_list,$count){
         foreach($wx_user_list as $k=>$v){
             $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
 
@@ -482,14 +494,7 @@ class CustomerOperationLogic extends Model {
             $wx_user_list[$k]['customer_info'] = $customer_info;
         }
 
-        $wx_user_list = array_values($wx_user_list);
-
-        $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
-        $res['page_data']['count'] = $count;
-        $res['page_data']['rows_num'] = $page_count;
-        $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
+        return array_values($wx_user_list);
     }
 
     /**
