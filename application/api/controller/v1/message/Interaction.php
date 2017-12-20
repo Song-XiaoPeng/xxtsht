@@ -82,4 +82,22 @@ class Interaction extends Auth{
 
 		return \think\Loader::model('InteractionLogic','logic\v1\message')->getMonitorMessage($data);
 	}
+
+	/**
+     * 监控关闭会话
+     * 请求类型 post
+	 * 请求JSON格式: {"close_explain":"客服不接待","session_id":"b3997c0bcf1d4282152685eaad2b67fa"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/closeSession
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/closeSession
+	 * @param session_id 关闭会话id
+	 * @param close_explain 会话关闭原因
+	 * @return code 200->成功
+	 */
+	public function closeSession(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('InteractionLogic','logic\v1\message')->closeSession($data);
+	}
 }

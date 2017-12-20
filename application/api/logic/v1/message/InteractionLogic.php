@@ -233,4 +233,54 @@ class InteractionLogic extends Model {
 
         return msg(200,'success',$res);
     }
+
+    /**
+     * 监控关闭会话
+	 * @param company_id 商户company_id
+	 * @param session_id 关闭会话id
+	 * @param close_explain 会话关闭原因
+	 * @return code 200->成功
+	 */
+    public function closeSession($data){
+        $company_id = $data['company_id'];
+        $session_id = $data['session_id'];
+        $close_explain = empty($data['close_explain']) == true ? '' : $data['close_explain'];
+
+        $session_data = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['company_id'=>$company_id,'session_id'=>$session_id,'state'=>['in',[0,1,3]]])
+        ->find();
+
+        if(empty($session_data)){
+            return msg(3001,'会话不存在');
+        }
+
+        $session_update_res = Db::name('message_session')
+        ->partition(['session_id' => $session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['session_id'=>$session_data['session_id']])
+        ->update(['state'=>-4,'close_explain'=>$close_explain]);
+        if($session_update_res === false){
+            return msg(3002,'更新数据失败');
+        }
+
+        try {
+            $redis = Common::createRedis();
+                
+            $redis->select(0);
+
+            $session_list = $redis->sMembers($session_data['uid']);
+
+            foreach($session_list as $str){
+                $session_arr = json_decode($str,true);
+            
+                if($session_arr['session_id'] == $session_data['session_id']){
+                    $redis->SREM($session_data['uid'], $str);
+                }
+            }
+        } catch (\Exception $e) {
+            return msg(3003,$e->getMessage());
+        }
+
+        return msg(200,'success');
+    }
 }

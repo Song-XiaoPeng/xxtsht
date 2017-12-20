@@ -356,4 +356,34 @@ class AautoMaticLogic extends Model {
             }
         }
     }
+
+    //关闭超时等待中会话
+    public function colseWaitingSession(){
+        $redis = Common::createRedis();
+            
+        $redis->select(0); 
+
+        $company_list = $redis->keys('*');
+
+        foreach($company_list as $company_id){
+            $str_list = $redis->sMembers($company_id);
+            foreach($str_list as $str){
+                $arr = json_decode($str,true);
+
+                $day = distanceDay($arr['add_time']);
+                if($day >= 1){
+                    $update_res = Db::name('message_session')
+                    ->partition(['session_id'=>$arr['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+                    ->where(['session_id'=>$arr['session_id']])
+                    ->update([
+                        'state' => -3
+                    ]);
+
+                    if($update_res){
+                        $redis->SREM($company_id, $str);
+                    }
+                }
+            }
+        }
+    }
 }
