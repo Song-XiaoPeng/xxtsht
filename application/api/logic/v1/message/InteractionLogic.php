@@ -148,32 +148,33 @@ class InteractionLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getMonitorSessionList($company_id){
-        $redis = Common::createRedis();
-        $redis->select(0); 
-
-        $redis_data = $redis->sMembers($company_id);
-
-        $pending_access_session = [];
-
-        $line_up_session = [];
-
-        foreach($redis_data as $k=>$v){
-            $session_data = json_decode($v,true);
-            if($session_data['state'] == 0){
-                array_push($pending_access_session,$session_data);
-            }
-
-            if($session_data['state'] == 1){
-                array_push($line_up_session,$session_data);
-            }
-        }
-
-        $conversation_session = Db::name('message_session')
+        $list = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['company_id'=>$company_id,'state'=>1])
         ->select();
-        if(!$conversation_session){
-            $conversation_session = [];
+
+        $pending_access_session = []; //等待中
+
+        $line_up_session = []; //排队中
+
+        $conversation_session = []; //会话中
+
+        foreach($list as $k=>$v){
+            $customer_service_name = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->cache(true,120)->value('user_name');
+
+            $v['customer_service_name'] = empty($customer_service_name) == true ? null : $customer_service_name;
+
+            if($v['state'] == 0){
+                array_push($pending_access_session, $v);
+            }
+
+            if($v['state'] == 1){
+                array_push($conversation_session, $v);
+            }
+
+            if($v['state'] == 3){
+                array_push($line_up_session, $v);
+            }
         }
 
         return msg(200, 'success', [
