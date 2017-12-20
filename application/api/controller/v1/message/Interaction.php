@@ -62,10 +62,6 @@ class Interaction extends Auth{
 	 * @return code 200->成功
 	 */
 	public function getMonitorSessionList(){
-		if($this->user_type != 3){
-			return msg(6003,'非管理员权限无权调用此api');
-		}
-
 		return \think\Loader::model('InteractionLogic','logic\v1\message')->getMonitorSessionList($this->company_id);
 	}
 
@@ -83,10 +79,6 @@ class Interaction extends Auth{
 	public function getMonitorMessage(){
 		$data = input('put.');
 		$data['company_id'] = $this->company_id;
-
-		if($this->user_type != 3){
-			return msg(6003,'非管理员权限无权调用此api');
-		}
 
 		return \think\Loader::model('InteractionLogic','logic\v1\message')->getMonitorMessage($data);
 	}
