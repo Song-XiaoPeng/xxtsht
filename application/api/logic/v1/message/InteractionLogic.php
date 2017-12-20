@@ -212,6 +212,20 @@ class InteractionLogic extends Model {
         ->where(['session_id'=>$session_id,'company_id'=>$company_id])
         ->count();
 
+        foreach($list as $i=>$c){
+            if($c['message_type'] == 2 && $c['opercode'] == 1){
+                $list[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
+            }
+
+            if($c['message_type'] == 2 && $c['opercode'] == 2){
+                $list[$i]['file_url'] = getWximg($c['file_url']);
+            }
+
+            if($c['message_type'] == 3 || $c['message_type'] == 4 && $c['opercode'] == 1){
+                $list[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
+            }
+        }
+
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
