@@ -360,7 +360,7 @@ class AautoMaticLogic extends Model {
                 Db::name('message_session')
                 ->partition(['session_id'=>$v['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
                 ->where(['session_id'=>$v['session_id']])
-                ->update(['state'=>-3]);
+                ->update(['state'=>-3,'close_explain'=>'系统自动关闭']);
             }
         }
     }
@@ -414,11 +414,41 @@ class AautoMaticLogic extends Model {
                 $overtime = 1440;
             }
 
+            $tiem_arr = timediff(date('YmdHis'), $v['add_time']);
+            $min1 = $tiem_arr['day'] * 24 * 60;
+            $min2 = $tiem_arr['hour'] * 60;
+            $min3 = $tiem_arr['min'];
+            $min = $min1 + $min2 + $min3;
+
             if($min >= $overtime){
                 Db::name('message_session')
                 ->partition(['session_id'=>$v['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
                 ->where(['session_id'=>$v['session_id']])
-                ->update(['state'=>-2]);
+                ->update(['state'=>-2,'close_explain'=>'系统自动关闭']);
+            }
+        }
+    }
+
+    //关闭无效会话中数据
+    public function closeInvalidSession(){
+        $session_list = Db::name('message_session')
+        ->partition([], '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['state'=>1])
+        ->select();
+
+        foreach($session_list as $v){
+            $min1 = differenceMinute($v['receive_message_time']);
+            if(!empty($v['send_time'])){
+                $min2 = differenceMinute($v['send_time']);
+            }else{
+                $min2 = 2880;
+            }
+
+            if($min1 >= 5760 && $min2 >= 2880){
+                Db::name('message_session')
+                ->partition(['session_id'=>$v['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
+                ->where(['session_id'=>$v['session_id']])
+                ->update(['state'=>-1,'close_explain'=>'48小时无任何会话系统自动关闭']);
             }
         }
     }

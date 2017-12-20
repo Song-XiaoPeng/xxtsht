@@ -213,3 +213,14 @@ function timediff($begin_time, $end_time){
     
     return $res; 
 }
+
+/**
+ * 关闭无效会话中数据
+ */
+function differenceMinute($time){
+    $tiem_arr = timediff(date('YmdHis'), $v['add_time']);
+    $min1 = $tiem_arr['day'] * 24 * 60;
+    $min2 = $tiem_arr['hour'] * 60;
+    $min3 = $tiem_arr['min'];
+    return $min1 + $min2 + $min3;
+}
