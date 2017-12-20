@@ -436,6 +436,23 @@ class CustomerOperationLogic extends Model {
         return msg(200,'success',$res);
     }
 
+    /**
+     * 获取未联系线索客户list
+     * @param company_id 商户company_id
+     * @param real_name 微信昵称(选传模糊搜索)
+     * @param page 分页参数 默认1
+     * @param type 1客户 2
+	 * @return code 200->成功
+	 */
+    public function getUnrelatedClue($data){
+        $company_id = $data['company_id'];
+        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
+        $page = $data['page'];
+        $type = $data['type'];
+
+        
+    }
+
     //组合线索客户数据
     private function combinedCustomerData($wx_user_list,$count){
         foreach($wx_user_list as $k=>$v){

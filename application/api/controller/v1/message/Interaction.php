@@ -100,4 +100,24 @@ class Interaction extends Auth{
 
 		return \think\Loader::model('InteractionLogic','logic\v1\message')->closeSession($data);
 	}
+
+	/**
+     * 会话评价
+     * 请求类型 post
+	 * 请求JSON格式: {"session_id":"08ff8d0570f2c46498a8dbed3224a74a","content":"测试","screenshot":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/sessionEvaluate
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/sessionEvaluate
+	 * @param session_id 关闭会话id
+	 * @param content 评价内容
+	 * @param screenshot 评价级别 1好评 2中评 3差评
+	 * @return code 200->成功
+	 */
+	public function sessionEvaluate(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('InteractionLogic','logic\v1\message')->sessionEvaluate($data);
+	}
 }

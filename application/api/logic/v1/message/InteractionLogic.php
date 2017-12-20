@@ -288,4 +288,38 @@ class InteractionLogic extends Model {
 
         return msg(200,'success');
     }
+
+    /**
+     * 会话评价
+	 * @param company_id 商户company_id
+	 * @param session_id 关闭会话id
+	 * @param uid 评价账号uid
+	 * @param content 评价内容
+	 * @param screenshot 评价级别 1好评 2中评 3差评
+	 * @return code 200->成功
+	 */
+    public function sessionEvaluate($data){
+        $company_id = $data['company_id'];
+        $session_id = $data['session_id'];
+        $uid = $data['uid'];
+        $screenshot = $data['screenshot'];
+        $content = $data['content'];
+        $add_time = date('Y-m-d H:i:s');
+
+        $insert_res = Db::name('session_evaluate')
+        ->insert([
+            'company_id' => $company_id,
+            'session_id' => $session_id,
+            'content' => $content,
+            'uid' => $uid,
+            'add_time' => $add_time,
+            'screenshot' => $screenshot
+        ]);
+
+        if($insert_res){
+            return msg(200, 'success');
+        }else{
+            return msg(3001, '插入数据失败');
+        }
+    }
 }
