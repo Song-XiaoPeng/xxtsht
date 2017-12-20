@@ -712,7 +712,10 @@ class WxOperation extends Auth{
     public function sendMessage(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
-        $data['uid'] = $this->uid;
+
+        if(empty($uid)){
+            $data['uid'] = $this->uid;
+        }
 
         return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->sendMessage($data);
     }
