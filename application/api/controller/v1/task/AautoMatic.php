@@ -33,4 +33,9 @@ class AautoMatic {
     public function colseWaitingSession(){
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->colseWaitingSession();
     }
+
+    //关闭无效会话中数据 url: http://kf.lyfz.net/api/v1/task/AautoMatic/closeInvalidSession
+    public function closeInvalidSession(){
+        return \think\Loader::model('AautoMaticLogic','logic\v1\task')->closeInvalidSession();
+    }
 }
