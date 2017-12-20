@@ -123,6 +123,49 @@ class SurveyLogic extends Model {
         return msg(200,'success',$list);
     }
 
+
+    /**
+     * 获取主动发起会话总数
+     * @param uid 客服uid
+     * @param company_id 商户company_id
+	 * @param type 1今天 2昨天 3近一周 4近一月 5自定义时间段
+	 * @param start_time 开始时间
+	 * @param end_time 结束时间
+	 * @return code 200->成功
+	 */
+    public function getActiveSession($uid, $company_id, $type, $start_time = '', $end_time = ''){
+        switch($type){
+            case 1:
+                $yesterday_res = getDayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 2:
+                $yesterday_res = getYesTerdayTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;
+            case 3:
+                $yesterday_res = getWeekTimeSolt();
+                $begin_time = $yesterday_res['begin_time'];
+                $end_time = $yesterday_res['end_time'];
+                break;  
+            case 4:
+                $month_res = getMonthTimeSolt();
+                $begin_time = $month_res['begin_time'];
+                $end_time = $month_res['end_time'];
+                break;
+            case 5:
+                $begin_time = $start_time;
+                $end_time = $end_time;
+                break;
+        }
+
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        return $session_total;
+    }
+
     /**
      * 获取会话总数
      * @param uid 客服uid
@@ -160,7 +203,7 @@ class SurveyLogic extends Model {
                 break;
         }
 
-        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5 UNION SELECT * FROM tb_wx_user_6 UNION SELECT * FROM tb_wx_user_7 UNION SELECT * FROM tb_wx_user_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
 
         return $session_total;
     }
