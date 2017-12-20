@@ -150,7 +150,7 @@ class InteractionLogic extends Model {
     public function getMonitorSessionList($company_id){
         $list = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id,'state'=>1])
+        ->where(['company_id'=>$company_id,'state'=>['in',[0,1,3]]])
         ->select();
 
         $pending_access_session = []; //等待中
