@@ -198,7 +198,7 @@ class InteractionLogic extends Model {
         $session_id = $data['session_id'];
 
         //分页
-        $page_count = 200;
+        $page_count = 40;
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('message_data')
