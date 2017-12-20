@@ -713,7 +713,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        if(empty($uid)){
+        if(empty($data['uid'])){
             $data['uid'] = $this->uid;
         }
 

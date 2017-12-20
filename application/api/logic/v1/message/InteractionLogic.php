@@ -151,6 +151,7 @@ class InteractionLogic extends Model {
         $list = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['company_id'=>$company_id,'state'=>['in',[0,1,3]]])
+        ->order('add_time desc')
         ->select();
 
         $pending_access_session = []; //等待中
@@ -204,7 +205,7 @@ class InteractionLogic extends Model {
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
         ->where(['session_id'=>$session_id,'company_id'=>$company_id])
         ->limit($show_page, $page_count)
-        ->order('add_time desc')
+        ->order('add_time asc')
         ->select();
 
         $count = Db::name('message_data')
