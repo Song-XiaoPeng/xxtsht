@@ -327,7 +327,7 @@ class AautoMaticLogic extends Model {
         }
     }
 
-    //关闭超过1天的排队会话
+    //关闭超过2天的排队会话
     public function colseQueuingSession(){
         $redis = Common::createRedis();
             
@@ -341,7 +341,7 @@ class AautoMaticLogic extends Model {
                 $arr = json_decode($str,true);
 
                 $day = distanceDay($arr['add_time']);
-                if($day >= 1){
+                if($day >= 2){
                     $update_res = Db::name('message_session')
                     ->partition(['session_id'=>$arr['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
                     ->where(['session_id'=>$arr['session_id']])
@@ -365,18 +365,31 @@ class AautoMaticLogic extends Model {
 
         $company_list = $redis->keys('*');
 
-        foreach($company_list as $company_id){
-            $str_list = $redis->sMembers($company_id);
+        foreach($company_list as $uid){
+            $str_list = $redis->sMembers($uid);
             foreach($str_list as $str){
                 $arr = json_decode($str,true);
 
-                $day = distanceDay($arr['add_time']);
-                if($day >= 1){
+                $tiem_arr = timediff(date('YmdHis'), $arr['add_time']);
+                $min1 = $tiem_arr['day'] * 24 * 60;
+                $min2 = $tiem_arr['hour'] * 60;
+                $min3 = $tiem_arr['min'];
+                $min = $min1 + $min2 + $min3;
+
+                $configure_value = Db::name('company_baseinfo')->where(['company_id'=>$arr['company_id'],'configure_key'=>'session_rule'])>cahce(true,120)->value('configure_value');
+                if(!empty($configure_value)){
+                    $configure_value = json_decode($configure_value,true);
+                    $overtime = $configure_value['overtime'];
+                }else{
+                    $overtime = 1440;
+                }
+
+                if($min >= $overtime){
                     $update_res = Db::name('message_session')
                     ->partition(['session_id'=>$arr['session_id']], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
                     ->where(['session_id'=>$arr['session_id']])
                     ->update([
-                        'state' => -3
+                        'state' => -2
                     ]);
 
                     if($update_res){

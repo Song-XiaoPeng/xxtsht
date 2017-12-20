@@ -1898,6 +1898,23 @@ class WxOperationLogic extends Model {
     }
 
     public function test(){
+        $tiem_arr = timediff(date('YmdHis'),'2017-12-20 10:20:12');
+
+        $min1 = $tiem_arr['day'] * 24 * 60;
+        $min2 = $tiem_arr['hour'] * 60;
+        $min3 = $tiem_arr['min'];
+
+        $min = $min1 + $min2 + $min3;
+
+        dump($min);
+
+
+
+
+
+
+
+        exit;
         $token_info = Common::getRefreshToken('wx88c6052d06eaaf7d','51454009d703c86c91353f61011ecf2f');
         if($token_info['meta']['code'] == 200){
             $refresh_token = $token_info['body']['refresh_token'];
