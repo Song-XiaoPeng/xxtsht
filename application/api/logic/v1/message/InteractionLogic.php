@@ -165,6 +165,10 @@ class InteractionLogic extends Model {
 
             $v['customer_service_name'] = empty($customer_service_name) == true ? null : $customer_service_name;
 
+            $nick_name = Db::name('openweixin_authinfo')->where(['company_id'=>$v['company_id'],'appid'=>$v['appid']])->value('nick_name');
+
+            $v['nick_name'] = empty($nick_name) == true ? '暂无' : $nick_name;
+
             if($v['state'] == 0){
                 array_push($pending_access_session, $v);
             }
