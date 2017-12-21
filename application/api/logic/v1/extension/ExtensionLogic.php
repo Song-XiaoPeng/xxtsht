@@ -515,7 +515,7 @@ class ExtensionLogic extends Model {
     public function createQrcodeZip($company_id, $activity_id, $token){
         $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->select();
 
-        $catalog_name = randCode(32);
+        $catalog_name = md5(uniqid());
         $save_catalog = "../uploads/qrcode/$catalog_name";
         if(!file_exists($save_catalog)){
             mkdir($save_catalog, 0766);
@@ -537,5 +537,11 @@ class ExtensionLogic extends Model {
             ->saveAsFile($save_catalog.".zip")
             ->close();
 
+        $PSize = filesize($save_catalog.".zip");
+        $picture_data = fread(fopen($save_catalog.".zip", "r"), $PSize);
+
+        unlink($save_catalog.".zip");
+
+        return response($picture_data)->contentType('application/x-zip-compressed');
     }
 }
