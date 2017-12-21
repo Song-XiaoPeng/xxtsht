@@ -390,7 +390,6 @@ class ExtensionLogic extends Model {
             ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
             ->insert([
                 'activity_name' => $activity_name,
-                'number' => $number,
                 'amount' => $amount,
                 'amount_start' => $amount_start,
                 'amount_end' => $amount_end,
@@ -406,11 +405,13 @@ class ExtensionLogic extends Model {
             ]);
 
             if($update_res !== false){
-                return msg(200,'success');
+                return msg(200,'success',['activity_id'=>$activity_id]);
             }else{
                 return msg(3001,'更新数据失败');
             }
         }else{
+            $activity_id = md5(uniqid());
+
             $add_res = Db::name('red_envelopes')->insert([
                 'company_id' => $company_id,
                 'activity_id' => $activity_id,
@@ -430,12 +431,20 @@ class ExtensionLogic extends Model {
                 'share_url' => $share_url,
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
-                'already_amount' => $already_amount,
                 'is_open' => $is_open
             ]);
 
+            for ($i = 0; $i < $number; $i++) {
+                Db::name('red_envelopes_id')->insert([
+                    'red_envelopes_id' => randCode(32),
+                    'appid' => $appid,
+                    'activity_id' => $activity_id,
+                    'company_id' => $company_id
+                ]);
+            }
+
             if($add_res){
-                return msg(200,'success');
+                return msg(200,'success',['activity_id'=>$activity_id]);
             }else{
                 return msg(3001,'插入数据失败');
             }

@@ -142,4 +142,71 @@ class Handle extends Auth{
         
         return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getQrcodList($data);
     }
+
+    /**
+     * 添加编辑红包活动
+     * 请求类型 post
+	 * 传入JSON格式: {"activity_name":"红包大活动","activity_id":"","number":"10","amount":"0.01","amount_start":"","amount_end":"","amount_type":1,"start_time":"2017-12-21 14:00:00","end_time":"2017-12-31 14:00:00","is_follow":1,"qrcode_id":"68140c52cfac5c743fa35228051111cc","appid":"wxe30d2c612847beeb","is_share":-1,"share_url":"http://wxyx.lyfz.net","share_cover":"http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg","amount_upper_limit":"20","is_open":1}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"activity_id":"7f4b56cb0596d8ffdabd623b02da13d3"}}
+	 * API_URL_本地: http://localhost:91/api/v1/extension/Handle/addRedEnvelopes
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/addRedEnvelopes
+	 * @param activity_name 红包活动名称
+	 * @param activity_id 活动id 存在则编辑
+	 * @param number 红包数量
+	 * @param amount 红包金额
+	 * @param amount_start 随机金额开始
+	 * @param amount_end 随机金额结束
+	 * @param amount_type 派发金额方式1固定金额 2随机金额
+	 * @param start_time 活动开始时间
+	 * @param end_time 活动结束时间
+	 * @param is_follow 是否强制关注 1是 -1否
+	 * @param qrcode_id 强制关注二维码
+	 * @param appid 运营公众号appid
+	 * @param is_share 是否强制分享 1是 -1否
+	 * @param share_url 分享链接
+	 * @param share_cover 分享封面资源id
+	 * @param amount_upper_limit 派发金额上限
+	 * @param is_open 是否开启 1是 -1否
+	 * @return code 200->成功
+	 */
+    public function addRedEnvelopes(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->addRedEnvelopes($data);
+    }
+
+    /**
+     * 删除红包活动
+     * 请求类型 post
+	 * 传入JSON格式: {"activity_id":"activity_id.."}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/extension/Handle/delRedEnvelopes
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/delRedEnvelopes
+	 * @param activity_id 活动id
+	 * @return code 200->成功
+	 */
+    public function delRedEnvelopes(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->delRedEnvelopes($this->company_id,$data['activity_id']);
+    }
+
+    /**
+     * 查看红包二维码列表
+     * 请求类型 post
+	 * 传入JSON格式: {"activity_id":"activity_id..","page":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"red_envelopes_id":"2zFWytVd6YuBO21F06ync0V2A0E7U0Re","appid":"wxe30d2c612847beeb","activity_id":"e4807ceb9777e859f7eb6720bebc0995","company_id":"51454009d703c86c91353f61011ecf2f","is_receive":"否","receive_time":null,"openid":null,"receive_amount":"0.00","wx_nickname":null,"wx_portrait":null}],"page_data":{"count":10,"rows_num":16,"page":"1"}}}
+	 * API_URL_本地: http://localhost:91/api/v1/extension/Handle/getRedEnvelopeList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/getRedEnvelopeList
+	 * @param activity_id 活动id
+	 * @return code 200->成功
+	 */
+    public function getRedEnvelopeList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getRedEnvelopeList($this->company_id,$data['activity_id'],$data['page']);
+    }
 }

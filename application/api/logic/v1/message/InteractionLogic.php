@@ -209,14 +209,14 @@ class InteractionLogic extends Model {
         $session_id = $data['session_id'];
 
         //分页
-        $page_count = 200;
+        $page_count = 300;
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('message_data')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
         ->where(['session_id'=>$session_id,'company_id'=>$company_id])
         ->limit($show_page, $page_count)
-        ->order('add_time asc')
+        ->order('add_time desc')
         ->select();
 
         $count = Db::name('message_data')
