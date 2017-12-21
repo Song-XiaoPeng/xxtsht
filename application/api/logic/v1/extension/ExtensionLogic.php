@@ -4,6 +4,7 @@ use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
+use Endroid\QrCode\QrCode;
 
 class ExtensionLogic extends Model {
     /**
@@ -505,5 +506,36 @@ class ExtensionLogic extends Model {
         return msg(200,'success',$res);
     }
 
-    
+    /**
+     * 批量生成二维码
+	 * @param activity_id 活动id
+	 * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function createQrcodeZip($company_id, $activity_id, $token){
+        $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->select();
+
+        $catalog_name = randCode(32);
+        $save_catalog = "../uploads/qrcode/$catalog_name";
+        if(!file_exists($save_catalog)){
+            mkdir($save_catalog, 0766);
+            chmod($save_catalog, 0766);
+        }
+
+        foreach($list as $k=>$v){
+            $code = base64_encode(json_encode(['red_envelopes_id'=>$v['red_envelopes_id'],'activity_id'=>$activity_id]));
+
+            $save_file = $save_catalog.'/'.$k.'.png';
+
+            $qrCode = new QrCode($code);
+            $qrCode->writeFile($save_file);
+        }
+
+        $zipFile = new \PhpZip\ZipFile();
+        $zipFile
+            ->addDir($save_catalog)
+            ->saveAsFile($save_catalog.".zip")
+            ->close();
+
+    }
 }

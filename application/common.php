@@ -252,3 +252,20 @@ function randCode($length = 12, $type = 0) {
     }
     return $code;
 }
+
+//删除文件夹所有文件
+function deleteAll($path) {
+    $op = dir($path);
+    while(false != ($item = $op->read())) {
+        if($item == '.' || $item == '..') {
+            continue;
+        }
+        if(is_dir($op->path.'/'.$item)) {
+            deleteAll($op->path.'/'.$item);
+            rmdir($op->path.'/'.$item);
+        } else {
+            unlink($op->path.'/'.$item);
+        }
+    
+    }   
+}

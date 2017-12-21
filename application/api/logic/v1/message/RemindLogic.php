@@ -121,20 +121,9 @@ class RemindLogic extends Model {
                 $customer_info_res['product_name'] = null;
             }
 
-            $client = new \GuzzleHttp\Client();
-            $request_res = $client->request(
-                'POST', 
-                combinationApiUrl('/api.php/IvisionBackstage/getUserInfo'), 
-                [
-                    'json' => ['uid'=>$v['uid'],'company_id'=>$company_id],
-                    'timeout' => 3,
-                    'headers' => [
-                        'token' => $token
-                    ]
-                ]
-            );
+            $user_name = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->value('user_name');
 
-            $list[$k]['create_user_name'] = json_decode($request_res->getBody(),true)['body']['user_name'];
+            $list[$k]['create_user_name'] = $user_name;
 
             $customer_service_name = Db::name('customer_service')->where(['uid'=>$v['remind_uid'],'company_id'=>$company_id])->cache(true,30)->value('name');
 

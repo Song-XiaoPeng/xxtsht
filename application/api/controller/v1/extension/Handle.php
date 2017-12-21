@@ -208,4 +208,20 @@ class Handle extends Auth{
         
         return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getRedEnvelopeList($this->company_id,$data['activity_id'],$data['page'],$this->token);
     }
+
+    /**
+     * 批量生成二维码
+     * 请求类型 post
+	 * 传入JSON格式: {"activity_id":"activity_id.."}
+	 * 返回JSON格式: 
+	 * API_URL_本地: http://localhost:91/api/v1/extension/Handle/createQrcodeZip
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/createQrcodeZip
+	 * @param activity_id 活动id
+	 * @return code 200->成功
+	 */
+    public function createQrcodeZip(){
+        $data = input('put.');
+        
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->createQrcodeZip($this->company_id,$data['activity_id'],$this->token);
+    }
 }

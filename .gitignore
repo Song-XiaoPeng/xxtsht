@@ -3,4 +3,5 @@ composer.lock
 *.log
 thinkphp
 /uploads/message
+/uploads/qrcode
 /uploads/source_material
