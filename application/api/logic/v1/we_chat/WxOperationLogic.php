@@ -1790,7 +1790,7 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param uid 客服uid
      * @param file 文件流字段名称
-     * @param resources_type 资源类型 1 im数据文件 2客服头像
+     * @param resources_type 资源类型 1:im资源 2:头像 3:支付授权证书 4:分享封面
 	 * @return code 200->成功
 	 */
     public function uploadResources($data){
