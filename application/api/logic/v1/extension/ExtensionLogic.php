@@ -384,6 +384,7 @@ class ExtensionLogic extends Model {
         $share_cover = empty($data['share_cover']) == true ? '' : $data['share_cover'];
         $amount_upper_limit = $data['amount_upper_limit'];
         $is_open = $data['is_open'];
+        $details_list = $data['details_list'];
 
         if($activity_id){
             $update_res = Db::name('red_envelopes')
@@ -401,6 +402,7 @@ class ExtensionLogic extends Model {
                 'share_url' => $share_url,
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
+                'details_list' => json_encode($details_list),
                 'is_open' => $is_open
             ]);
 
@@ -475,7 +477,7 @@ class ExtensionLogic extends Model {
 	 * @param company_id 商户id
 	 * @return code 200->成功
 	 */
-    public function getRedEnvelopeList($company_id, $activity_id, $page){
+    public function getRedEnvelopeList($company_id, $activity_id, $page, $token){
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
@@ -489,6 +491,10 @@ class ExtensionLogic extends Model {
             }else{
                 $list[$k]['is_receive'] = '否';
             }
+
+            $code = base64_encode(json_encode(['red_envelopes_id'=>$v['red_envelopes_id'],'activity_id'=>$activity_id]));
+
+            $list[$k]['qrcode_url'] = 'http://'.$_SERVER['HTTP_HOST']."/api/v1/common/QrCode/getQrCode?code=$code&token=$token";
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;

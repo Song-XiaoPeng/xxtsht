@@ -205,8 +205,7 @@ class Handle extends Auth{
 	 */
     public function getRedEnvelopeList(){
         $data = input('put.');
-        $data['company_id'] = $this->company_id;
         
-        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getRedEnvelopeList($this->company_id,$data['activity_id'],$data['page']);
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getRedEnvelopeList($this->company_id,$data['activity_id'],$data['page'],$this->token);
     }
 }
