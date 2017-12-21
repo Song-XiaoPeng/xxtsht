@@ -1634,9 +1634,9 @@ class WxOperationLogic extends Model {
             }
         }
 
-        Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,1,$data_obj);
+        $add_msg_res = Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,1,$data_obj);
 
-        return msg(200,'success');
+        return msg(200,'success',['message_id'=>$add_msg_res['body']['message_id']]);
     }
 
     /**

@@ -92,8 +92,10 @@ class Common {
 
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
 
+        $message_id = md5(uniqid());
+
         $insert_arr = [
-            'message_id' => md5(uniqid()),
+            'message_id' => $message_id,
             'appid' => $appid,
             'company_id' => $company_id,
             'customer_service_id' => $customer_service_id,
@@ -132,13 +134,13 @@ class Common {
                 $redis->zAdd($uid,time(),json_encode($add_data));
             }
         }else{
-            return false;
+            return msg(3001,'opercode参数错误');
         }
 
         if($insert_res){
-            return true;
+            return msg(200,'success',['message_id'=>$message_id]);
         }else{
-            return false;
+            return msg(3002,'插入数据失败');
         }
     }
 
