@@ -109,7 +109,7 @@ class Common {
 
         $add_data = array_merge($arr,$insert_arr);
 
-        if($opercode == 1){
+        if($opercode == 1 || $opercode == 3){
             $insert_res = Db::name('message_data')
             ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>10])
             ->insert($add_data);

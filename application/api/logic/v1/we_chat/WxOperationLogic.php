@@ -1526,6 +1526,7 @@ class WxOperationLogic extends Model {
         $content = empty($data['message']) === true ? '' : $data['message'];
         $type = $data['type'];
         $uid = $data['uid'];
+        $is_admin = $data['is_admin'];
         $session_id = $data['session_id'];
         $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
@@ -1634,7 +1635,14 @@ class WxOperationLogic extends Model {
             }
         }
 
-        $add_msg_res = Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,1,$data_obj);
+        //区分是否监控介入发送消息
+        if($is_admin){
+            $opercode = 3;
+        }else{
+            $opercode = 1;
+        }
+
+        $add_msg_res = Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,$opercode,$data_obj);
 
         return msg(200,'success',['message_id'=>$add_msg_res['body']['message_id']]);
     }

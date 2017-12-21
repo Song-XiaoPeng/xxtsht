@@ -715,6 +715,9 @@ class WxOperation extends Auth{
 
         if(empty($data['uid'])){
             $data['uid'] = $this->uid;
+            $data['is_admin'] = false;
+        }else{
+            $data['is_admin'] = true;
         }
 
         return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->sendMessage($data);
