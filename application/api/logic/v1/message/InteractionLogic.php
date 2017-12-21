@@ -169,9 +169,9 @@ class InteractionLogic extends Model {
 
             $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid'],'company_id'=>$company_id])->cache(true,120)->value('resources_id');
             if($resources_id){
-                $customer_service_avatar = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+                $v['customer_service_avatar'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
             }else{
-                $customer_service_avatar = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
+                $v['customer_service_avatar'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
             }
 
             $v['nick_name'] = empty($nick_name) == true ? '暂无' : $nick_name;
