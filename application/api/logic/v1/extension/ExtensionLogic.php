@@ -341,5 +341,154 @@ class ExtensionLogic extends Model {
         }
     }
 
+    /**
+     * 添加编辑红包活动
+	 * @param activity_name 红包活动名称
+	 * @param company_id 商户id
+	 * @param activity_id 活动id 存在则编辑
+	 * @param number 红包数量
+	 * @param amount 红包金额
+	 * @param amount_start 随机金额开始
+	 * @param amount_end 随机金额结束
+	 * @param amount_type 派发金额方式1固定金额 2随机金额
+	 * @param start_time 活动开始时间
+	 * @param end_time 活动结束时间
+	 * @param create_time 创建时间
+	 * @param is_follow 是否强制关注 1是 -1否
+	 * @param qrcode_id 强制关注二维码
+	 * @param appid 运营公众号appid
+	 * @param is_share 是否强制分享 1是 -1否
+	 * @param share_url 分享链接
+	 * @param share_cover 分享封面资源id
+	 * @param amount_upper_limit 派发金额上限
+	 * @param is_open 是否开启 1是 -1否
+	 * @return code 200->成功
+	 */
+    public function addRedEnvelopes($data){
+        $company_id = $data['company_id'];
+        $activity_id = empty($data['activity_id']) == true ? '' : $data['activity_id'];
+        $activity_name = $data['activity_name'];
+        $number = $data['number'];
+        $amount = empty($data['amount']) == true ? 0 : $data['amount'];
+        $amount_start = empty($data['amount_start']) == true ? 0 : $data['amount_end'];
+        $amount_end = empty($data['amount_end']) == true ? 0 : $data['amount_end'];
+        $amount_type = $data['amount_type'];
+        $start_time = $data['start_time'];
+        $end_time = $data['end_time'];
+        $create_time = date('Y-m-d H:i:s');
+        $is_follow = $data['is_follow'];
+        $qrcode_id = empty($data['qrcode_id']) == true ? '' : $data['qrcode_id'];
+        $appid = $data['appid'];
+        $is_share = $data['is_share'];
+        $share_url = empty($data['share_url']) == true ? '' : $data['share_url'];
+        $share_cover = empty($data['share_cover']) == true ? '' : $data['share_cover'];
+        $amount_upper_limit = $data['amount_upper_limit'];
+        $is_open = $data['is_open'];
+
+        if($activity_id){
+            $update_res = Db::name('red_envelopes')
+            ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
+            ->insert([
+                'activity_name' => $activity_name,
+                'number' => $number,
+                'amount' => $amount,
+                'amount_start' => $amount_start,
+                'amount_end' => $amount_end,
+                'amount_type' => $amount_type,
+                'is_follow' => $is_follow,
+                'qrcode_id' => $qrcode_id,
+                'appid' => $appid,
+                'is_share' => $is_share,
+                'share_url' => $share_url,
+                'share_cover' => $share_cover,
+                'amount_upper_limit' => $amount_upper_limit,
+                'is_open' => $is_open
+            ]);
+
+            if($update_res !== false){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'更新数据失败');
+            }
+        }else{
+            $add_res = Db::name('red_envelopes')->insert([
+                'company_id' => $company_id,
+                'activity_id' => $activity_id,
+                'activity_name' => $activity_name,
+                'number' => $number,
+                'amount' => $amount,
+                'amount_start' => $amount_start,
+                'amount_end' => $amount_end,
+                'amount_type' => $amount_type,
+                'start_time' => $start_time,
+                'end_time' => $end_time,
+                'create_time' => $create_time,
+                'is_follow' => $is_follow,
+                'qrcode_id' => $qrcode_id,
+                'appid' => $appid,
+                'is_share' => $is_share,
+                'share_url' => $share_url,
+                'share_cover' => $share_cover,
+                'amount_upper_limit' => $amount_upper_limit,
+                'already_amount' => $already_amount,
+                'is_open' => $is_open
+            ]);
+
+            if($add_res){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'插入数据失败');
+            }
+        }
+    }
+
+    /**
+     * 删除红包活动
+	 * @param activity_id 活动id
+	 * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function delRedEnvelopes($company_id, $activity_id){
+        Db::name('red_envelopes')
+        ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
+        ->delete();
+
+        Db::name('red_envelopes_id')
+        ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
+        ->delete();
+
+        return msg(200,'success');
+    }
+
+    /**
+     * 查看红包二维码列表
+	 * @param activity_id 活动id
+	 * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function getRedEnvelopeList($company_id, $activity_id, $page){
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->limit($show_page,$page_count)->select();
+        $count = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->count();
+
+        foreach($list as $k=>$v){
+            if($v['is_receive'] == 1){
+                $list[$k]['is_receive'] = '是';
+            }else{
+                $list[$k]['is_receive'] = '否';
+            }
+        }
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
     
 }

@@ -36,7 +36,10 @@ class Interaction extends Auth{
 	public function getHistoryMessage(){
 		$data = input('put.');
 		$data['company_id'] = $this->company_id;
-		$data['uid'] = $this->uid;
+
+        if(empty($data['uid'])){
+            $data['uid'] = $this->uid;
+        }
 
 		return \think\Loader::model('InteractionLogic','logic\v1\message')->getHistoryMessage($data);
 	}
