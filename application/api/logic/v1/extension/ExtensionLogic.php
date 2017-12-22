@@ -290,11 +290,15 @@ class ExtensionLogic extends Model {
 
             $list[$k]['attention_num'] = 0;
             $label = json_decode($v['label'],true);
-            foreach($label as $index=>$label_id){
-                $label_name = Db::name('label')->where(['label_id'=>$label_id])->value('label_name');
-
-                $label_arr[$index]['label_id'] = $label_id;
-                $label_arr[$index]['label_name'] = $label_name;
+            if($label){
+                foreach($label as $index=>$label_id){
+                    $label_name = Db::name('label')->where(['label_id'=>$label_id])->value('label_name');
+    
+                    $label_arr[$index]['label_id'] = $label_id;
+                    $label_arr[$index]['label_name'] = $label_name;
+                }
+            }else{
+                $label_arr = [];
             }
 
             $list[$k]['label'] = $label_arr;
