@@ -382,7 +382,6 @@ class ExtensionLogic extends Model {
         $end_time = $data['end_time'];
         $create_time = date('Y-m-d H:i:s');
         $is_follow = $data['is_follow'];
-        $qrcode_id = empty($data['qrcode_id']) == true ? '' : $data['qrcode_id'];
         $appid = $data['appid'];
         $is_share = $data['is_share'];
         $share_url = empty($data['share_url']) == true ? '' : $data['share_url'];
@@ -401,7 +400,6 @@ class ExtensionLogic extends Model {
                 'amount_end' => $amount_end,
                 'amount_type' => $amount_type,
                 'is_follow' => $is_follow,
-                'qrcode_id' => $qrcode_id,
                 'appid' => $appid,
                 'is_share' => $is_share,
                 'share_url' => $share_url,
@@ -432,7 +430,6 @@ class ExtensionLogic extends Model {
                 'end_time' => $end_time,
                 'create_time' => $create_time,
                 'is_follow' => $is_follow,
-                'qrcode_id' => $qrcode_id,
                 'appid' => $appid,
                 'is_share' => $is_share,
                 'share_url' => $share_url,
