@@ -266,6 +266,7 @@ function deleteAll($path) {
         } else {
             unlink($op->path.'/'.$item);
         }
-    
     }   
+
+    rmdir($path);
 }

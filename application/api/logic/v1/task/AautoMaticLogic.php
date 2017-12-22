@@ -452,4 +452,19 @@ class AautoMaticLogic extends Model {
             }
         }
     }
+
+    //删除多余的二维码
+    public function delQrCodeFile(){
+        $list = Db::name('qrcode_del_list')->select();
+    
+        foreach($list as $val){
+            try {
+                deleteAll($val['path']);
+            }catch (\Exception $e) {
+                continue;
+            }
+
+            Db::name('qrcode_del_list')->where(['qrcode_del_id'=>$val['qrcode_del_id']])->delete();
+        }
+    }
 }

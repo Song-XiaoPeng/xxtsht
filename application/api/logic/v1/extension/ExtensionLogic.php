@@ -542,6 +542,8 @@ class ExtensionLogic extends Model {
 
         unlink($save_catalog.".zip");
 
+        Db::name('qrcode_del_list')->insert(['path'=>$save_catalog]);
+
         return response($picture_data)->contentType('application/x-zip-compressed');
     }
 }

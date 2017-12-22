@@ -38,4 +38,9 @@ class AautoMatic {
     public function closeInvalidSession(){
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->closeInvalidSession();
     }
+
+    //删除多余的二维码 url: http://kf.lyfz.net/api/v1/task/AautoMatic/delQrCodeFile
+    public function delQrCodeFile(){
+        return \think\Loader::model('AautoMaticLogic','logic\v1\task')->delQrCodeFile();
+    }
 }
