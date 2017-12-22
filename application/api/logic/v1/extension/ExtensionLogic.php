@@ -435,6 +435,7 @@ class ExtensionLogic extends Model {
                 'share_url' => $share_url,
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
+                'details_list' => json_encode($details_list),
                 'is_open' => $is_open
             ]);
 
