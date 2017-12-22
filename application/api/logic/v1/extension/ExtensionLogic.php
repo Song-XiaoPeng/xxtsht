@@ -487,6 +487,12 @@ class ExtensionLogic extends Model {
             }else{
                 $list[$k]['share_cover_url'] = null;
             }
+
+            if($v['is_open'] == 1){
+                $list[$k]['state'] = '开启';
+            }else{
+                $list[$k]['state'] = '关闭';
+            }
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
