@@ -457,6 +457,47 @@ class ExtensionLogic extends Model {
     }
 
     /**
+     * 获取红包list
+	 * @param company_id 商户id
+	 * @param page 分页参数 默认1
+	 * @return code 200->成功
+	 */
+    public function getRedEnvelopesList($company_id, $page){
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('red_envelopes')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $count = Db::name('red_envelopes')->where(['company_id'=>$company_id])->count();
+
+        foreach($list as $k=>$v){
+            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id,'appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            $details_list = json_decode($v['details_list']);
+
+            if($details_list){
+                foreach($details_list as $i=>$resources_id){
+                    $list[$k]['details_url_list'][$i]['resources_id'] = $resources_id;
+                    $list[$k]['details_url_list'][$i]['url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+                }
+            }
+
+            if($v['share_cover']){
+                $list[$k]['share_cover_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['share_cover'];
+            }else{
+                $list[$k]['share_cover_url'] = null;
+            }
+        }
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    /**
      * 删除红包活动
 	 * @param activity_id 活动id
 	 * @param company_id 商户id

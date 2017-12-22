@@ -98,6 +98,10 @@ class InteractionLogic extends Model {
                 $message_res[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
             }
 
+            if($c['message_type'] == 2 && $c['opercode'] == 3){
+                $message_res[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
+            }
+
             if($c['message_type'] == 2 && $c['opercode'] == 2){
                 $message_res[$i]['file_url'] = getWximg($c['file_url']);
             }
@@ -226,6 +230,10 @@ class InteractionLogic extends Model {
 
         foreach($list as $i=>$c){
             if($c['message_type'] == 2 && $c['opercode'] == 1){
+                $list[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
+            }
+
+            if($c['message_type'] == 2 && $c['opercode'] == 3){
                 $list[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
             }
 
