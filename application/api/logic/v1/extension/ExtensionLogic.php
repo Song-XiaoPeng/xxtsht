@@ -404,6 +404,8 @@ class ExtensionLogic extends Model {
                 'share_url' => $share_url,
                 'start_time' => $start_time,
                 'end_time' => $end_time,
+                'amount_start' => $amount_start,
+                'amount_end' => $amount_end,
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
                 'details_list' => json_encode($details_list),
