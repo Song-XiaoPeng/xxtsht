@@ -402,6 +402,8 @@ class ExtensionLogic extends Model {
                 'is_follow' => $is_follow,
                 'is_share' => $is_share,
                 'share_url' => $share_url,
+                'start_time' => $start_time,
+                'end_time' => $end_time,
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
                 'details_list' => json_encode($details_list),
