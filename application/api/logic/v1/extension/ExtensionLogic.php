@@ -482,6 +482,8 @@ class ExtensionLogic extends Model {
                 }
             }
 
+            $list[$k]['details_list'] = json_decode($v['details_list']);
+
             if($v['share_cover']){
                 $list[$k]['share_cover_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['share_cover'];
             }else{
