@@ -390,6 +390,18 @@ class ExtensionLogic extends Model {
         $is_open = $data['is_open'];
         $details_list = $data['details_list'];
 
+        if(empty($activity_name)){
+            return msg(30051,'红包活动名称不能为空');
+        }
+
+        if(empty($amount)){
+            return msg(3006,'红包金额不能为空');
+        }
+
+        if(empty($amount_upper_limit)){
+            return msg(3007,'金额上限不能为空');
+        }
+
         if($activity_id){
             $update_res = Db::name('red_envelopes')
             ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
@@ -418,6 +430,10 @@ class ExtensionLogic extends Model {
                 return msg(3001,'更新数据失败');
             }
         }else{
+            if(empty($number)){
+                return msg(3008,'红包数量不能为空');
+            }    
+
             $activity_id = md5(uniqid());
 
             $add_res = Db::name('red_envelopes')->insert([
