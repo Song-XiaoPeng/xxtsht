@@ -467,7 +467,7 @@ class ExtensionLogic extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('red_envelopes')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->select();
+        $list = Db::name('red_envelopes')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->order('create_time desc')->select();
         $count = Db::name('red_envelopes')->where(['company_id'=>$company_id])->count();
 
         foreach($list as $k=>$v){
