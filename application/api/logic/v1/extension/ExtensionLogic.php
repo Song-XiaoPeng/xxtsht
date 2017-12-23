@@ -550,7 +550,7 @@ class ExtensionLogic extends Model {
 	 */
     public function getRedEnvelopeList($company_id, $activity_id, $page, $token){
         //分页
-        $page_count = 16;
+        $page_count = 6;
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->limit($show_page,$page_count)->select();
