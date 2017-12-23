@@ -553,8 +553,8 @@ class ExtensionLogic extends Model {
         $page_count = 6;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->limit($show_page,$page_count)->select();
-        $count = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->count();
+        $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id,'is_receive'=>1])->limit($show_page,$page_count)->select();
+        $count = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id,'is_receive'=>1])->count();
 
         foreach($list as $k=>$v){
             if($v['is_receive'] == 1){
