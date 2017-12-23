@@ -393,14 +393,13 @@ class ExtensionLogic extends Model {
         if($activity_id){
             $update_res = Db::name('red_envelopes')
             ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
-            ->insert([
+            ->update([
                 'activity_name' => $activity_name,
                 'amount' => $amount,
                 'amount_start' => $amount_start,
                 'amount_end' => $amount_end,
                 'amount_type' => $amount_type,
                 'is_follow' => $is_follow,
-                'appid' => $appid,
                 'is_share' => $is_share,
                 'share_url' => $share_url,
                 'share_cover' => $share_cover,
