@@ -1713,6 +1713,31 @@ class WxOperationLogic extends Model {
     }
 
     /**
+     * 设置支付证书
+     * @param company_id 商户company_id
+     * @param appid 账号appid
+     * @param apiclient_cert_pem 支付公钥文件id
+     * @param apiclient_key_pem 支付私钥文件id
+	 * @return code 200->成功
+	 */
+    public function setCertificate($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $cert_path = $data['apiclient_cert_pem'];
+        $key_path = $data['apiclient_key_pem'];
+
+        $update_res = Db::name('openweixin_authinfo')
+        ->where(['appid'=>$appid,'company_id'=>$company_id])
+        ->update(['cert_path'=>$cert_path,'key_path'=>$key_path]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
+
+    /**
      * 结束会话
      * @param company_id 商户company_id
      * @param uid 客服uid

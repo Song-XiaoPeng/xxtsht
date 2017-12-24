@@ -724,6 +724,25 @@ class WxOperation extends Auth{
     }
 
     /**
+     * 设置支付证书
+	 * 请求类型：post
+	 * 传入JSON格式: {"appid":"wxe30d2c612847beeb","apiclient_cert_pem":"12","apiclient_key_pem":"13"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/we_chat/WxOperation/setCertificate
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/we_chat/WxOperation/setCertificate
+     * @param appid 账号appid
+     * @param apiclient_cert_pem 支付公钥文件id
+     * @param apiclient_key_pem 支付私钥文件id
+	 * @return code 200->成功
+	 */
+    public function setCertificate(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->setCertificate($data);
+    }
+
+    /**
      * 设置微信用户标签
 	 * 请求类型：post
 	 * 传入JSON格式: {"appid":"wx88c6052d06eaaf7d","openid":"oZ8DFwf1NoKWyq-yO1_DKZ5FDaoE","label_id":"25"}
