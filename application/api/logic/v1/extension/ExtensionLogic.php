@@ -409,7 +409,6 @@ class ExtensionLogic extends Model {
                 'activity_name' => $activity_name,
                 'amount' => $amount,
                 'amount_start' => $amount_start,
-                'amount_end' => $amount_end,
                 'amount_type' => $amount_type,
                 'is_follow' => $is_follow,
                 'is_share' => $is_share,
