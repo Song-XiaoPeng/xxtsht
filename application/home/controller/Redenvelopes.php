@@ -1,6 +1,8 @@
 <?php
 namespace app\home\controller;
 use think\Db;
+use EasyWeChat\Foundation\Application;
+use app\api\common\Common;
 
 class Redenvelopes{
     // 领取红包首页
@@ -103,5 +105,27 @@ class Redenvelopes{
             'activity_id' => $data['activity_id'],
             'add_time' => date('Y-m-d H:i:s')
         ]);
+    }
+
+    //获取jssdk数据
+    public function getJsSdk(){
+        $data = input('get.');
+
+        $token_info = Common::getRefreshToken($data['appid'], $data['company_id']);
+        if ($token_info['meta']['code'] == 200) {
+            $refresh_token = $token_info['body']['refresh_token'];
+        } else {
+            return $token_info;
+        }
+
+        try {
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $js = $openPlatform->createAuthorizerApplication($data['appid'],$refresh_token)->js;
+
+            return msg(200,'success', json_decode($js->config(array('onMenuShareQQ', 'onMenuShareWeibo'), true)));
+        } catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
+        }
     }
 }
