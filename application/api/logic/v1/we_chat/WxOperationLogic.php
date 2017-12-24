@@ -1865,6 +1865,7 @@ class WxOperationLogic extends Model {
                     'application/pdf',
                     'application/zip',
                     'application/vnd.ms-excel',
+                    'text/plain',
                     'application/x-rar'
                 ]),
             
