@@ -600,7 +600,9 @@ class ExtensionLogic extends Model {
 
             $save_file = $save_catalog.'/'.$k.'.png';
 
-            $qrCode = new QrCode($code);
+            $qrcode_value = 'http://'.$_SERVER['HTTP_HOST'].'?code='.$code;
+
+            $qrCode = new QrCode($qrcode_value);
             $qrCode->writeFile($save_file);
         }
 

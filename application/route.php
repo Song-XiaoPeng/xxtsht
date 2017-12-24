@@ -15,5 +15,8 @@ return [
     ],
     '[api]' => [
         ':version/:Model/:controller/:function' => ['api/:version.:Model.:controller/:function'],
+    ],
+    '[home]' => [
+        ':Model/:controller/:function' => ['home/:Model.:controller/:function'],
     ]
 ];
