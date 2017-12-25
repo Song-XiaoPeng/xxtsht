@@ -24,7 +24,11 @@ function wxOptions(){
         'guzzle' => [
             'timeout' => 10.0
         ],
-        'debug'  => false
+        'debug'  => false,
+        'oauth' => [
+            'scopes'   => ['snsapi_userinfo'],
+            'callback' => '/home/Callback',
+        ]
     ];
 }
 

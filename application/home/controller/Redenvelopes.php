@@ -3,24 +3,43 @@ namespace app\home\controller;
 use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
+use think\Session;
 
 class Redenvelopes{
     // 领取红包首页
     public function index(){
         $code = input('get.code');
-        
+
+        Session::set('jump_url', 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+
         $str = base64_decode($code);
 
         $data = json_decode($str,true);
 
         $arr = Db::name('red_envelopes')->where(['activity_id'=>$data['activity_id']])->cache(true,30)->find();
 
+        $token_info = Common::getRefreshToken($arr['appid'], $arr['company_id']);
+        if ($token_info['meta']['code'] == 200) {
+            $refresh_token = $token_info['body']['refresh_token'];
+        } else {
+            return $token_info;
+        }
+          
+        $app = new Application(wxOptions());
+        $openPlatform = $app->open_platform;
+        $oauth = $openPlatform->createAuthorizerApplication($arr['appid'],$refresh_token)->oauth;
+
+        if(empty(Session::get('wx_user_info'))){
+            $response = $oauth->scopes(['snsapi_userinfo'])->redirect();
+            $response->send();
+        }
+
         $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->value('is_receive');
         if($is_receive == 1 || $is_receive == 2){
             return view('receive', ['title'=>$arr['activity_name']]);
         }
 
-        return view('index', ['title'=>$arr['activity_name'],'code'=>$code]);
+        return view('index', ['title'=>$arr['activity_name'],'code'=>$code,'appid'=>$arr['appid'],'company_id'=>$arr['company_id']]);
     }
 
     // 领取红包
@@ -31,6 +50,7 @@ class Redenvelopes{
         $wx_nickname = $data['wx_nickname'];
         $wx_portrait = $data['wx_portrait'];
         $openid = $data['openid'];
+        $wx_user_info = Session::get('wx_user_info');
 
         $str = base64_decode($code);
 
@@ -123,7 +143,11 @@ class Redenvelopes{
             $openPlatform = $app->open_platform;
             $js = $openPlatform->createAuthorizerApplication($data['appid'],$refresh_token)->js;
 
-            return msg(200,'success', json_decode($js->config(array('onMenuShareQQ', 'onMenuShareWeibo'), true)));
+            if(!empty($data['url'])){
+                $js->setUrl($data['url']);
+            }
+
+            return msg(200,'success', json_decode($js->config(array('checkJsApi', 'openLocation', 'getLocation', 'onMenuShareTimeline', 'onMenuShareAppMessage'), false)));
         } catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }
