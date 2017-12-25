@@ -402,6 +402,38 @@ class ExtensionLogic extends Model {
             return msg(3007,'金额上限不能为空');
         }
 
+        if($amount_type == 1){
+            if($amount < 1){
+                return msg(3008,'最小金额不能小于1元');
+            }
+
+            if($amount > 200){
+                return msg(3009,'最大金额不能大于200元');
+            }
+        }
+
+        if($amount_type == 2){
+            if($amount_start < 1){
+                return msg(3010,'最小金额不能小于1元');
+            }
+
+            if($amount_start > 200){
+                return msg(3011,'最大金额不能大于200元');
+            }
+
+            if($amount_end < 1){
+                return msg(3010,'最小金额不能小于1元');
+            }
+
+            if($amount_end > 200){
+                return msg(3011,'最大金额不能大于200元');
+            }
+
+            if($amount_start > $amount_end){
+                return msg(3012,'金额范围错误');
+            }
+        }
+
         if($activity_id){
             $update_res = Db::name('red_envelopes')
             ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
