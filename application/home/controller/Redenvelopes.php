@@ -39,7 +39,15 @@ class Redenvelopes{
             return view('receive', ['title'=>$arr['activity_name']]);
         }
 
-        return view('index', ['title'=>$arr['activity_name'],'code'=>$code,'appid'=>$arr['appid'],'company_id'=>$arr['company_id']]);
+        return view(
+            'index', 
+            [
+                'title' => $arr['activity_name'],
+                'code' => $code,
+                'appid' => $arr['appid'],
+                'company_id' => $arr['company_id']
+            ]
+        );
     }
 
     // 领取红包
