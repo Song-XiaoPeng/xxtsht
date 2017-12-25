@@ -84,6 +84,10 @@
 
         $(".receive").click(function(){
             $.post('/home/Redenvelopes/receive', {code: GetQueryString('code')}, function(result){
+                if(result.meta.code == 3001){
+                    window.location.href = result.body.jump_url;
+                }
+
                 alert(result.meta.message);
             });
         });

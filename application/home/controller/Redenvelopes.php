@@ -77,7 +77,7 @@ class Redenvelopes{
             ->where(['openid'=>$wx_user_info['original']['openid'], 'appid'=>$arr['appid'], 'subscribe'=>1])
             ->find();
             if(!$wx_user_res){
-                return msg(3001, '请先关注公众号');
+                return msg(3001, '请先关注公众号', ['jump_url'=>'http://'.$_SERVER['HTTP_HOST'].'/home/Redenvelopes/qrcode?appid='.$arr['appid']]);
             }    
         } 
 
@@ -189,6 +189,17 @@ class Redenvelopes{
             'activity_id' => $data['activity_id'],
             'add_time' => date('Y-m-d H:i:s')
         ]);
+    }
+
+    // 显示二维码
+    public function qrcode(){
+        $appid = input('get.appid');
+
+        $qrcode_url = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('qrcode_url');
+
+        $qrcode_url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getWxUrlImg?url='.$qrcode_url;
+
+        return view('qrcode', ['qrcode_url'=>$qrcode_url]);
     }
 
     //获取jssdk授权数据
