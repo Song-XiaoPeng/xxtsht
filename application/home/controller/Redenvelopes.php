@@ -44,33 +44,49 @@ class Redenvelopes{
 
     // 领取红包
     public function receive(){
-        $data = input('post.');
+        $input_data = input('post.');
 
-        $code = $data['code'];
-        $wx_nickname = $data['wx_nickname'];
-        $wx_portrait = $data['wx_portrait'];
-        $openid = $data['openid'];
+        $code = $input_data['code'];
         $wx_user_info = Session::get('wx_user_info');
 
         $str = base64_decode($code);
 
         $data = json_decode($str,true);
 
-        $arr = Db::name('red_envelopes')->where(['activity_id'=>$data['activity_id']])->cache(true,30)->find();
+        $arr = Db::name('red_envelopes')->where(['activity_id'=>$data['activity_id']])->cache(true,10)->find();
+
+        $auth_info_res = Db::name('openweixin_authinfo')->where(['appid'=>$arr['appid'],'company_id'=>$arr['company_id']])->cache(true,30)->find();
+        if(!$auth_info_res){
+            return msg(3009,'无法获取公众号授权信息');
+        }
+
+        $cert_path = Db::name('resources')->where(['resources_id'=>$auth_info_res['cert_path']])->value('resources_route');
+        if(!$cert_path){
+            return msg(3003,'支付证书不全');
+        }
+
+        $key_path = Db::name('resources')->where(['resources_id'=>$auth_info_res['key_path']])->value('resources_route');
+        if(!$key_path){
+            return msg(3003,'支付证书不全');
+        }
 
         //判断是否关注
-        $wx_user_res = Db::name('wx_user')
-        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where(['openid'=>$openid, 'appid'=>$arr['appid']])
-        ->find();
-        if(!$wx_user_res){
-            return msg(3001, '未关注公众号');
-        }     
+        if ($arr['is_follow'] == 1) {
+            $wx_user_res = Db::name('wx_user')
+            ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['openid'=>$wx_user_info['original']['openid'], 'appid'=>$arr['appid']])
+            ->find();
+            if(!$wx_user_res){
+                return msg(3001, '未关注公众号');
+            }    
+        } 
 
         //判断是否分享
-        $is_share = Db::name('red_envelopes_share')->where(['openid'=>$openid,'appid'=>$arr['appid']])->find();
-        if($is_share){
-            return msg(3002, '请先分享');
+        if ($arr['is_share'] == 1) {
+            $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid']])->find();
+            if($is_share){
+                return msg(3002, '请先分享');
+            }
         }
 
         //判断是否已领取
@@ -85,39 +101,87 @@ class Redenvelopes{
         // 判断是随机金额或者固定金额
         if ($arr['amount_type'] == 1) {
             // 派发固定金额操作
-            $receive_amount = 0.01;
-
-            
+            $receive_amount = $arr['amount'];
         } else if ($arr['amount_type'] == 2) {
             // 派发随机金额操作
-            $receive_amount = 0.01;
+            $receive_amount = randFloat($arr['amount_start'], $arr['amount_end']);
+        }
+
+        $wx_auth_info = wxOptions();
+        $pay_auth_info = [
+            'payment' => [
+                'merchant_id'        => $auth_info_res['merchant_id'],
+                'key'                => $auth_info_res['pay_key'],
+                'cert_path'          => '..'.$cert_path,
+                'key_path'           => '..'.$key_path,
+            ],
+            'app_id' => $arr['appid']
+        ];
+
+        $wxauth = array_merge($wx_auth_info,$pay_auth_info);
+
+        // 调用微信api派送金额
+        try {
+            $token_info = Common::getRefreshToken($arr['appid'], $arr['company_id']);
+            if ($token_info['meta']['code'] == 200) {
+                $refresh_token = $token_info['body']['refresh_token'];
+            } else {
+                return $token_info;
+            }
+
+            $app = new Application($wxauth);
+            $openPlatform = $app->open_platform;
+            $lucky_money = $openPlatform->createAuthorizerApplication($arr['appid'], $refresh_token)->lucky_money;
+
+            $luckyMoneyData = [
+                'mch_billno'       => short_md5($data['activity_id'].$data['red_envelopes_id']),
+                'send_name'        => $arr['activity_name'],
+                're_openid'        => $wx_user_info['original']['openid'],
+                'total_amount'     => floatval($receive_amount) * 100,
+                'wishing'          => '祝福语',
+                'act_name'         => $arr['activity_name'],
+                'remark'           => '测试备注'
+            ];
             
-            
+            $result = $lucky_money->sendNormal($luckyMoneyData)->toArray();
+        } catch (\Exception $e) {
+            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>-1]);
+
+            return msg(3001, $e->getMessage());
+        }
+
+        if($result['result_code'] != 'SUCCESS'){
+            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>-1]);
+            return msg(3002, $result['return_msg']);
         }
 
         Db::name('red_envelopes_id')
         ->where(['red_envelopes_id'=>$data['red_envelopes_id']])
         ->update([
             'is_receive' => 1,
-            'wx_nickname' => $wx_nickname,
-            'wx_portrait' => $wx_portrait,
+            'wx_nickname' => $wx_user_info['original']['nickname'],
+            'wx_portrait' => $wx_user_info['avatar'],
+            'receive_time' => date('Y-m-d H:i:s'),
             'receive_amount' => $receive_amount,
-            'openid' => $openid
+            'openid' => $wx_user_info['original']['openid']
         ]);
+
+        $already_amount = Db::name('red_envelopes')
+        ->where(['activity_id'=>$data['activity_id']])
+        ->value('already_amount');
+
+        $already_amount = $already_amount + $receive_amount;
 
         Db::name('red_envelopes')
         ->where(['activity_id'=>$data['activity_id']])
-        ->setInc([
-            'already_amount',
-            $receive_amount
-        ]);
+        ->update(['already_amount'=>$already_amount]);
 
-        return msg(200,'success');
+        return msg(200, '领取成功');
     }
 
     // 设为已分享
     public function setShare(){
-        $data = input('put.');
+        $data = input('post.');
     
         Db::name('red_envelopes_share')->insert([
             'appid' => $data['appid'],
@@ -127,7 +191,7 @@ class Redenvelopes{
         ]);
     }
 
-    //获取jssdk数据
+    //获取jssdk授权数据
     public function getJsSdk(){
         $data = input('get.');
 

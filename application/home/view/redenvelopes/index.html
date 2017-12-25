@@ -5,19 +5,6 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta http-equiv="Content-Language" content="zh-CN" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-        <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js" type="text/javascript" charset="utf-8"></script>
-
-        <script type="text/javascript" charset="utf-8">
-            var appid = "{$appid}";
-            var company_id = "{$company_id}";
-            var wx_obj;
-
-            $.get('/home/Redenvelopes/getJsSdk', {appid:appid, company_id:company_id, url:window.location.href}, function(result){
-                wx_obj = result.body;
-                wx.config(wx_obj);
-            });
-        </script>
 
         <style>
             html,body{
@@ -65,13 +52,40 @@
                 line-height: 120px;
                 margin: 30% auto;
                 font-size: 24px;
+                cursor: crosshair;
             }
         </style>
     </head>
     <body id="content">
-        <img src="http://img5.niutuku.com/phone/1212/1614/1614-niutuku.com-102114.jpg" alt="">
+        <!-- <img src="http://img5.niutuku.com/phone/1212/1614/1614-niutuku.com-102114.jpg" alt=""> -->
         <h1>{$title}</h1>
 
         <div class="receive">领取红包</div>
     </body>
+
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js" type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        var appid = "{$appid}";
+        var company_id = "{$company_id}";
+        var wx_obj;
+
+        function GetQueryString(name){
+            var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if(r!=null)return  unescape(r[2]); return null;
+        }
+
+        $.get('/home/Redenvelopes/getJsSdk', {appid:appid, company_id:company_id, url:window.location.href}, function(result){
+            wx_obj = result.body;
+            wx.config(wx_obj);
+        });
+
+        $(".receive").click(function(){
+            $.post('/home/Redenvelopes/receive', {code: GetQueryString('code')}, function(result){
+                alert(result.meta.message);
+            });
+        });
+    </script>
 </html>

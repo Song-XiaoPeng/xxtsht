@@ -274,3 +274,18 @@ function deleteAll($path) {
 
     rmdir($path);
 }
+
+//取随机小数
+function randFloat($min=0, $max=1){
+    return round($min + mt_rand()/mt_getrandmax() * ($max-$min), 2);
+}
+
+/**
+ * 返回16位md5值
+ *
+ * @param string $str 字符串
+ * @return string $str 返回16位的字符串
+ */
+function short_md5($str) {
+    return substr(md5($str), 8, 16);
+}
