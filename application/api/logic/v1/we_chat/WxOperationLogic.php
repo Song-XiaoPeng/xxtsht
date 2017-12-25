@@ -1725,10 +1725,12 @@ class WxOperationLogic extends Model {
         $appid = $data['appid'];
         $cert_path = $data['apiclient_cert_pem'];
         $key_path = $data['apiclient_key_pem'];
+        $merchant_id = $data['merchant_id'];
+        $pay_key = $data['pay_key'];
 
         $update_res = Db::name('openweixin_authinfo')
         ->where(['appid'=>$appid,'company_id'=>$company_id])
-        ->update(['cert_path'=>$cert_path,'key_path'=>$key_path]);
+        ->update(['cert_path'=>$cert_path,'key_path'=>$key_path,'pay_key'=>$pay_key,'merchant_id'=>$merchant_id]);
 
         if($update_res !== false){
             return msg(200,'success');
