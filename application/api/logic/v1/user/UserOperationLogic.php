@@ -194,7 +194,7 @@ class UserOperationLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getWxAuthList($company_id){
-        $res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->field('appid,logo,qrcode_url,principal_name,signature,type,nick_name,cert_path,key_path')->select();
+        $res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id])->field('appid,logo,qrcode_url,principal_name,signature,type,nick_name,cert_path,key_path,merchant_id,pay_key')->select();
 
         return msg(200,'success',$res);
     }
