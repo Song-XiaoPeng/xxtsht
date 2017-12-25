@@ -45,7 +45,9 @@ class Redenvelopes{
                 'title' => $arr['activity_name'],
                 'code' => $code,
                 'appid' => $arr['appid'],
-                'company_id' => $arr['company_id']
+                'company_id' => $arr['company_id'],
+                'share_title' => $share_title,
+                'share_cover' => $share_cover
             ]
         );
     }
