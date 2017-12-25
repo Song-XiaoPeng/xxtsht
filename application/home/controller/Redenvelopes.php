@@ -74,10 +74,10 @@ class Redenvelopes{
         if ($arr['is_follow'] == 1) {
             $wx_user_res = Db::name('wx_user')
             ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
-            ->where(['openid'=>$wx_user_info['original']['openid'], 'appid'=>$arr['appid']])
+            ->where(['openid'=>$wx_user_info['original']['openid'], 'appid'=>$arr['appid'], 'subscribe'=>1])
             ->find();
             if(!$wx_user_res){
-                return msg(3001, '未关注公众号');
+                return msg(3001, '请先关注公众号');
             }    
         } 
 
@@ -176,7 +176,7 @@ class Redenvelopes{
         ->where(['activity_id'=>$data['activity_id']])
         ->update(['already_amount'=>$already_amount]);
 
-        return msg(200, '领取成功');
+        return msg(200, '领取成功返回消息列表查看');
     }
 
     // 设为已分享
