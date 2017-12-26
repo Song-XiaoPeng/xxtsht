@@ -91,6 +91,7 @@ class ExtensionLogic extends Model {
                 'resources_id' => $resources_id,
                 'media_id' => $media_id,
                 'invalid_day' => $invalid_day,
+                'share_title' => $share_title
             ]);
 
             if($update_res !== false){
@@ -147,6 +148,7 @@ class ExtensionLogic extends Model {
                 'resources_id' => $resources_id,
                 'media_id' => $media_id,
                 'invalid_day' => $invalid_day,
+                'share_title' => $share_title
             ]);
 
             return msg(200,'success',['qrcode_id'=>$qrcode_id,'qrcode_url'=>$qrcode_url]);
