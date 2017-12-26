@@ -73,6 +73,10 @@ class Redenvelopes{
         $data = json_decode($str,true);
 
         $arr = Db::name('red_envelopes')->where(['activity_id'=>$data['activity_id']])->find();
+        if($arr['is_open'] == -1){
+            return msg(3002, '活动未开放');
+        }
+        
         if($arr['already_amount'] >= $arr['amount_upper_limit']){
             return msg(3001, '已达到派发金额上限');
         }

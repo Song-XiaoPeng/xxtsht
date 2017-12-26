@@ -261,5 +261,122 @@ class FrameworkLogic extends Model {
         return msg(200,'success',['uid'=>$uid]);
     }
 
+    /**
+     * 获取用户列表
+	 * @param company_id 商户id
+	 * @param page 分页参数默认1
+	 * @param user_state 账号状态 1正常 -1已停止
+	 * @param user_group_id 部门id 选传
+	 * @param text 搜索关键词 选传
+	 * @return code 200->成功
+	 */
+    public function getUserList($data){
+        $company_id = $data['company_id'];
+        $page = $data['page'];
+        $user_group_id = empty($data['user_group_id']) == true ? '' : $data['user_group_id'];
+        $text = empty($data['text']) == true ? '' : $data['text'];
 
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $map['company_id'] = $company_id;
+        $map['user_type'] = 4;
+        if(!empty($user_group_id)){
+            $map['user_group_id'] = $user_group_id;
+        }
+
+        if(!empty($text)){
+            $map['user_name|phone_no'] = array('like',"%$text%");
+        }
+
+        $user_list = Db::name('user')
+        ->where($map)
+        ->limit($show_page,$page_count)
+        ->select();
+
+        $count = Db::name('user')->where($map)->count();
+        
+        foreach($user_list as $k=>$v){
+            if($v['position_id'] != -1){
+                $user_list[$k]['position_name'] = Db::name('position')->where(['position_id'=>$v['position_id']])->cache(true,60)->value('position_name');
+            }else{
+                $user_list[$k]['position_name'] = null;
+            }
+
+            $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
+            if($resources_id){
+                $user_list[$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+            }else{
+                $user_list[$k]['avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
+            }
+
+            if($v['user_type'] != 3){
+                $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$v['uid']])->value('model_list');
+                
+                $user_list[$k]['model_list'] = json_decode($model_list);
+
+
+                $customer_service_list = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->select();
+
+                foreach($customer_service_list as $key=>$value){
+                    $customer_service_list[$key]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$value['appid']])->cache(true,60)->value('nick_name');
+                }
+
+                $user_list[$k]['customer_service_list'] = empty($customer_service_list) == true ? null : $customer_service_list;
+            }else{
+                $user_list[$k]['customer_service_list'] = [];
+                $user_list[$k]['model_list'] = [];
+            }
+
+            if(count($customer_service_list) > 0){
+                $user_list[$k]['is_customer_service'] = 1;
+            }else{
+                $user_list[$k]['is_customer_service'] = -1;
+            }
+
+            $user_list[$k]['client_version'] = empty($v['client_version']) == true ? null : $v['client_version'];
+            $user_list[$k]['client_network_mac'] = empty($v['client_network_mac']) == true ? null : $v['client_network_mac'];
+
+            if($v['user_group_id'] != -1){
+                $user_group_name = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$v['user_group_id']])->cache(true,60)->value('user_group_name');
+
+                $user_list[$k]['user_group_name'] = empty($user_group_name) == true ? '未分组' : $user_group_name;
+            }else{
+                $user_list[$k]['user_group_name'] = null;
+            }
+
+            if($v['user_state'] == 1){
+                $user_list[$k]['user_state_name'] = '正常';
+            }else{
+                $user_list[$k]['user_state_name'] = '禁用';
+            }
+        }
+
+        $res['data_list'] = count($user_list) == 0 ? array() : $user_list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200, 'success', $res);
+    }
+
+    /**
+     * 获取组织架构图数据
+	 * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function getFrameworkData($company_id){
+        //获取部门数据
+        $group_list = Db::name('user_group')->where(['company_id'=>$company_id])->select();
+    
+        //获取职位图
+        $position_list = Db::name('position')->where(['company_id'=>$company_id])->select();
+
+        $group_data = [];
+
+        foreach($group_list as $k=>$v){
+            
+        }
+    }
 }

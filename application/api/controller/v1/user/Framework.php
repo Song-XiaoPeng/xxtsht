@@ -128,4 +128,24 @@ class Framework extends Auth{
         
         return \think\Loader::model('FrameworkLogic','logic\v1\user')->addUser($data);
 	}
+
+    /**
+     * 获取用户列表
+	 * 请求类型 post
+	 * 传入JSON格式: {"page":1,"user_state":1,"user_group_id":"132","text":"张三"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"uid":33}}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/getUserList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/getUserList
+	 * @param page 分页参数默认1
+	 * @param user_state 账号状态 1正常 -1已停止
+	 * @param user_group_id 部门id 选传
+	 * @param text 搜索关键词 选传
+	 * @return code 200->成功
+	 */
+	public function getUserList(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('FrameworkLogic','logic\v1\user')->getUserList($data);
+	}
 }
