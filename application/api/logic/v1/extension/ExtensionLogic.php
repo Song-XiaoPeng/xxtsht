@@ -34,7 +34,6 @@ class ExtensionLogic extends Model {
         $uid = $data['uid'];
         $activity_name = $data['activity_name'];
         $reply_type = $data['reply_type'];
-        $share_title = empty($data['share_title']) == true ? '' : $data['share_title'];
         $invalid_time = empty($data['invalid_time']) == true ? '' : $data['invalid_time'];
         $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
@@ -90,8 +89,7 @@ class ExtensionLogic extends Model {
                 'reply_text' => $reply_text,
                 'resources_id' => $resources_id,
                 'media_id' => $media_id,
-                'invalid_day' => $invalid_day,
-                'share_title' => $share_title
+                'invalid_day' => $invalid_day
             ]);
 
             if($update_res !== false){
@@ -147,8 +145,7 @@ class ExtensionLogic extends Model {
                 'reply_text' => $reply_text,
                 'resources_id' => $resources_id,
                 'media_id' => $media_id,
-                'invalid_day' => $invalid_day,
-                'share_title' => $share_title
+                'invalid_day' => $invalid_day
             ]);
 
             return msg(200,'success',['qrcode_id'=>$qrcode_id,'qrcode_url'=>$qrcode_url]);
@@ -377,6 +374,7 @@ class ExtensionLogic extends Model {
         $activity_id = empty($data['activity_id']) == true ? '' : $data['activity_id'];
         $activity_name = $data['activity_name'];
         $number = $data['number'];
+        $share_title = empty($data['share_title']) == true ? '' : $data['share_title'];
         $amount = empty($data['amount']) == true ? 0 : $data['amount'];
         $amount_start = empty($data['amount_start']) == true ? 0 : $data['amount_end'];
         $amount_end = empty($data['amount_end']) == true ? 0 : $data['amount_end'];
@@ -455,7 +453,8 @@ class ExtensionLogic extends Model {
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
                 'details_list' => json_encode($details_list),
-                'is_open' => $is_open
+                'is_open' => $is_open,
+                'share_title' => $share_title
             ]);
 
             if($update_res !== false){
@@ -493,7 +492,8 @@ class ExtensionLogic extends Model {
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
                 'details_list' => json_encode($details_list),
-                'is_open' => $is_open
+                'is_open' => $is_open,
+                'share_title' => $share_title
             ]);
 
             for ($i = 0; $i < $number; $i++) {

@@ -172,7 +172,7 @@ class Handle extends Auth{
     public function addRedEnvelopes(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
-        
+
         return \think\Loader::model('ExtensionLogic','logic\v1\extension')->addRedEnvelopes($data);
     }
 
