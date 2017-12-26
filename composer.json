@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "topthink/framework": "~5.0.12",
+        "topthink/framework": "~5.0.13",
         "topthink/think-image": "^1.0",
         "topthink/think-queue": "^1.1",
         "topthink/think-migration": "^1.1",
