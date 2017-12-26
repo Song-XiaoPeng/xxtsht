@@ -39,7 +39,7 @@ class Framework extends Auth{
     /**
      * 添加岗位
      * 请求类型 post
-	 * 传入JSON格式: {"position_name":"测试","user_group_id":"372"}
+	 * 传入JSON格式: {"position_name":"测试","user_group_id":"372","describe":"123"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"position_id":"4"}}
 	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/addPosition
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/addPosition
@@ -85,5 +85,22 @@ class Framework extends Auth{
         $data['company_id'] = $this->company_id;
         
         return \think\Loader::model('FrameworkLogic','logic\v1\user')->getPositionList($data);
+	}
+
+    /**
+     * 删除部门
+	 * 请求类型 post
+	 * 传入JSON格式: {"user_group_id":"372"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/delDepartment
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/delDepartment
+	 * @param user_group_id 部门id
+	 * @return code 200->成功
+	 */
+	public function delDepartment(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('FrameworkLogic','logic\v1\user')->delDepartment($data);
 	}
 }

@@ -61,17 +61,19 @@ class FrameworkLogic extends Model {
 	 * @param company_id 商户id
 	 * @param position_name 岗位名称
 	 * @param user_group_id 所属部门id
+	 * @param describe 岗位描述
 	 * @return code 200->成功
 	 */
     public function addPosition($data){
         $company_id = $data['company_id'];
         $position_name = $data['position_name'];
         $user_group_id = $data['user_group_id'];
+        $describe = $data['describe'];
 
         $position_id = Db::name('position')->insertGetId([
             'company_id' => $company_id,
             'position_name' => $position_name,
-            'user_group_id' => $user_group_id
+            'describe' => $describe
         ]);
 
         if($position_id){
@@ -113,5 +115,35 @@ class FrameworkLogic extends Model {
         $list = Db::name('position')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->select();
 
         return msg(200, 'success', $list);
+    }
+
+    /**
+     * 添加用户
+	 * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function addUser($data){
+
+    }
+
+    /**
+     * 删除部门
+	 * @param company_id 商户id
+	 * @param user_group_id 部门id
+	 * @return code 200->成功
+	 */
+    public function delDepartment($data){
+        $company_id = $data['company_id'];
+        $user_group_id = $data['user_group_id'];
+
+        Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->delete();
+
+        $user_list = Db::name('user')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->select();
+
+        foreach($user_list as $v){
+            Db::name('user')->where(['uid'=>$v['uid']])->update(['user_group_id'=>-1]);
+        }
+
+        return msg(200,'success');
     }
 }
