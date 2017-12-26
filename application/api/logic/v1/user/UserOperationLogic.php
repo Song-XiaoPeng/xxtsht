@@ -239,7 +239,7 @@ class UserOperationLogic extends Model {
             if($token_info['meta']['code'] == 200){
                 $refresh_token = $token_info['body']['refresh_token'];
             }else{
-                return $token_info;
+                continue;
             }
     
             $app = new Application(wxOptions());
@@ -282,7 +282,7 @@ class UserOperationLogic extends Model {
             if($token_info['meta']['code'] == 200){
                 $refresh_token = $token_info['body']['refresh_token'];
             }else{
-                return $token_info;
+                continue;
             }
     
             try{
@@ -292,7 +292,7 @@ class UserOperationLogic extends Model {
 
                 $success++;
             }catch (\Exception $e) {
-                return msg(3001,$e->getMessage());
+                continue;
             }
     
             Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])->delete();
@@ -332,7 +332,7 @@ class UserOperationLogic extends Model {
             if($token_info['meta']['code'] == 200){
                 $refresh_token = $token_info['body']['refresh_token'];
             }else{
-                return $token_info;
+                continue;
             }
 
             $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$value['appid'],'uid'=>$uid])->find();
