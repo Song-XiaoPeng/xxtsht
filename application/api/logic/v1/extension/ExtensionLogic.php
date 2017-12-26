@@ -34,6 +34,7 @@ class ExtensionLogic extends Model {
         $uid = $data['uid'];
         $activity_name = $data['activity_name'];
         $reply_type = $data['reply_type'];
+        $share_title = empty($data['share_title']) == true ? '' : $data['share_title'];
         $invalid_time = empty($data['invalid_time']) == true ? '' : $data['invalid_time'];
         $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
