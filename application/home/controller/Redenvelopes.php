@@ -46,10 +46,19 @@ class Redenvelopes{
                 'code' => $code,
                 'appid' => $arr['appid'],
                 'company_id' => $arr['company_id'],
-                'share_title' => $share_title,
-                'share_cover' => $share_cover
+                'share_title' => $arr['share_title'],
+                'share_cover' => 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$arr['share_cover'],
+                'activity_id' => $data['activity_id'],
+                'share_url' => 'http://'.$_SERVER['HTTP_HOST'].'/home/Redenvelopes/jumpUrl?url='.$arr['share_url']
             ]
         );
+    }
+
+    // 链接跳转
+    public function jumpUrl(){
+        $url = input('get.url');
+    
+        header('location:'. $url);
     }
 
     // 领取红包
@@ -93,7 +102,7 @@ class Redenvelopes{
 
         //判断是否分享
         if ($arr['is_share'] == 1) {
-            $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid']])->find();
+            $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid'],'activity_id'=>$data['activity_id']])->find();
             if($is_share){
                 return msg(3002, '请先分享');
             }
@@ -193,9 +202,11 @@ class Redenvelopes{
     public function setShare(){
         $data = input('post.');
     
+        $wx_user_info = Session::get('wx_user_info');
+
         Db::name('red_envelopes_share')->insert([
             'appid' => $data['appid'],
-            'openid' => $data['openid'],
+            'openid' => $wx_user_info['original']['openid'],
             'activity_id' => $data['activity_id'],
             'add_time' => date('Y-m-d H:i:s')
         ]);
