@@ -1777,7 +1777,7 @@ class WxOperationLogic extends Model {
     
             $this->noticeCloseSession($session_res['appid'],$company_id,$session_res['customer_wx_openid'],$customer_service_name);
 
-            Db::name('message_session')->partition(['session_id' => $v], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])->where(['session_id' => $v])->update(['state' => -1]);
+            Db::name('message_session')->partition(['session_id' => $v], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])->where(['session_id' => $v])->update(['state' => -1, 'close_explain' => '正常操作关闭']);
 
             array_push($success_close_session,$v);
         }
