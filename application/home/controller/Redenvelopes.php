@@ -72,7 +72,10 @@ class Redenvelopes{
 
         $data = json_decode($str,true);
 
-        $arr = Db::name('red_envelopes')->where(['activity_id'=>$data['activity_id']])->cache(true,10)->find();
+        $arr = Db::name('red_envelopes')->where(['activity_id'=>$data['activity_id']])->find();
+        if($arr['already_amount'] >= $arr['amount_upper_limit']){
+            return msg(3001, '已达到派发金额上限');
+        }
 
         $auth_info_res = Db::name('openweixin_authinfo')->where(['appid'=>$arr['appid'],'company_id'=>$arr['company_id']])->cache(true,30)->find();
         if(!$auth_info_res){
