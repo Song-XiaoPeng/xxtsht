@@ -103,4 +103,29 @@ class Framework extends Auth{
         
         return \think\Loader::model('FrameworkLogic','logic\v1\user')->delDepartment($data);
 	}
+
+    /**
+     * 添加编辑用户
+	 * 请求类型 post
+	 * 传入JSON格式: {"phone_no":"13249318008","user_name":"张三","password":"password..","user_group_id":"user_group_id..","position_id":"position_id..","portrait":"portrait..","is_customer_service":1,"sex":1}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"uid":33}}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/addUser
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/addUser
+	 * @param uid 存在则编辑
+	 * @param phone_no 账号手机
+	 * @param user_name 账号姓名
+	 * @param password 账户密码md5
+	 * @param user_group_id 部门id
+	 * @param position_id 岗位id
+	 * @param portrait 头像 上传的资源id
+	 * @param is_customer_service 是否客服 1是 -1否
+	 * @param sex 账号性别 1男 2女
+	 * @return code 200->成功
+	 */
+	public function addUser(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('FrameworkLogic','logic\v1\user')->addUser($data);
+	}
 }

@@ -156,6 +156,7 @@ class FrameworkLogic extends Model {
     /**
      * 添加编辑用户
 	 * @param company_id 商户id
+	 * @param uid 存在则编辑
 	 * @param phone_no 账号手机
 	 * @param user_name 账号姓名
 	 * @param password 账户密码md5
@@ -259,4 +260,6 @@ class FrameworkLogic extends Model {
 
         return msg(200,'success',['uid'=>$uid]);
     }
+
+
 }
