@@ -278,7 +278,7 @@ class UserOperationLogic extends Model {
         $openPlatform = $app->open_platform;
 
         foreach($openweixin_authinfo_res as $value){
-            $token_info = Common::getRefreshToken($appid,$company_id);
+            $token_info = Common::getRefreshToken($value['appid'],$company_id);
             if($token_info['meta']['code'] == 200){
                 $refresh_token = $token_info['body']['refresh_token'];
             }else{
@@ -287,7 +287,7 @@ class UserOperationLogic extends Model {
     
             try{
                 $wx_sign = "lyfzkf@$uid";
-                $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+                $staff = $openPlatform->createAuthorizerApplication($value['appid'],$refresh_token)->staff;
                 $staff->delete($wx_sign);
 
                 $success++;
@@ -295,7 +295,7 @@ class UserOperationLogic extends Model {
                 continue;
             }
     
-            Db::name('customer_service')->where(['appid'=>$appid,'uid'=>$uid,'company_id'=>$company_id])->delete();
+            Db::name('customer_service')->where(['appid'=>$value['appid'],'uid'=>$uid,'company_id'=>$company_id])->delete();
         }
 
         if($success == count($openweixin_authinfo_res)){

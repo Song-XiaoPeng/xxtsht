@@ -226,17 +226,17 @@ class FrameworkLogic extends Model {
 
             //判断是否执行修改客服姓名
             if($user_res['user_name'] != $user_name){
-                $token_info = Common::getRefreshToken($value['appid'],$company_id);
-                if($token_info['meta']['code'] == 200){
-                    $refresh_token = $token_info['body']['refresh_token'];
-                }else{
-                    return $token_info;
-                }
-
-                $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'appid'=>$value['appid'],'uid'=>$uid])->find();
+                $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$uid])->select();
                 if($customer_service_res){
                     foreach($customer_service_res as $k=>$v){
                         try{
+                            $token_info = Common::getRefreshToken($v['appid'],$company_id);
+                            if($token_info['meta']['code'] == 200){
+                                $refresh_token = $token_info['body']['refresh_token'];
+                            }else{
+                                return $token_info;
+                            }
+
                             $staff = $openPlatform->createAuthorizerApplication($v['appid'],$refresh_token)->staff;
                             $staff->update($v['wx_sign'], $user_name);
                         }catch (\Exception $e) {
@@ -307,8 +307,10 @@ class FrameworkLogic extends Model {
             $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
             if($resources_id){
                 $user_list[$k]['avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+                $user_list[$k]['portrait'] = $resources_id;
             }else{
                 $user_list[$k]['avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
+                $user_list[$k]['portrait'] = $resources_id;
             }
 
             if($v['user_type'] != 3){
@@ -369,14 +371,58 @@ class FrameworkLogic extends Model {
     public function getFrameworkData($company_id){
         //获取部门数据
         $group_list = Db::name('user_group')->where(['company_id'=>$company_id])->select();
-    
-        //获取职位图
-        $position_list = Db::name('position')->where(['company_id'=>$company_id])->select();
 
-        $group_data = [];
+        $parent_list = [];
+        $son_list = [];
 
         foreach($group_list as $k=>$v){
-            
+            //获取岗位信息
+            $position_list = Db::name('position')
+            ->where(['company_id'=>$company_id,'user_group_id'=>$v['user_group_id']])
+            ->field('')
+            ->select();
+
+            foreach($position_list as $i=>$t){
+                $user_list = Db::name('user')
+                ->where(['company_id'=>$company_id,'position_id'=>$t['position_id']])
+                ->field('uid,user_name,phone_no')
+                ->cache(true,60)
+                ->select();
+
+                $position_list[$i]['staff'] = $user_list;
+            }
+
+            $v['position'] = $position_list;
+
+            //获取领导层信息
+            $person_charge = json_decode($v['person_charge'],true);
+            foreach($person_charge as $i=>$uid){
+                $user_arr = Db::name('user')
+                ->where(['company_id'=>$company_id,'uid'=>$uid])
+                ->field('uid,user_name,phone_no')
+                ->cache(true,60)
+                ->select();
+
+                $person_charge[$i] = $user_arr;
+            }
+
+            $v['person_charge'] = $person_charge;
+
+            if($v['parent_id'] == -1){
+                array_push($parent_list,$v);
+            }else{
+                array_push($son_list,$v);
+            }
         }
+
+        foreach($parent_list as $k=>$v){
+            foreach($son_list as $c=>$t){
+                if($t['parent_id'] == $v['user_group_id']){
+                    $parent_list[$k]['son_list'][] = $t;
+                }
+            }
+        }
+
+        return msg(200,'success',$parent_list);
     }
 }

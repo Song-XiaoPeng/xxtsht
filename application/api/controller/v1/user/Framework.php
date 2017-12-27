@@ -148,4 +148,16 @@ class Framework extends Auth{
         
         return \think\Loader::model('FrameworkLogic','logic\v1\user')->getUserList($data);
 	}
+
+    /**
+     * 获取组织架构图数据
+	 * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"uid":33}}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/getFrameworkData
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/getFrameworkData
+	 * @return code 200->成功
+	 */
+	public function getFrameworkData(){
+        return \think\Loader::model('FrameworkLogic','logic\v1\user')->getFrameworkData($this->company_id);
+	}
 }
