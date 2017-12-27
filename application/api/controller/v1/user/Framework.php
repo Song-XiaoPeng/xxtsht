@@ -150,6 +150,22 @@ class Framework extends Auth{
 	}
 
     /**
+     * 获取我的下属账号信息list
+	 * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"user_group_id":409,"user_group_name":"惠州团队","uid_list":[{"uid":8051,"phone_no":"18675770677","user_name":"杨玉宝","user_group_id":409},{"uid":8059,"phone_no":"13233223322","user_name":"测试1","user_group_id":409},{"uid":8060,"phone_no":"13255225522","user_name":"阿凡达","user_group_id":409},{"uid":8061,"phone_no":"13939393939","user_name":"测试2","user_group_id":409}]},{"user_group_id":410,"user_group_name":"武汉团队","uid_list":[{"uid":8052,"phone_no":"18627819931","user_name":"鲁杰","user_group_id":410}]},{"user_group_id":411,"user_group_name":"西安团队","uid_list":[{"uid":8053,"phone_no":"18634397484","user_name":"朱启章","user_group_id":411}]},{"user_group_id":412,"user_group_name":"总经办","uid_list":[{"uid":8054,"phone_no":"18665281861","user_name":"钟北清","user_group_id":412}]},{"user_group_id":413,"user_group_name":"CEO领导层","uid_list":[]},{"user_group_id":416,"user_group_name":"afwcxbb","uid_list":[]}]}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/getSubordinateList
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/getSubordinateList
+	 * @return code 200->成功
+	 */
+	public function getSubordinateList(){
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+        $data['user_type'] = $this->user_type;
+        
+        return \think\Loader::model('FrameworkLogic','logic\v1\user')->getSubordinateList($data);
+	}
+
+    /**
      * 获取组织架构图数据
 	 * 请求类型 get
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"uid":33}}

@@ -425,4 +425,53 @@ class FrameworkLogic extends Model {
 
         return msg(200,'success',$parent_list);
     }
+
+    /**
+     * 获取我的下属账号信息list
+	 * @param company_id 商户id
+	 * @param uid 登录账号uid
+	 * @return code 200->成功
+	 */
+    public function getSubordinateList($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $user_type = $data['user_type'];
+
+        if($user_type == 3){
+            $user_list = Db::name('user')->where(['company_id'=>$company_id])->cache(true,60)->field('uid,phone_no,user_name,user_group_id')->select();
+       
+            $user_group = Db::name('user_group')->where(['company_id'=>$company_id])->field('user_group_id,user_group_name')->cache(true,60)->select();
+
+            foreach($user_group as $key=>$value){
+                $user_group[$key]['uid_list'] = [];
+
+                foreach($user_list as $i=>$t){
+                    if($value['user_group_id'] == $t['user_group_id']){
+                        $user_group[$key]['uid_list'][] = $t;
+                    }
+                }
+            }
+        }else{
+            $map['person_charge'] = ['like',"%$uid%"];
+            $map['company_id'] = $company_id;
+
+            $user_group = Db::name('user_group')
+            ->where($map)
+            ->field('user_group_id')
+            ->cache(true,60)
+            ->select();
+
+            foreach($user_group as $key=>$value){
+                $uid_list = Db::name('user')->where(['user_group_id'=>$value['user_group_id'],'company_id'=>$company_id])->cache(true,60)->field('uid,phone_no,user_name,user_group_id')->select();
+
+                if($uid_list){
+                    $user_group[$key]['uid_list'] = $uid_list;
+                }else{
+                    $user_group[$key]['uid_list'] = [];
+                }
+            }
+        }
+
+        return msg(200,'success',$user_group);
+    }
 }
