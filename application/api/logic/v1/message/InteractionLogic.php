@@ -149,12 +149,23 @@ class InteractionLogic extends Model {
     /**
      * 商户监控会话列表获取
 	 * @param company_id 商户company_id
+     * @param uid_list 指定客服人员的会话数据 选传
 	 * @return code 200->成功
 	 */
-    public function getMonitorSessionList($company_id){
+    public function getMonitorSessionList($data){
+        $company_id = $data['company_id'];
+        $uid_list = empty($data['uid_list']) == true ? [] : $data['uid_list'];
+
+        $session_map['company_id'] = $data['company_id'];
+        $session_map['state'] = ['in',[0,1,3]];
+
+        if(!empty($uid_list)){
+            $session_map['uid'] = $data['company_id'];
+        }
+
         $list = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id,'state'=>['in',[0,1,3]]])
+        ->where($session_map)
         ->order('add_time desc')
         ->select();
 

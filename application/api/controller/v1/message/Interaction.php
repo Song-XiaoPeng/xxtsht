@@ -58,14 +58,19 @@ class Interaction extends Auth{
 
 	/**
      * 商户监控会话列表获取
-     * 请求类型 get
+     * 请求类型 post
+	 * 传入JSON格式: {"uid_list": [1,13,22]}
 	 * 返回JSON格式: 
 	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/getMonitorSessionList
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/getMonitorSessionList
+     * @param uid_list 指定客服人员的会话数据  选传
 	 * @return code 200->成功
 	 */
 	public function getMonitorSessionList(){
-		return \think\Loader::model('InteractionLogic','logic\v1\message')->getMonitorSessionList($this->company_id);
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('InteractionLogic','logic\v1\message')->getMonitorSessionList($data);
 	}
 
 	/**
