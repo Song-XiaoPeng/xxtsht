@@ -396,17 +396,19 @@ class FrameworkLogic extends Model {
 
             //获取领导层信息
             $person_charge = json_decode($v['person_charge'],true);
-            foreach($person_charge as $i=>$uid){
-                $user_arr = Db::name('user')
-                ->where(['company_id'=>$company_id,'uid'=>$uid])
-                ->field('uid,user_name,phone_no')
-                ->cache(true,60)
-                ->select();
+            if($person_charge){
+                foreach($person_charge as $i=>$uid){
+                    $user_arr[] = Db::name('user')
+                    ->where(['company_id'=>$company_id,'uid'=>$uid])
+                    ->field('uid,user_name,phone_no')
+                    ->cache(true,60)
+                    ->find();
+                }
 
-                $person_charge[$i] = $user_arr;
+                $v['person_charge'] = $user_arr;
+            }else{
+                $v['person_charge'] = [];
             }
-
-            $v['person_charge'] = $person_charge;
 
             if($v['parent_id'] == -1){
                 array_push($parent_list,$v);
@@ -427,6 +429,28 @@ class FrameworkLogic extends Model {
     }
 
     /**
+     * 设置部门领导
+	 * @param company_id 商户id
+	 * @param set_uid 设置的账号uid
+	 * @param user_group_id 分组id
+	 * @return code 200->成功
+	 */
+    public function setLeader($data){
+        $company_id = $data['company_id'];
+        $set_uid = $data['set_uid'];
+        $user_group_id = $data['user_group_id'];
+
+        $user_group = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->find();
+        if(!$user_group){
+            return msg(3001,'user_group_id参数错误');
+        }
+
+
+
+
+    }
+
+    /**
      * 获取我的下属账号信息list
 	 * @param company_id 商户id
 	 * @param uid 登录账号uid
@@ -437,41 +461,41 @@ class FrameworkLogic extends Model {
         $uid = $data['uid'];
         $user_type = $data['user_type'];
 
+        $user_group_arr = Db::name('user_group')->where(['company_id'=>$company_id])->field('user_group_id,user_group_name')->cache(true,60)->select();
+
         if($user_type == 3){
             $user_list = Db::name('user')->where(['company_id'=>$company_id])->cache(true,60)->field('uid,phone_no,user_name,user_group_id')->select();
-       
-            $user_group = Db::name('user_group')->where(['company_id'=>$company_id])->field('user_group_id,user_group_name')->cache(true,60)->select();
-
-            foreach($user_group as $key=>$value){
-                $user_group[$key]['uid_list'] = [];
-
-                foreach($user_list as $i=>$t){
-                    if($value['user_group_id'] == $t['user_group_id']){
-                        $user_group[$key]['uid_list'][] = $t;
-                    }
-                }
-            }
         }else{
             $map['person_charge'] = ['like',"%$uid%"];
             $map['company_id'] = $company_id;
 
             $user_group = Db::name('user_group')
             ->where($map)
-            ->field('user_group_id')
             ->cache(true,60)
-            ->select();
+            ->find();
 
-            foreach($user_group as $key=>$value){
-                $uid_list = Db::name('user')->where(['user_group_id'=>$value['user_group_id'],'company_id'=>$company_id])->cache(true,60)->field('uid,phone_no,user_name,user_group_id')->select();
+            if ($user_group['parent_id'] == -1) {
+                $son_list = Db::name('user_group')
+                ->where(['parent_id'=>$user_group['user_group_id']])
+                ->cache(true,60)
+                ->select();
 
-                if($uid_list){
-                    $user_group[$key]['uid_list'] = $uid_list;
-                }else{
-                    $user_group[$key]['uid_list'] = [];
+                $son_list = array_column($son_list, 'user_group_id');
+
+                $user_list = Db::name('user')->where(['company_id'=>$company_id,'user_group_id'=>['in',$son_list]])->field('uid,phone_no,user_name,user_group_id')->select();
+            }
+        }
+
+        foreach($user_group_arr as $key=>$value){
+            $user_group_arr[$key]['uid_list'] = [];
+
+            foreach($user_list as $i=>$t){
+                if($value['user_group_id'] == $t['user_group_id']){
+                    $user_group_arr[$key]['uid_list'][] = $t;
                 }
             }
         }
 
-        return msg(200,'success',$user_group);
+        return msg(200,'success',$user_group_arr);
     }
 }
