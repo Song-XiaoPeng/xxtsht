@@ -273,6 +273,7 @@ class FrameworkLogic extends Model {
     public function getUserList($data){
         $company_id = $data['company_id'];
         $page = $data['page'];
+        $user_state = $data['user_state'];
         $user_group_id = empty($data['user_group_id']) == true ? '' : $data['user_group_id'];
         $text = empty($data['text']) == true ? '' : $data['text'];
 
@@ -282,6 +283,7 @@ class FrameworkLogic extends Model {
 
         $map['company_id'] = $company_id;
         $map['user_type'] = 4;
+        $map['user_state'] = $user_state;
         if(!empty($user_group_id)){
             $map['user_group_id'] = $user_group_id;
         }
@@ -317,7 +319,6 @@ class FrameworkLogic extends Model {
                 $model_list = Db::name('model_auth')->where(['company_id'=>$company_id,'model_auth_uid'=>$v['uid']])->value('model_list');
                 
                 $user_list[$k]['model_list'] = json_decode($model_list);
-
 
                 $customer_service_list = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->select();
 
@@ -437,17 +438,54 @@ class FrameworkLogic extends Model {
 	 */
     public function setLeader($data){
         $company_id = $data['company_id'];
-        $set_uid = $data['set_uid'];
+        $set_uid = intval($data['set_uid']);
         $user_group_id = $data['user_group_id'];
 
-        $user_group = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->find();
-        if(!$user_group){
-            return msg(3001,'user_group_id参数错误');
+        $map['company_id'] = $company_id;
+        $map['person_charge'] = ['like', "%$set_uid%"];
+        $user_group_res = Db::name('user_group')->where($map)->find();
+
+        $person_charge = json_decode($user_group_res['person_charge'], true);
+
+        $is_reset = false;
+
+        if ($person_charge) {
+            foreach($person_charge as $k=>$v){
+                if($v == $set_uid){
+                    $is_reset = true;
+                    unset($person_charge[$k]);
+                }
+            }
         }
 
+        if($is_reset){
+            $person_charge = array_values($person_charge);
 
+            Db::name('user_group')
+            ->where(['user_group_id' => $user_group_res['user_group_id']])
+            ->update(['person_charge' => json_encode($person_charge)]);
+        }
 
+        $group_res = Db::name('user_group')
+        ->where(['user_group_id' => $user_group_id])
+        ->find();
 
+        $person_charge_arr = json_decode($group_res['person_charge'],true);
+        if(!$person_charge_arr){
+            $person_charge_arr = [];
+        }
+
+        array_push($person_charge_arr, $set_uid);
+
+        $update_res = Db::name('user_group')
+        ->where(['user_group_id' => $user_group_id])
+        ->update(['person_charge' => json_encode($person_charge_arr)]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
     }
 
     /**
@@ -486,14 +524,18 @@ class FrameworkLogic extends Model {
             }
         }
 
-        foreach($user_group_arr as $key=>$value){
-            $user_group_arr[$key]['uid_list'] = [];
-
-            foreach($user_list as $i=>$t){
-                if($value['user_group_id'] == $t['user_group_id']){
-                    $user_group_arr[$key]['uid_list'][] = $t;
+        if(!empty($user_list)){
+            foreach($user_group_arr as $key=>$value){
+                $user_group_arr[$key]['uid_list'] = [];
+    
+                foreach($user_list as $i=>$t){
+                    if($value['user_group_id'] == $t['user_group_id']){
+                        $user_group_arr[$key]['uid_list'][] = $t;
+                    }
                 }
             }
+        }else{
+            $user_group_arr = [];
         }
 
         return msg(200,'success',$user_group_arr);

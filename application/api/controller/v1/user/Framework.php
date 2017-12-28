@@ -149,6 +149,24 @@ class Framework extends Auth{
         return \think\Loader::model('FrameworkLogic','logic\v1\user')->getUserList($data);
 	}
 
+	/**
+     * 设置部门领导
+	 * 请求类型 post
+	 * 传入JSON格式: {"set_uid":12,"user_group_id":32}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":""}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/setLeader
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/setLeader
+	 * @param set_uid 设置的账号uid
+	 * @param user_group_id 分组id
+	 * @return code 200->成功
+	 */
+	public function setLeader(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        
+        return \think\Loader::model('FrameworkLogic','logic\v1\user')->setLeader($data);
+	}
+
     /**
      * 获取我的下属账号信息list
 	 * 请求类型 get

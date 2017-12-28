@@ -160,7 +160,7 @@ class InteractionLogic extends Model {
         $session_map['state'] = ['in',[0,1,3]];
 
         if(!empty($uid_list)){
-            $session_map['uid'] = $data['company_id'];
+            $session_map['uid'] = ['in',$uid_list];
         }
 
         $list = Db::name('message_session')
