@@ -436,24 +436,39 @@ class CustomerOperationLogic extends Model {
                         $map['customer_service_uid'] = $uid;
                         $map['is_clue'] = -1;
                     }
-                }
+                }else
                 break;
         }
 
         $wx_user_sql = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
-        ->limit($show_page,$page_count)
         ->order('subscribe_time desc')
         ->buildSql();
 
-        $customer_info_map['customer_type'] = 0;
-        $customer_info_map['real_name'] = array('like',"%$real_name%");
-        $wx_user_list = Db::table('tb_customer_info')->alias('a')->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')->where($customer_info_map)->select();
+        if ($type == 1) {
+            $customer_info_map['real_name'] = array('like',"%$real_name%");
+            $wx_user_list = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')
+            ->where($customer_info_map)
+            ->limit($show_page,$page_count)
+            ->select();
+        }else{
+            $customer_info_map['customer_type'] = 0;
+            $customer_info_map['real_name'] = array('like',"%$real_name%");
+            $wx_user_list = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')
+            ->where($customer_info_map)
+            ->limit($show_page,$page_count)
+            ->select();
+        }
 
-        $count = Db::name('wx_user')
-        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where($map)
+        $count = Db::table('tb_customer_info')
+        ->alias('a')
+        ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')
+        ->where($customer_info_map)
         ->count();
 
         foreach($wx_user_list as $k=>$v){
