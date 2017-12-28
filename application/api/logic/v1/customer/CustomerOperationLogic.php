@@ -444,19 +444,29 @@ class CustomerOperationLogic extends Model {
                 break;
         }
 
-        $wx_user_list = Db::name('wx_user')
+        $wx_user_sql = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->limit($show_page,$page_count)
         ->order('subscribe_time desc')
-        ->select();
+        ->buildSql();
+
+        $wx_user_list = Db::table('tb_customer_info')->alias('a')->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')->where(['customer_type' => 0])->select();
 
         $count = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->count();
-    
-        $wx_user_list = $this->combinedCustomerData($wx_user_list,$count);
+
+        foreach($wx_user_list as $k=>$v){
+            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            if($v['qrcode_id']){
+                $wx_user_list[$k]['source_qrcode_name'] = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
+            }else{
+                $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
+            }
+        }
 
         $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
         $res['page_data']['count'] = $count;
@@ -464,67 +474,6 @@ class CustomerOperationLogic extends Model {
         $res['page_data']['page'] = $page;
         
         return msg(200,'success',$res);
-    }
-
-    //组合线索客户数据
-    private function combinedCustomerData($wx_user_list,$count){
-        foreach($wx_user_list as $k=>$v){
-            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
-
-            if($v['qrcode_id']){
-                $wx_user_list[$k]['source_qrcode_name'] = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
-            }else{
-                $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
-            }
-
-            if($v['customer_info_id'] == -1){
-                $wx_user_list[$k]['customer_info'] = null;
-                continue;
-            }
-
-            $customer_info = Db::name('customer_info')->where(['customer_info_id'=>$v['customer_info_id']])->find();
-            if(!$customer_info){
-                $wx_user_list[$k]['customer_info'] = null;
-                continue;
-            }
-
-            if($customer_info['customer_type'] != 0){
-                $count--;
-                unset($wx_user_list[$k]);
-                continue;
-            }
-
-            if($customer_info['wx_user_group_id'] != -1){
-                $customer_info['wx_user_group_name'] = Db::name('wx_user_group')
-                ->where(['wx_user_group_id'=>$customer_info['wx_user_group_id']])
-                ->cache(true,60)
-                ->value('group_name');
-            }else{
-                $customer_info['wx_user_group_name'] = null;
-            }
-    
-            if($customer_info['wx_company_id'] != -1){
-                $customer_info['wx_company_name'] = Db::name('wx_user_company')
-                ->where(['wx_company_id'=>$customer_info['wx_company_id']])
-                ->cache(true,60)
-                ->value('wx_company_name');
-            }else{
-                $customer_info['wx_company_name'] = null;
-            }
-
-            if($customer_info['product_id'] != -1){
-                $customer_info['product_name'] = Db::name('product')
-                ->where(['product_id'=>$customer_info['product_id']])
-                ->cache(true,60)
-                ->value('product_name');
-            }else{
-                $customer_info['product_name'] = null;
-            }
-
-            $wx_user_list[$k]['customer_info'] = $customer_info;
-        }
-
-        return array_values($wx_user_list);
     }
 
     /**
