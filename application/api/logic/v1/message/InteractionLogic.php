@@ -157,7 +157,7 @@ class InteractionLogic extends Model {
         $uid_list = empty($data['uid_list']) == true ? [] : $data['uid_list'];
 
         $session_map['company_id'] = $data['company_id'];
-        $session_map['state'] = ['in',[0,1,3]];
+        $session_map['state'] = ['in',[0,1]];
 
         if(!empty($uid_list)){
             $session_map['uid'] = ['in',$uid_list];
@@ -198,9 +198,15 @@ class InteractionLogic extends Model {
             if($v['state'] == 1){
                 array_push($conversation_session, $v);
             }
+        }
 
-            if($v['state'] == 3){
-                array_push($line_up_session, $v);
+        $redis = Common::createRedis();
+        $redis->select(2); 
+
+        $redis_list = $redis->sMembers($company_id);
+        if($redis_list){
+            foreach($redis_list as $k=>$v){
+                array_push($line_up_session, json_decode($v));
             }
         }
 
