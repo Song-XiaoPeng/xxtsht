@@ -180,4 +180,33 @@ class Common {
 
         return $redis;
     }
+
+    /**
+     * 获取下属账号uid
+     * @param company_id 商户company_id
+     * @param uid 登录账号uid
+	 * @return code 200->成功
+	 */
+    public static function getAscriptionUidList($company_id,$uid,$user_type){
+        $data['company_id'] = $company_id;
+        $data['uid'] = $uid;
+        $data['user_type'] = $user_type;
+
+        $res = \think\Loader::model('FrameworkLogic','logic\v1\user')->getSubordinateList($data);
+        if($res['meta']['code'] != 200){
+            return $res;
+        }
+
+        $arr = $res['body'];
+
+        $uid_list = [];
+
+        foreach($arr as $k=>$v){
+            foreach($v['uid_list'] as $i=>$t){
+                array_push($uid_list, $t['uid']);
+            }
+        }
+
+        return msg(200,'success',$uid_list);
+    }
 }

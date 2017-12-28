@@ -369,8 +369,8 @@ class CustomerOperationLogic extends Model {
      * @param real_name 微信昵称(选传模糊搜索)
      * @param page 分页参数 默认1
      * @param uid 登录账号uid
-     * @param ascription 客户线索归属 1我的 2其他人 3全部
      * @param type 类型 1线索池客户 2线索客户
+     * @param ascription 客户线索归属 1我的 2下属 3全部
 	 * @return code 200->成功
 	 */
     public function getClueCustomer($data){
@@ -393,6 +393,12 @@ class CustomerOperationLogic extends Model {
         $map['company_id'] = $company_id;
         $map['is_clue'] = 1;
 
+        //获取我的团队账号
+        $uid_res = Common::getAscriptionUidList($company_id, $uid, $user_type);
+        if($uid_res['meta']['code'] != 200){
+            return $uid_res;
+        }
+
         switch($user_type){
             case '3':
                 if($type == 1){
@@ -406,10 +412,34 @@ class CustomerOperationLogic extends Model {
                     $map['customer_service_uid'] = $uid;
                     $map['is_clue'] = -1;
                 }else if ($type == 2 && $ascription == 2) {
-                    $map['customer_service_uid'] = array('not in',[$uid]);
-                    $map['is_clue'] = -1;
+                    if(!empty($uid_res['body'])){
+                        $uid_list = $uid_res['body'];
+                        foreach($uid_list as $k=>$v){
+                            if($v == $uid){
+                                unset($uid_list[$k]);
+                            }
+                        }
+    
+                        $uid_list = array_values($uid_list);
+    
+                        $map['customer_service_uid'] = array('in',$uid_list);
+                        $map['is_clue'] = -1;
+                    }else{
+                        $res['data_list'] = [];
+                        $res['page_data']['count'] = 0;
+                        $res['page_data']['rows_num'] = $page_count;
+                        $res['page_data']['page'] = $page;
+                        
+                        return msg(200,'success',$res);
+                    }
                 }else if ($type == 2 && $ascription == 3) {
-                    $map['is_clue'] = -1;
+                    if(!empty($uid_res['body'])){
+                        $map['customer_service_uid'] = array('in',$uid_list);
+                        $map['is_clue'] = -1;
+                    }else{
+                        $map['customer_service_uid'] = $uid;
+                        $map['is_clue'] = -1;
+                    }
                 }
                 break;
         }
@@ -434,23 +464,6 @@ class CustomerOperationLogic extends Model {
         $res['page_data']['page'] = $page;
         
         return msg(200,'success',$res);
-    }
-
-    /**
-     * 获取未联系线索客户list
-     * @param company_id 商户company_id
-     * @param real_name 微信昵称(选传模糊搜索)
-     * @param page 分页参数 默认1
-     * @param type 1客户 2
-	 * @return code 200->成功
-	 */
-    public function getUnrelatedClue($data){
-        $company_id = $data['company_id'];
-        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
-        $page = $data['page'];
-        $type = $data['type'];
-
-        
     }
 
     //组合线索客户数据
