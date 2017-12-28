@@ -354,6 +354,15 @@ class FrameworkLogic extends Model {
             }else{
                 $user_list[$k]['user_state_name'] = '禁用';
             }
+
+            //判断是否部门领导
+            $uid = $v['uid'];
+            $user_group_id = Db::name('user_group')->where(['company_id'=>$company_id,'person_charge'=>['like', "%$uid%"]])->value('user_group_id'); 
+            if($user_group_id){
+                $user_list[$k]['leader_id'] = $user_group_id;
+            }else{
+                $user_list[$k]['leader_id'] = null;
+            }        
         }
 
         $res['data_list'] = count($user_list) == 0 ? array() : $user_list;
