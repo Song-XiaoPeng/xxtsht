@@ -434,7 +434,7 @@ class CustomerOperationLogic extends Model {
                     }
                 }else if ($type == 2 && $ascription == 3) {
                     if(!empty($uid_res['body'])){
-                        $map['customer_service_uid'] = array('in',$uid_list);
+                        $map['customer_service_uid'] = array('in',$uid_res['body']);
                         $map['is_clue'] = -1;
                     }else{
                         $map['customer_service_uid'] = $uid;
