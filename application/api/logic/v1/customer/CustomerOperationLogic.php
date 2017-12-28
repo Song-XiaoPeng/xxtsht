@@ -523,7 +523,6 @@ class CustomerOperationLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getClueStatisticData($company_id, $uid, $user_type){
-
         if($user_type != 3){
             //获取我的团队账号
             $uid_res = Common::getAscriptionUidList($company_id, $uid, $user_type);
@@ -534,17 +533,23 @@ class CustomerOperationLogic extends Model {
             $map['customer_service_uid'] = array('in', $uid_res['body']);
         }
 
+        //获取总线索数据
         $map['company_id'] = $company_id;
         $map['is_clue'] = -1;
-
         $clue = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->count();
 
+        //获取今日加入线索的数据
+        $yesterday_res = getDayTimeSolt();
+        $begin_time = $yesterday_res['begin_time'];
+        $end_time = $yesterday_res['end_time'];
+        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = -1  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
         $arr = [
             'clue' => $clue,
-            'today' => 0,
+            'today' => $today,
             'follow_up' => 0,
             'intention' => 0
         ];
