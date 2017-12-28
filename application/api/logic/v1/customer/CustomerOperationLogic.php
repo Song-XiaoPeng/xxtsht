@@ -386,10 +386,6 @@ class CustomerOperationLogic extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        if($real_name){
-            $map['nickname'] = array('like',"%$real_name%");
-        }
-
         $map['company_id'] = $company_id;
         $map['is_clue'] = 1;
 
@@ -451,7 +447,9 @@ class CustomerOperationLogic extends Model {
         ->order('subscribe_time desc')
         ->buildSql();
 
-        $wx_user_list = Db::table('tb_customer_info')->alias('a')->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')->where(['customer_type' => 0])->select();
+        $customer_info_map['customer_type'] = 0;
+        $customer_info_map['real_name'] = array('like',"%$real_name%");
+        $wx_user_list = Db::table('tb_customer_info')->alias('a')->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')->where($customer_info_map)->select();
 
         $count = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
