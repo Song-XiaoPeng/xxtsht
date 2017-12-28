@@ -447,7 +447,7 @@ class FrameworkLogic extends Model {
 	 */
     public function setLeader($data){
         $company_id = $data['company_id'];
-        $set_uid = intval($data['set_uid']);
+        $set_uid = empty($data['set_uid']) == true ? '' : intval($data['set_uid']);
         $user_group_id = $data['user_group_id'];
 
         $map['company_id'] = $company_id;
@@ -475,25 +475,29 @@ class FrameworkLogic extends Model {
             ->update(['person_charge' => json_encode($person_charge)]);
         }
 
-        $group_res = Db::name('user_group')
-        ->where(['user_group_id' => $user_group_id])
-        ->find();
-
-        $person_charge_arr = json_decode($group_res['person_charge'],true);
-        if(!$person_charge_arr){
-            $person_charge_arr = [];
-        }
-
-        array_push($person_charge_arr, $set_uid);
-
-        $update_res = Db::name('user_group')
-        ->where(['user_group_id' => $user_group_id])
-        ->update(['person_charge' => json_encode($person_charge_arr)]);
-
-        if($update_res !== false){
+        if ($set_uid) {
+            $group_res = Db::name('user_group')
+            ->where(['user_group_id' => $user_group_id])
+            ->find();
+    
+            $person_charge_arr = json_decode($group_res['person_charge'],true);
+            if(!$person_charge_arr){
+                $person_charge_arr = [];
+            }
+    
+            array_push($person_charge_arr, $set_uid);
+    
+            $update_res = Db::name('user_group')
+            ->where(['user_group_id' => $user_group_id])
+            ->update(['person_charge' => json_encode($person_charge_arr)]);
+    
+            if($update_res !== false){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'更新数据失败');
+            }
+        } else {
             return msg(200,'success');
-        }else{
-            return msg(3001,'更新数据失败');
         }
     }
 
