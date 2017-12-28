@@ -156,6 +156,8 @@ class InteractionLogic extends Model {
         $company_id = $data['company_id'];
         $uid_list = empty($data['uid_list']) == true ? [] : $data['uid_list'];
 
+        $time = date('Y-m-d H:i:s');
+
         $session_map['company_id'] = $data['company_id'];
         $session_map['state'] = ['in',[0,1]];
 
@@ -192,6 +194,7 @@ class InteractionLogic extends Model {
             $v['nick_name'] = empty($nick_name) == true ? '暂无' : $nick_name;
 
             if($v['state'] == 0){
+                $v['used_time'] = timediff($v['add_time'], $time);
                 array_push($pending_access_session, $v);
             }
 
@@ -206,7 +209,10 @@ class InteractionLogic extends Model {
         $redis_list = $redis->sMembers($company_id);
         if($redis_list){
             foreach($redis_list as $k=>$v){
-                array_push($line_up_session, json_decode($v));
+                $arr = json_decode($v,true);
+                $arr['used_time'] = timediff($arr['add_time'], $time);
+
+                array_push($line_up_session, $arr);
             }
         }
 
