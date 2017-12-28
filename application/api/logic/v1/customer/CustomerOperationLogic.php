@@ -55,7 +55,7 @@ class CustomerOperationLogic extends Model {
             return msg(3001,'客户微信基础信息不存在或未同步');
         }
 
-        if($customer_info_id == -1){
+        if(empty($customer_info_id) == true){
             $customer_info_id = '';
         }
 
@@ -170,7 +170,7 @@ class CustomerOperationLogic extends Model {
         $tel = empty($data['tel']) == true ? -1 : $data['tel'];
         $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
 
-        if(empty($customer_info_id) == false && $customer_info_id != -1){
+        if(empty($customer_info_id) == false && empty($customer_info_id) == false){
             $customer_info_res = Db::name('customer_info')
             ->where(['customer_info_id'=>$customer_info_id,'company_id'=>$company_id])
             ->find();
@@ -179,7 +179,7 @@ class CustomerOperationLogic extends Model {
             }
         }
 
-        if(empty($customer_info_res) == true || $customer_info_id == -1){
+        if(empty($customer_info_res) == true || empty($customer_info_id) == true){
             $customer_info_id = md5(uniqid());
             
             $db_operation_res = Db::name('customer_info')
@@ -398,9 +398,9 @@ class CustomerOperationLogic extends Model {
         switch($user_type){
             case '3':
                 if($type == 1){
-                    $map['customer_service_uid'] = -1;
+                    $map['is_clue'] = 1;
                 }else if($type == 2){
-                    $map['customer_service_uid'] = array('not in',[-1]);
+                    $map['is_clue'] = -1;
                 }
                 break;
             case '4':
@@ -436,7 +436,7 @@ class CustomerOperationLogic extends Model {
                         $map['customer_service_uid'] = $uid;
                         $map['is_clue'] = -1;
                     }
-                }else
+                }
                 break;
         }
 
@@ -447,29 +447,38 @@ class CustomerOperationLogic extends Model {
         ->buildSql();
 
         if ($type == 1) {
-            $customer_info_map['real_name'] = array('like',"%$real_name%");
-            $wx_user_list = Db::table('tb_customer_info')
-            ->alias('a')
-            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')
-            ->where($customer_info_map)
-            ->limit($show_page,$page_count)
-            ->select();
+            $customer_info_map['is_clue'] = 1;
         }else{
-            $customer_info_map['customer_type'] = 0;
-            $customer_info_map['real_name'] = array('like',"%$real_name%");
-            $wx_user_list = Db::table('tb_customer_info')
-            ->alias('a')
-            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')
-            ->where($customer_info_map)
-            ->limit($show_page,$page_count)
-            ->select();
+            $customer_info_map['is_clue'] = -1;
         }
 
-        $count = Db::table('tb_customer_info')
-        ->alias('a')
-        ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id', 'RIGHT')
-        ->where($customer_info_map)
-        ->count();
+        $customer_info_map['real_name'] = array('like',"%$real_name%");
+
+        if($real_name){
+            $wx_user_list = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->where($customer_info_map)
+            ->limit($show_page,$page_count)
+            ->select();
+
+            $count = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->where($customer_info_map)
+            ->count();
+        }else{
+            $wx_user_list = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->limit($show_page,$page_count)
+            ->select();
+
+            $count = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->count();
+        }
 
         foreach($wx_user_list as $k=>$v){
             $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
@@ -479,6 +488,24 @@ class CustomerOperationLogic extends Model {
             }else{
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
+
+            if($v['product_id']){
+                $wx_user_list[$k]['product_name'] = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
+            }else{
+                $wx_user_list[$k]['product_name'] = null;
+            }
+
+            if($v['customer_service_uid']){
+                $wx_user_list[$k]['customer_service_name'] = Db::name('user')->where(['uid'=>$v['customer_service_uid']])->cache(true,60)->value('user_name');
+            }else{
+                $wx_user_list[$k]['customer_service_name'] = null;
+            }
+
+            if($v['wx_company_id']){
+                $wx_user_list[$k]['wx_comapny_name'] = Db::name('wx_user_company')->where(['wx_company_id'=>$v['wx_company_id']])->cache(true,60)->value('wx_comapny_name');
+            }else{
+                $wx_user_list[$k]['wx_comapny_name'] = null;
+            }
         }
 
         $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
@@ -487,6 +514,42 @@ class CustomerOperationLogic extends Model {
         $res['page_data']['page'] = $page;
         
         return msg(200,'success',$res);
+    }
+
+    /**
+     * 获取线索数据统计
+     * @param company_id 商户company_id
+     * @param uid 登录账号uid
+	 * @return code 200->成功
+	 */
+    public function getClueStatisticData($company_id, $uid, $user_type){
+
+        if($user_type != 3){
+            //获取我的团队账号
+            $uid_res = Common::getAscriptionUidList($company_id, $uid, $user_type);
+            if($uid_res['meta']['code'] != 200){
+                return $uid_res;
+            }
+
+            $map['customer_service_uid'] = array('in', $uid_res['body']);
+        }
+
+        $map['company_id'] = $company_id;
+        $map['is_clue'] = -1;
+
+        $clue = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->count();
+
+        $arr = [
+            'clue' => $clue,
+            'today' => 0,
+            'follow_up' => 0,
+            'intention' => 0
+        ];
+        
+        return msg(200,'success',$arr);
     }
 
     /**
