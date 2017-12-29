@@ -80,7 +80,7 @@ class RuleLogic extends Model {
             'intention_recovery' => empty($rule_arr['intention_recovery']) == true ? '' : $rule_arr['intention_recovery']
         ];
 
-        return msg(200,'success',$arr_data);
+        return msg(200, 'success', $arr_data);
     }   
 
     /**

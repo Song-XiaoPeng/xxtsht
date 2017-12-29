@@ -39,11 +39,21 @@ class Redenvelopes{
             return view('receive', ['title'=>$arr['activity_name']]);
         }
 
+        if(!empty($arr['details_list'])){
+            $img_list = json_decode($arr['details_list'],true);
+
+            foreach($img_list as $k=>$v){
+                $img_list[$k] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v;
+            }
+        }
+
+
         return view(
             'index', 
             [
                 'title' => $arr['activity_name'],
                 'code' => $code,
+                'background' => $img_list,
                 'appid' => $arr['appid'],
                 'company_id' => $arr['company_id'],
                 'share_title' => $arr['share_title'],
@@ -110,8 +120,8 @@ class Redenvelopes{
         //判断是否分享
         if ($arr['is_share'] == 1) {
             $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid'],'activity_id'=>$data['activity_id']])->find();
-            if($is_share){
-                return msg(3002, '请先分享');
+            if(!$is_share){
+                return msg(3002, '请先点击右上角分享朋友圈');
             }
         }
 
