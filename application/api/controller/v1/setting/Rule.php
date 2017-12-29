@@ -25,6 +25,23 @@ class Rule extends Auth{
 	}
 
 	/**
+     * 获取企业常用话术
+     * 请求类型 post
+	 * 传入JSON格式: {"page": 1}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"quick_reply_id":15,"quick_reply_text":"测试快捷回复语句","uid":null,"company_id":"51454009d703c86c91353f61011ecf2f","type":2,"use_count":0},{"quick_reply_id":16,"quick_reply_text":"测试快捷回复语句","uid":null,"company_id":"51454009d703c86c91353f61011ecf2f","type":2,"use_count":0}],"page_data":{"count":2,"rows_num":16,"page":1}}}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/getEnterpriseSentence
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/getEnterpriseSentence
+     * @param page 分页参数默认1
+	 * @return code 200->成功
+	 */
+	public function getEnterpriseSentence(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->getEnterpriseSentence($data);
+	}
+
+	/**
      * 获取客资领取规则
      * 请求类型 get
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"cued_pool":{"cycle":"1","number":"12"},"cued_pool_recovery":"2","intention_receive":{"cycle":"1","number":"12"},"intention_recovery":"3"}}

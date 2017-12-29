@@ -127,6 +127,31 @@ class RuleLogic extends Model {
     }
 
     /**
+     * 获取企业常用话术
+     * @param company_id 商户id
+     * @param page 分页参数
+	 * @return code 200->成功
+	 */
+    public function getEnterpriseSentence($data){
+        $company_id = $data['company_id'];
+        $page = $data['page'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('quick_reply')->where(['company_id'=>$company_id, 'type'=>2])->limit($show_page,$page_count)->select();
+        $count = Db::name('quick_reply')->where(['company_id'=>$company_id, 'type'=>2])->limit($show_page,$page_count)->count();
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    /**
      * 设置公众号标签
      * @param company_id 商户company_id
      * @param label_group_id 标签分组id
