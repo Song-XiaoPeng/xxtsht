@@ -165,11 +165,19 @@ class InteractionLogic extends Model {
             $session_map['uid'] = ['in',$uid_list];
         }
 
-        $list = Db::name('message_session')
+        $session_list = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where($session_map)
         ->order('add_time desc')
         ->select();
+
+        $line_up_session_res = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['company_id'=>$company_id,'state'=>['in',[0,1,3]]])
+        ->order('add_time desc')
+        ->select();
+
+        $list = array_merge($session_list,$line_up_session_res);
 
         $pending_access_session = []; //等待中
 
@@ -201,18 +209,10 @@ class InteractionLogic extends Model {
             if($v['state'] == 1){
                 array_push($conversation_session, $v);
             }
-        }
 
-        $redis = Common::createRedis();
-        $redis->select(2); 
-
-        $redis_list = $redis->sMembers($company_id);
-        if($redis_list){
-            foreach($redis_list as $k=>$v){
-                $arr = json_decode($v,true);
-                $arr['used_time'] = timediff($arr['add_time'], $time);
-
-                array_push($line_up_session, $arr);
+            if($v['state'] == 3){
+                $v['used_time'] = timediff($v['add_time'], $time);
+                array_push($line_up_session, $v);
             }
         }
 
