@@ -1,6 +1,7 @@
 <?php
 namespace app\api\controller\v1\user;
 use app\api\common\Auth;
+use think\Db;
 
 //后台模块授权相关操作
 class ModelAuth extends Auth{
@@ -30,14 +31,15 @@ class ModelAuth extends Auth{
 	 * @return code 200->成功
 	 */
     public function setUserModelAuth(){
-        if($this->user_type != 3){
-            return msg(6009,'非管理员账户无权操作');
-        }
-
         $data = input('put.');
         $data['company_id'] = $this->company_id;
 
-        if($this->uid == $data['uid']){
+        $user_res = Db::name('user')->where(['company_id'=>$this->company_id,'is_main'=>1,'user_type'=>3])->find();
+        if(!$user_res){
+            return msg(3009,'管理员初始账户不存在');
+        }
+        
+        if($user_res['uid'] == $data['uid']){
             return msg(3001,'管理员账户无法设置');
         }
         
