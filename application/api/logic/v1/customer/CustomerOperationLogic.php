@@ -33,12 +33,12 @@ class CustomerOperationLogic extends Model {
         $customer_type = $data['customer_type'];
         $real_sex = $data['real_sex'] == '' ? 0 : $data['real_sex'];
         $customer_info_id = empty($data['customer_info_id']) == true ? '' : $data['customer_info_id'];
-        $real_phone = empty($data['real_phone']) == true ? '' : $data['real_phone'];
+        $real_phone = empty($data['real_phone']) == true ? null : $data['real_phone'];
         $contact_address = empty($data['contact_address']) == true ? '' : $data['contact_address'];
         $wx_company_id = empty($data['wx_company_id']) == true ? -1 : $data['wx_company_id'];
         $desc = empty($data['desc']) == true ? '' : $data['desc'];
         $wx_user_group_id = empty($data['wx_user_group_id']) == true ? -1 : $data['wx_user_group_id'];
-        $birthday = empty($data['birthday']) == true ? '': $data['birthday'];
+        $birthday = empty($data['birthday']) == true ? '0000-00-00': $data['birthday'];
         $wx_number = empty($data['wx_number']) == true ? '' : $data['wx_number'];
         $email = empty($data['email']) == true ? '' : $data['email'];
         $tel = empty($data['tel']) == true ? '' : $data['tel'];
