@@ -45,7 +45,7 @@ class Rule extends Auth{
      * 删除企业话术
      * 请求类型 post
 	 * 传入JSON格式: {"quick_reply_id": 12}
-	 * 返回JSON格式: 
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":""}
 	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/delQuickReply
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/delQuickReply
      * @param quick_reply_id 话术id
