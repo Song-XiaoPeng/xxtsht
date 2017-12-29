@@ -68,7 +68,7 @@ class CustomerOperationLogic extends Model {
             }
         }
 
-        if($wx_user_res['customer_info_id'] == -1 && empty($customer_info_id) == true){
+        if(empty($wx_user_res['customer_info_id']) == true && empty($customer_info_id) == true){
             $customer_info_id = md5(uniqid());
             
             $db_operation_res = Db::name('customer_info')
@@ -119,7 +119,7 @@ class CustomerOperationLogic extends Model {
         }
 
         $wx_user_data['customer_info_id'] = $customer_info_id;
-        if($customer_type == 1 || $customer_type == 2 || $customer_type == 3){
+        if($customer_type == 0){
             $wx_user_data['is_clue'] = -1;
             $wx_user_data['set_clue_time'] = $time;
         }
@@ -162,12 +162,12 @@ class CustomerOperationLogic extends Model {
         $real_phone = empty($data['real_phone']) == true ? '' : $data['real_phone'];
         $contact_address = empty($data['contact_address']) == true ? '' : $data['contact_address'];
         $wx_company_id = empty($data['wx_company_id']) == true ? -1 : $data['wx_company_id'];
-        $desc = empty($data['desc']) == true ? -1 : $data['desc'];
+        $desc = empty($data['desc']) == true ? '' : $data['desc'];
         $wx_user_group_id = empty($data['wx_user_group_id']) == true ? -1 : $data['wx_user_group_id'];
-        $birthday = empty($data['birthday']) == true ? -1 : $data['birthday'];
-        $wx_number = empty($data['wx_number']) == true ? -1 : $data['wx_number'];
-        $email = empty($data['email']) == true ? -1 : $data['email'];
-        $tel = empty($data['tel']) == true ? -1 : $data['tel'];
+        $birthday = empty($data['birthday']) == true ? '' : $data['birthday'];
+        $wx_number = empty($data['wx_number']) == true ? '' : $data['wx_number'];
+        $email = empty($data['email']) == true ? '' : $data['email'];
+        $tel = empty($data['tel']) == true ? '' : $data['tel'];
         $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
 
         if(empty($customer_info_id) == false && empty($customer_info_id) == false){
