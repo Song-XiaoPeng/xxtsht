@@ -530,7 +530,10 @@ class CustomerOperationLogic extends Model {
                 return $uid_res;
             }
 
-            $map['customer_service_uid'] = array('in', $uid_res['body']);
+            $uid_list = $uid_res['body'];
+            array_push($uid_list, $uid);
+
+            $map['customer_service_uid'] = ['in', $uid_list];
         }
 
         //获取总线索数据
