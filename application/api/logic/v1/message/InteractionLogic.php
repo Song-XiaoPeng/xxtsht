@@ -173,7 +173,7 @@ class InteractionLogic extends Model {
 
         $line_up_session_res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id,'state'=>['in',[0,1,3]]])
+        ->where(['company_id'=>$company_id,'state'=>3])
         ->order('add_time desc')
         ->select();
 
