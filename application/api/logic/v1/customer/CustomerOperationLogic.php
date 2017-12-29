@@ -241,6 +241,22 @@ class CustomerOperationLogic extends Model {
     }
 
     /**
+     * 判断是否允许领取线索池客户
+     * @param company_id 商户company_id
+     * @param uid 登录的账号uid
+	 * @return code 200->成功
+	 */
+    public function isAllowClue($company_id, $uid){
+        $yesterday_res = getDayTimeSolt();
+        $begin_time = $yesterday_res['begin_time'];
+        $end_time = $yesterday_res['end_time'];
+
+        $count = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `customer_service_uid` = '$uid' AND `company_id` = '$company_id'  AND `is_clue` = -1  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        dump($count);
+    }
+
+    /**
      * 获取客户信息
      * @param company_id 商户company_id
      * @param appid 客户来源appid
