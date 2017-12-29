@@ -53,6 +53,37 @@ class RuleLogic extends Model {
     }
 
     /**
+     * 获取客资领取规则
+     * @param company_id
+	 * @return code 200->成功
+	 */
+    public function getCustomerResourcesRule($company_id){
+        // 客资领取周期
+        $sustomer_resources_rule = Db::name('company_baseinfo')
+        ->where([
+            'company_id' => $company_id,
+            'configure_key' => 'sustomer_resources_rule',
+        ])->value('configure_value');
+
+        $rule_arr = json_decode($sustomer_resources_rule,true);
+
+        $arr_data = [
+            'cued_pool' => [
+                'cycle' => empty($rule_arr['cued_pool']['cycle']) == true ? 1 : $rule_arr['cued_pool']['cycle'],
+                'number' => empty($rule_arr['cued_pool']['number']) == true ? '' : $rule_arr['cued_pool']['number']
+            ],
+            'cued_pool_recovery' => empty($rule_arr['cued_pool_recovery']) == true ? '' : $rule_arr['cued_pool_recovery'],
+            'intention_receive' => [
+                'cycle' => empty($rule_arr['intention_receive']['cycle']) == true ? '' : $rule_arr['intention_receive']['cycle'], 
+                'number' => empty($rule_arr['intention_receive']['number']) == true ? '' : $rule_arr['intention_receive']['number']
+            ],
+            'intention_recovery' => empty($rule_arr['intention_recovery']) == true ? '' : $rule_arr['intention_recovery']
+        ];
+
+        return msg(200,'success',$arr_data);
+    }   
+
+    /**
      * 设置商户公共快捷回复语句
      * @param quick_reply_id 存在则是编辑
 	 * @param text 快捷回复语句
