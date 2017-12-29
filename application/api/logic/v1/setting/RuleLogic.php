@@ -127,6 +127,25 @@ class RuleLogic extends Model {
     }
 
     /**
+     * 删除企业话术
+     * @param quick_reply_id 话术id
+	 * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function delQuickReply($data){
+        $company_id = $data['company_id'];
+        $quick_reply_id = $data['quick_reply_id'];
+
+        $del_res = Db::name('quick_reply')->where(['company_id'=>$company_id,'quick_reply_id'=>$quick_reply_id,'type'=>2])->delete();
+
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除数据失败');
+        }
+    }
+
+    /**
      * 获取企业常用话术
      * @param company_id 商户id
      * @param page 分页参数
