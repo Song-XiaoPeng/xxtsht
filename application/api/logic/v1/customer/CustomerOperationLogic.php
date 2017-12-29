@@ -38,7 +38,7 @@ class CustomerOperationLogic extends Model {
         $wx_company_id = empty($data['wx_company_id']) == true ? -1 : $data['wx_company_id'];
         $desc = empty($data['desc']) == true ? '' : $data['desc'];
         $wx_user_group_id = empty($data['wx_user_group_id']) == true ? -1 : $data['wx_user_group_id'];
-        $birthday = empty($data['birthday']) == true ? '0000-00-00': $data['birthday'];
+        $birthday = empty($data['birthday']) == true ? null : $data['birthday'];
         $wx_number = empty($data['wx_number']) == true ? '' : $data['wx_number'];
         $email = empty($data['email']) == true ? '' : $data['email'];
         $tel = empty($data['tel']) == true ? '' : $data['tel'];
