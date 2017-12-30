@@ -175,14 +175,17 @@ class CustomerOperationLogic extends Model {
             // 1意向客户
             case 1:
                 $wx_user_data['is_clue'] = 2;
+                $wx_user_data['set_intention_time'] = $time;
                 break;
             // 2订单客户
             case 2:
                 $wx_user_data['is_clue'] = 4;
+                $wx_user_data['set_order_time'] = $time;
                 break;
             // 3追销客户
             case 3:
                 $wx_user_data['is_clue'] = 5;
+                $wx_user_data['set_chasing_time'] = $time;
                 break;
         }
 
