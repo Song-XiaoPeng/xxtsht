@@ -57,6 +57,7 @@ class CustomerOperationLogic extends Model {
 
         //限制状态更改
         $wx_user_state = $wx_user_res['is_clue'];
+        $is_correct_state = false;
         switch ($customer_type) {
             case 0:
                 if($wx_user_state == -1 
@@ -64,20 +65,37 @@ class CustomerOperationLogic extends Model {
                 || $wx_user_state == 3
                 || $wx_user_state == 4
                 || $wx_user_state == 5){
-                    return msg(3012, '此客户状态不可回退');
+                    $is_correct_state = true;
                 }
                 break;
             case 1:
                 if($wx_user_state == 3 
                 || $wx_user_state == 4
                 || $wx_user_state == 5){
-                    return msg(3013, '此客户状态不可回退');
+                    $is_correct_state = true;;
                 }
                 break;
             case 2:
                 if($wx_user_state == 5){
-                    return msg(3014, '此客户状态不可回退');
+                    $is_correct_state = true;;
                 }
+        }
+
+        if($is_correct_state){
+            switch($wx_user_state){
+                case -1:
+                    $customer_type = 0;
+                    break;
+                case 2:
+                    $customer_type = 1;
+                    break;
+                case 4:
+                    $customer_type = 2;
+                    break;
+                case 5:
+                    $customer_type = 3;
+                    break;
+            }
         }
 
 
