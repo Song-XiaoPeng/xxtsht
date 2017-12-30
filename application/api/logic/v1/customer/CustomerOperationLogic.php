@@ -691,6 +691,50 @@ class CustomerOperationLogic extends Model {
     }
 
     /**
+     * 获取意向数据统计
+     * @param company_id 商户company_id
+     * @param uid 登录账号uid
+	 * @return code 200->成功
+	 */
+    public function getIntentionData($company_id, $uid, $user_type){
+        if($user_type != 3){
+            //获取我的团队账号
+            $uid_res = Common::getAscriptionUidList($company_id, $uid, $user_type);
+            if($uid_res['meta']['code'] != 200){
+                return $uid_res;
+            }
+
+            $uid_list = $uid_res['body'];
+            array_push($uid_list, $uid);
+
+            $map['customer_service_uid'] = ['in', $uid_list];
+        }
+
+        //获取总意向数据
+        $map['company_id'] = $company_id;
+        $map['is_clue'] = -1;
+        $clue = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->count();
+
+        //获取今日加入意向的数据
+        $yesterday_res = getDayTimeSolt();
+        $begin_time = $yesterday_res['begin_time'];
+        $end_time = $yesterday_res['end_time'];
+        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = -1  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        $arr = [
+            'clue' => $clue,
+            'today' => $today,
+            'follow_up' => 0,
+            'intention' => 0
+        ];
+        
+        return msg(200,'success',$arr);
+    }
+
+    /**
      * 模糊搜索获取客户信息
      * @param company_id 商户company_id
      * @param real_name 客户姓名 (选传)
