@@ -29,17 +29,15 @@
             }
 
             .receive {
-                position: absolute;
-                width: 120px;
-                height: 120px;
+                position: fixed;
+                width: 100%;
+                height: 60px;
                 background: #ffc107;
-                border-radius: 50%;
                 color: #f44336;
-                left: 50%;
-                margin-left: -60px;
-                top: 30%;
+                left: 0;
+                bottom: 0;
                 z-index: 100;
-                line-height: 120px;
+                line-height: 60px;
                 text-align: center;
                 font-size: 24px;
                 cursor: crosshair;
@@ -50,7 +48,7 @@
 
 
         <div style="overflow: auto;height: 100%;width: 100%;position: relative">
-            <h1 style="text-align: center;">{$title}</h1>
+            <h1 style="text-align:center; background: #ffc107; color: #f44336;">{$title}</h1>
             {foreach name="background" id="vo" }
                 <img src="{$vo}" alt="" style="vertical-align: top">
             {/foreach}
@@ -75,6 +73,7 @@
           var share_url = "{$share_url}";
           var activity_id = "{$activity_id}";
           var wx_obj;
+          var is_loding = false;
 
           function GetQueryString(name){
             var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
@@ -107,10 +106,21 @@
           });
 
           $(".receive").click(function(){
+            if(is_loding){
+                return;
+            }
+
+            is_loding = true;
+
+            $(this).text('正在领取中...');
+
             $.post('/home/Redenvelopes/receive', {code: GetQueryString('code')}, function(result){
               if(result.meta.code == 3001){
                 window.location.href = result.body.jump_url;
               }
+
+              is_loding = false;
+              $(this).text('领取红包');
 
               alert(result.meta.message);
             });
