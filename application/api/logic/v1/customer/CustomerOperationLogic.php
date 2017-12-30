@@ -81,6 +81,7 @@ class CustomerOperationLogic extends Model {
                 }
         }
 
+        //限制回滚状态
         if($is_correct_state){
             switch($wx_user_state){
                 case -1:
