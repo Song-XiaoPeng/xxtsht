@@ -517,7 +517,7 @@ class CustomerOperationLogic extends Model {
         $show_page = ($page - 1) * $page_count;
 
         $map['company_id'] = $company_id;
-        $map['is_clue'] = 1;
+        $map['is_clue'] = 2;
 
         //获取我的团队账号
         $uid_res = Common::getAscriptionUidList($company_id, $uid, $user_type);
@@ -565,6 +565,146 @@ class CustomerOperationLogic extends Model {
                     }else{
                         $map['customer_service_uid'] = $uid;
                         $map['is_clue'] = 3;
+                    }
+                }
+                break;
+        }
+
+        $wx_user_sql = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->order('subscribe_time desc')
+        ->buildSql();
+
+        if ($type == 1) {
+            $customer_info_map['is_clue'] = 2;
+        }else{
+            $customer_info_map['is_clue'] = 3;
+        }
+
+        $customer_info_map['real_name'] = array('like',"%$real_name%");
+
+        if($real_name){
+            $wx_user_list = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->where($customer_info_map)
+            ->limit($show_page,$page_count)
+            ->select();
+
+            $count = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->where($customer_info_map)
+            ->count();
+        }else{
+            $wx_user_list = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->limit($show_page,$page_count)
+            ->select();
+
+            $count = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->count();
+        }
+
+        foreach($wx_user_list as $k=>$v){
+            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            if($v['qrcode_id']){
+                $wx_user_list[$k]['source_qrcode_name'] = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
+            }else{
+                $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
+            }
+
+            if($v['product_id']){
+                $wx_user_list[$k]['product_name'] = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
+            }else{
+                $wx_user_list[$k]['product_name'] = null;
+            }
+
+            if($v['customer_service_uid']){
+                $wx_user_list[$k]['customer_service_name'] = Db::name('user')->where(['uid'=>$v['customer_service_uid']])->cache(true,60)->value('user_name');
+            }else{
+                $wx_user_list[$k]['customer_service_name'] = null;
+            }
+
+            if($v['wx_company_id']){
+                $wx_user_list[$k]['wx_comapny_name'] = Db::name('wx_user_company')->where(['wx_company_id'=>$v['wx_company_id']])->cache(true,60)->value('wx_comapny_name');
+            }else{
+                $wx_user_list[$k]['wx_comapny_name'] = null;
+            }
+        }
+
+        $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
+
+    /**
+     * 获取订单客户列表
+     * @param company_id 商户company_id
+     * @param real_name 微信昵称(选传模糊搜索)
+     * @param page 分页参数 默认1
+     * @param uid 登录账号uid
+     * @param ascription 客户线索归属 1我的 2下属 3全部
+	 * @return code 200->成功
+	 */
+    public function getOrderCustomer($data){
+        $company_id = $data['company_id'];
+        $real_name = empty($data['real_name']) == true ? '' : $data['real_name'];
+        $page = $data['page'];
+        $ascription = empty($data['ascription']) == true ? 1 : $data['ascription'];
+        $uid = $data['uid'];
+        $user_type = $data['user_type'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $map['company_id'] = $company_id;
+        $map['is_clue'] = 4;
+
+        //获取我的团队账号
+        $uid_res = Common::getAscriptionUidList($company_id, $uid, $user_type);
+        if($uid_res['meta']['code'] != 200){
+            return $uid_res;
+        }
+
+        switch($user_type){
+            case '4':
+                if ($ascription == 1) {
+                    $map['customer_service_uid'] = $uid;
+                }else if ($ascription == 2) {
+                    if(!empty($uid_res['body'])){
+                        $uid_list = $uid_res['body'];
+                        foreach($uid_list as $k=>$v){
+                            if($v == $uid){
+                                unset($uid_list[$k]);
+                            }
+                        }
+    
+                        $uid_list = array_values($uid_list);
+    
+                        $map['customer_service_uid'] = array('in',$uid_list);
+                    }else{
+                        $res['data_list'] = [];
+                        $res['page_data']['count'] = 0;
+                        $res['page_data']['rows_num'] = $page_count;
+                        $res['page_data']['page'] = $page;
+                        
+                        return msg(200,'success',$res);
+                    }
+                }else if ($ascription == 3) {
+                    if(!empty($uid_res['body'])){
+                        $map['customer_service_uid'] = array('in',$uid_res['body']);
+                    }else{
+                        $map['customer_service_uid'] = $uid;
                     }
                 }
                 break;
