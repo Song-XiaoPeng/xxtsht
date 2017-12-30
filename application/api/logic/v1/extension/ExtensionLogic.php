@@ -435,6 +435,10 @@ class ExtensionLogic extends Model {
             }
         }
 
+        if($start_time == '0000-00-00 00:00:00' || $end_time == '0000-00-00 00:00:00'){
+            return msg(3013, '活动开始时间与结束时间不能为空');
+        }
+
         if($activity_id){
             $update_res = Db::name('red_envelopes')
             ->where(['company_id'=>$company_id,'activity_id'=>$activity_id])
