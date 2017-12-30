@@ -119,9 +119,26 @@ class CustomerOperationLogic extends Model {
         }
 
         $wx_user_data['customer_info_id'] = $customer_info_id;
-        if($customer_type == 0){
-            $wx_user_data['is_clue'] = -1;
-            $wx_user_data['set_clue_time'] = $time;
+        
+        //微信客户状态
+        switch($customer_type){
+            // 0线索 
+            case 0:
+                $wx_user_data['is_clue'] = -1;
+                $wx_user_data['set_clue_time'] = $time;
+                break;
+            // 1意向客户
+            case 1:
+                $wx_user_data['is_clue'] = 2;
+                break;
+            // 2订单客户
+            case 2:
+                $wx_user_data['is_clue'] = 4;
+                break;
+            // 3追销客户
+            case 3:
+                $wx_user_data['is_clue'] = 5;
+                break;
         }
 
         $db_operation_res = Db::name('wx_user')
