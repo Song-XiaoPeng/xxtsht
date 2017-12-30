@@ -392,7 +392,7 @@ class ExtensionLogic extends Model {
         $details_list = $data['details_list'];
 
         if(empty($activity_name)){
-            return msg(30051,'红包活动名称不能为空');
+            return msg(3015,'红包活动名称不能为空');
         }
 
         if(empty($amount)){
