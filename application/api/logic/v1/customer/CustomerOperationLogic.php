@@ -712,8 +712,8 @@ class CustomerOperationLogic extends Model {
 
         //获取总意向数据
         $map['company_id'] = $company_id;
-        $map['is_clue'] = -1;
-        $clue = Db::name('wx_user')
+        $map['is_clue'] = 3;
+        $total = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->count();
@@ -722,13 +722,19 @@ class CustomerOperationLogic extends Model {
         $yesterday_res = getDayTimeSolt();
         $begin_time = $yesterday_res['begin_time'];
         $end_time = $yesterday_res['end_time'];
-        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = -1  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+        //获取本月加入意向的数据
+        $yesterday_res = getMonthTimeSolt();
+        $begin_time = $yesterday_res['begin_time'];
+        $end_time = $yesterday_res['end_time'];
+        $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
 
         $arr = [
-            'clue' => $clue,
+            'total' => $total,
             'today' => $today,
             'follow_up' => 0,
-            'intention' => 0
+            'intention' => $intention
         ];
         
         return msg(200,'success',$arr);

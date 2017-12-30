@@ -65,6 +65,18 @@ class CustomerOperation extends Auth{
 	}
 
     /**
+     * 获取意向数据统计
+     * 请求类型 uid
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"total":1,"today":0,"follow_up":0,"intention":1}}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/getIntentionData
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getIntentionData
+	 * @return code 200->成功
+	 */
+	public function getIntentionData(){     
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getIntentionData($this->company_id, $this->uid, $this->user_type);
+	}
+
+    /**
      * 添加客户意向产品
      * 请求类型 post
 	 * 传入JSON格式: {"product_name":"测试","product_id":"12"}
