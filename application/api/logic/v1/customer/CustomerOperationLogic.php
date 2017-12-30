@@ -55,6 +55,32 @@ class CustomerOperationLogic extends Model {
             return msg(3001,'客户微信基础信息不存在或未同步');
         }
 
+        //限制状态更改
+        $wx_user_state = $wx_user_res['is_clue'];
+        switch ($customer_type) {
+            case 0:
+                if($wx_user_state == -1 
+                || $wx_user_state == 2
+                || $wx_user_state == 3
+                || $wx_user_state == 4
+                || $wx_user_state == 5){
+                    return msg(3012, '此客户状态不可回退');
+                }
+                break;
+            case 1:
+                if($wx_user_state == 3 
+                || $wx_user_state == 4
+                || $wx_user_state == 5){
+                    return msg(3013, '此客户状态不可回退');
+                }
+                break;
+            case 2:
+                if($wx_user_state == 5){
+                    return msg(3014, '此客户状态不可回退');
+                }
+        }
+
+
         if(empty($customer_info_id) == true){
             $customer_info_id = '';
         }
