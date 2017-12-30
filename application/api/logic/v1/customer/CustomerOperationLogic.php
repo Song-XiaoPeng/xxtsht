@@ -371,11 +371,29 @@ class CustomerOperationLogic extends Model {
 
         switch($user_type){
             case '3':
-                if($type == 1){
-                    $map['is_clue'] = 1;
-                }else if($type == 2){
-                    $map['is_clue'] = -1;
+                switch($type){
+                    case 1:
+                        $map['is_clue'] = 1;
+                        break;
+                    case 2:
+                        $map['is_clue'] = -1;
+                        break;
+                    case 3:
+                        $map['is_clue'] = 2;
+                        break;
+                    case 4:
+                        $map['is_clue'] = 3;
+                        break;
+                    case 5:
+                        $map['is_clue'] = 4;
+                        break;
+                    case 6:
+                        $map['is_clue'] = 5;
+                        break;
+                    default:
+                        return msg(3012,'type参数错误');
                 }
+
                 break;
             case '4':
                 if ($type == 2 && $ascription == 1) {

@@ -125,9 +125,15 @@ class FrameworkLogic extends Model {
 	 */
     public function getPositionList($data){
         $company_id = $data['company_id'];
-        $user_group_id = $data['user_group_id'];
+        $user_group_id = empty($data['user_group_id']) == true ? '' : $data['user_group_id'];
 
-        $list = Db::name('position')->where(['company_id'=>$company_id,'user_group_id'=>$user_group_id])->select();
+        $map['company_id'] = $company_id;
+
+        if($user_group_id){
+            $map['user_group_id'] = $user_group_id;
+        }
+
+        $list = Db::name('position')->where($map)->select();
 
         return msg(200, 'success', $list);
     }
