@@ -343,8 +343,8 @@ class CustomerOperationLogic extends Model {
      * @param real_name 微信昵称(选传模糊搜索)
      * @param page 分页参数 默认1
      * @param uid 登录账号uid
-     * @param type 类型 1线索池客户 2线索客户
-     * @param ascription 客户线索归属 1我的 2下属 3全部
+     * @param type 类型 1线索池客户 2线索客户 3意向池客户 4意向客户 5订单客户 6追销客户
+     * @param ascription 客户线索归属 1我的 2下属 3全部 
 	 * @return code 200->成功
 	 */
     public function getClueCustomer($data){
