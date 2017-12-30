@@ -320,6 +320,18 @@ class InteractionLogic extends Model {
                     $redis->SREM($session_data['uid'], $str);
                 }
             }
+
+            $redis->select(2);
+
+            $session_list2 = $redis->sMembers($company_id);
+
+            foreach($session_list2 as $str){
+                $session_arr = json_decode($str,true);
+            
+                if($session_arr['session_id'] == $session_data['session_id']){
+                    $redis->SREM($session_data['uid'], $str);
+                }
+            }
         } catch (\Exception $e) {
             return msg(3003,$e->getMessage());
         }
