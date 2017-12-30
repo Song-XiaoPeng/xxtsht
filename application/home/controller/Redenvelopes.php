@@ -75,6 +75,8 @@ class Redenvelopes{
     public function receive(){
         $input_data = input('post.');
 
+        $time = date('Y-m-d H:i:s');
+
         $code = $input_data['code'];
         $wx_user_info = Session::get('wx_user_info');
 
@@ -85,6 +87,14 @@ class Redenvelopes{
         $arr = Db::name('red_envelopes')->where(['activity_id'=>$data['activity_id']])->find();
         if($arr['is_open'] == -1){
             return msg(3002, '活动未开放');
+        }
+
+        if(strtotime($time) < strtotime($arr['start_time'])){
+            return msg(3003, '活动未开放');
+        }
+
+        if(strtotime($time) >= strtotime($arr['end_time'])){
+            return msg(3004, '活动未开放');
         }
         
         if($arr['already_amount'] >= $arr['amount_upper_limit']){
