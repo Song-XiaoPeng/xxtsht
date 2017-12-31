@@ -131,8 +131,11 @@ class CustomerOperation extends Auth{
 	 */
 	public function receiveIntention(){
         $data = input('put.');
-        $data['company_id'] = $this->company_id;
-        $data['uid'] = $this->uid;
+		$data['company_id'] = $this->company_id;
+
+        if(empty($data['uid'])){
+            $data['uid'] = $this->uid;
+        }
         
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->receiveIntention($data);
 	}
