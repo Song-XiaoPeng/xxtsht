@@ -86,6 +86,18 @@ class CustomerOperation extends Auth{
 	 */
 	public function getOrderCustomerData(){     
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getOrderCustomerData($this->company_id, $this->uid, $this->user_type);
+    }
+    
+    /**
+     * 获取追销客户数据统计
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"total":1,"today":0,"follow_up":0,"intention":1}}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/getTrackCustomerData
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getTrackCustomerData
+	 * @return code 200->成功
+	 */
+	public function getTrackCustomerData(){     
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getTrackCustomerData($this->company_id, $this->uid, $this->user_type);
 	}
 
     /**
