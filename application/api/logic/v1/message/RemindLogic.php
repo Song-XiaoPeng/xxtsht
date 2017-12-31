@@ -13,6 +13,7 @@ class RemindLogic extends Model {
 	 * @param uid 账号uid
 	 * @param remind_uid 提醒账号uid
 	 * @param company_id 商户company_id
+	 * @param remind_type 提醒类型 1线索跟踪提醒 2意向跟踪提醒 3回访提醒
 	 * @return code 200->成功
 	 */
     public function addRemind($data){
@@ -22,6 +23,7 @@ class RemindLogic extends Model {
         $uid = $data['uid'];
         $remind_uid = $data['remind_uid'];
         $company_id = $data['company_id'];
+        $remind_type = empty($data['remind_type']) == true ? -1 : $data['remind_type'];
 
         $time = date('Y-m-d H:i:s');
         if(strtotime($time) >= strtotime($remind_time)){
@@ -53,6 +55,7 @@ class RemindLogic extends Model {
             'remind_time' => $remind_time,
             'remind_uid' => $remind_uid,
             'customer_info_id' => $customer_info['customer_info_id'],
+            'remind_type' => $remind_type
         ];
 
         $insert_res = Db::name('remind')->insert($insert_data);
