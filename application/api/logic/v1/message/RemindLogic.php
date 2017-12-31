@@ -167,6 +167,7 @@ class RemindLogic extends Model {
      * @param remind_content 提醒内容
 	 * @param uid 账号uid
 	 * @param company_id 商户company_id
+     * @param remind_type 提醒类型 1线索跟踪提醒 2意向跟踪提醒 3回访提醒
 	 * @return code 200->成功
 	 */
     public function updateRemindTime($data){
@@ -175,13 +176,14 @@ class RemindLogic extends Model {
         $remind_content = $data['remind_content'];
         $uid = $data['uid'];
         $company_id = $data['company_id'];
+        $remind_type = empty($data['remind_type']) == true ? -1 : $data['remind_type'];
 
         $time = date('Y-m-d H:i:s');
         if(strtotime($time) >= strtotime($remind_time)){
             return msg(3002,'提醒时间不合法');
         }
 
-        $update_time_res = Db::name('remind')->where(['remind_id'=>$remind_id,'company_id'=>$company_id,'uid'=>$uid])->update(['remind_time'=>$remind_time,'remind_content'=>$remind_content]);
+        $update_time_res = Db::name('remind')->where(['remind_id'=>$remind_id,'company_id'=>$company_id,'uid'=>$uid])->update(['remind_time'=>$remind_time,'remind_content'=>$remind_content,'remind_type'=>$remind_type]);
         if($update_time_res !== false){
             return msg(200,'success');
         }else{
