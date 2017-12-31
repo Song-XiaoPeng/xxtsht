@@ -176,6 +176,7 @@ class CustomerOperationLogic extends Model {
             case 1:
                 $wx_user_data['is_clue'] = 2;
                 $wx_user_data['set_intention_time'] = $time;
+                $wx_user_data['customer_service_uid'] = -1;
                 break;
             // 2订单客户
             case 2:
@@ -1239,6 +1240,25 @@ class CustomerOperationLogic extends Model {
         $list = Db::name('product')->where(['company_id'=>$company_id,'is_del'=>-1,'product_name'=>['like',"%$product_name%"]])->cache(true,3)->select();
     
         return msg(200,'success',$list);
+    }
+
+    /**
+     * 领取意向客户池客户
+     * @param company_id 商户company_id
+     * @param uid 登录账号uid
+     * @param wx_user_id 微信用户信息id
+	 * @return code 200->成功
+	 */
+    public function receiveIntention($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $wx_user_id = $data['wx_user_id'];
+
+        Db::name('')
+        ->where()
+        ->update([
+
+        ]);
     }
 
     /**
