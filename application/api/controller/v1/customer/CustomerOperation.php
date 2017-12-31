@@ -120,6 +120,24 @@ class CustomerOperation extends Auth{
 	}
 
     /**
+     * 领取意向客户池客户
+     * 请求类型 post
+	 * 传入JSON格式: {"wx_user_id":"003eb2e2b1391fe8ef5320a01231f406"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":""}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/receiveIntention
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/receiveIntention
+     * @param wx_user_id 微信用户信息id
+	 * @return code 200->成功
+	 */
+	public function receiveIntention(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->receiveIntention($data);
+	}
+
+    /**
      * 删除客户意向产品
      * 请求类型 post
 	 * 传入JSON格式: {"product_id":"12"}

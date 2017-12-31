@@ -1254,11 +1254,28 @@ class CustomerOperationLogic extends Model {
         $uid = $data['uid'];
         $wx_user_id = $data['wx_user_id'];
 
-        Db::name('')
-        ->where()
-        ->update([
+        $wx_user_res = Db::name('wx_user')
+        ->partition([], '', ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['company_id'=>$company_id, 'wx_user_id'=>$wx_user_id, 'is_clue'=>2])
+        ->find();
+        if(!$wx_user_res){
+            return msg(3001,'意向池客户不存在');
+        }
 
+        $update_res = Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], 'company_id', ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['company_id'=>$company_id, 'wx_user_id'=>$wx_user_id])
+        ->update([
+            'customer_service_uid' => $uid,
+            'is_clue' => 3,
+            'set_intention_time' => date('Y-m-d H:i:s')
         ]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
     }
 
     /**
