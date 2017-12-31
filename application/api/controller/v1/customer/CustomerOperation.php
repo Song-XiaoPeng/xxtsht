@@ -239,6 +239,27 @@ class CustomerOperation extends Auth{
         $data['user_type'] = $this->user_type;
         
         return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getOrderCustomer($data);
+    }
+    
+    /**
+     * 获取追销客户列表
+     * 请求类型 post
+	 * 传入JSON格式: {"real_name":"","page": 1,"ascription":"3"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{"customer_info_id":"098fbf2f0b7931ba5a80ce6165190980","real_name":"","real_sex":1,"real_phone":null,"contact_address":"","wx_company_id":-1,"wx_user_group_id":4,"company_id":"51454009d703c86c91353f61011ecf2f","desc":"","birthday":"2017-12-22","wx_number":"","email":"","tel":"","uid":7834,"product_id":-1,"customer_type":3,"add_time":"2017-12-29 14:25:56","wx_user_id":"c7b0c83efeec6ee0e04cb6a23d76d1c5","nickname":"利亚方舟曾仪","portrait":"http:\/\/wx.qlogo.cn\/mmopen\/VIaBmX56e8j7VnaMJYeloJfbtxFVxqZqeMriaicyupIsbpE6WVTU8xJUBp6fts44DS9c9mI1n9LvUQn2VD6Q4hXL7E6ue5OOdf\/0","gender":1,"city":"惠州","province":"广东","language":"zh_CN","country":"中国","groupid":"0","subscribe_time":"2017-12-29 14:25:56","openid":"oZ8DFwdcQlN5YtIl4zpz5R3PwkGU","appid":"wx88c6052d06eaaf7d","tagid_list":"[]","unionid":null,"is_sync":1,"subscribe":1,"update_time":"2017-12-29 14:26:07","qrcode_id":"","lng":114.41069,"lat":23.056143,"precision":65,"get_into_count":1,"customer_service_uid":7834,"is_clue":5,"last_time":"2017-12-29 14:26:07","set_clue_time":"2017-12-29 14:38:19","active_count":0,"active_time":"0000-00-00 00:00:00","set_intention_time":"0000-00-00 00:00:00","set_order_time":"0000-00-00 00:00:00","set_chasing_time":"0000-00-00 00:00:00","app_name":"网鱼服务营销平台","source_qrcode_name":"暂无来源二维码","product_name":null,"customer_service_name":"曾仪","wx_comapny_name":null}],"page_data":{"count":1,"rows_num":16,"page":1}}}
+	 * API_URL_本地: http://localhost:91/api/v1/customer/CustomerOperation/getTrackCustomer
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/customer/CustomerOperation/getTrackCustomer
+     * @param real_name 微信昵称(选传模糊搜索)
+     * @param page 分页参数 默认1
+     * @param ascription 客户线索归属 1我的 2其他人 3全部
+	 * @return code 200->成功
+	 */
+	public function getTrackCustomer(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+        $data['user_type'] = $this->user_type;
+        
+        return \think\Loader::model('CustomerOperationLogic','logic\v1\customer')->getTrackCustomer($data);
 	}
 
 	/**
