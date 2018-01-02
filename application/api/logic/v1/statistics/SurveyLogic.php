@@ -32,9 +32,9 @@ class SurveyLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getCustomerServiceTotal($company_id){
-        $on_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>1])->cache(true,10)->count();
-        $off_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>-1])->cache(true,10)->count();
-        $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->cache(true,60)->count();
+        $on_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>1])->group('wx_sign')->cache(true,10)->count();
+        $off_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>-1])->group('wx_sign')->cache(true,10)->count();
+        $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('wx_sign')->cache(true,60)->count();
 
         return msg(200,'success',[
             'on_line_total' => $on_line_total,
