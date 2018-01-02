@@ -431,6 +431,7 @@ class FrameworkLogic extends Model {
             //获取领导层信息
             $person_charge = json_decode($v['person_charge'],true);
             if($person_charge){
+                $user_arr = [];
                 foreach($person_charge as $i=>$uid){
                     $user_arr[] = Db::name('user')
                     ->where(['company_id'=>$company_id,'uid'=>$uid])
