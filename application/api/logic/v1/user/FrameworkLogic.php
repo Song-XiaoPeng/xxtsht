@@ -136,7 +136,11 @@ class FrameworkLogic extends Model {
             $map['user_group_id'] = $user_group_id;
         }
 
-        $list = Db::name('position')->where($map)->select();
+        $list = Db::name('position')->where($map)->order('position_id desc')->select();
+
+        foreach($list as $k=>$v){
+            $list[$k]['position_superior_name'] = Db::name('position')->where(['position_id'=>$v['position_superior_id']])->value('position_name');
+        }
 
         return msg(200, 'success', $list);
     }
@@ -397,7 +401,7 @@ class FrameworkLogic extends Model {
         foreach($group_list as $k=>$v){
             //获取岗位信息
             $position_list = Db::name('position')
-            ->where(['company_id'=>$company_id,'user_group_id'=>$v['user_group_id']])
+            ->where(['company_id'=>$company_id,'user_group_id'=>$v['user_group_id'],'position_superior_id'=>-1])
             ->select();
 
             foreach($position_list as $i=>$t){
@@ -407,6 +411,19 @@ class FrameworkLogic extends Model {
                 ->select();
 
                 $position_list[$i]['staff'] = $user_list;
+
+                //获取下级岗位
+                $son_position = Db::name('position')->where(['position_superior_id'=>$t['position_id']])->select();
+                foreach($son_position as $c=>$z){
+                    $user_arr_data = Db::name('user')
+                    ->where(['company_id'=>$company_id,'position_id'=>$z['position_id'],'user_state'=>1])
+                    ->field('uid,user_name,phone_no')
+                    ->select();
+    
+                    $son_position[$c]['staff'] = $user_arr_data;
+                }
+
+                $position_list[$i]['position'] = $son_position;
             }
 
             $v['position'] = $position_list;
@@ -418,13 +435,12 @@ class FrameworkLogic extends Model {
                     $user_arr[] = Db::name('user')
                     ->where(['company_id'=>$company_id,'uid'=>$uid])
                     ->field('uid,user_name,phone_no')
-                    ->cache(true,60)
                     ->find();
                 }
 
-                $v['person_charge'] = $user_arr;
+                $v['staff'] = $user_arr;
             }else{
-                $v['person_charge'] = [];
+                $v['staff'] = [];
             }
 
             if($v['parent_id'] == -1){
@@ -522,25 +538,25 @@ class FrameworkLogic extends Model {
         $user_group_arr = Db::name('user_group')->where(['company_id'=>$company_id])->field('user_group_id,user_group_name')->cache(true,60)->select();
 
         if($user_type == 3){
-            $user_list = Db::name('user')->where(['company_id'=>$company_id])->cache(true,60)->field('uid,phone_no,user_name,user_group_id')->select();
+            $user_list = Db::name('user')->where(['company_id'=>$company_id])->cache(true,60)->field('uid,phone_no,user_name,user_group_id,position_id')->select();
         }else{
             $map['person_charge'] = ['like',"%$uid%"];
             $map['company_id'] = $company_id;
 
             $user_group = Db::name('user_group')
             ->where($map)
-            ->cache(true,60)
             ->find();
 
             if ($user_group['parent_id'] == -1) {
                 $son_list = Db::name('user_group')
                 ->where(['parent_id'=>$user_group['user_group_id']])
-                ->cache(true,60)
                 ->select();
 
                 $son_list = array_column($son_list, 'user_group_id');
 
-                $user_list = Db::name('user')->where(['company_id'=>$company_id,'user_group_id'=>['in',$son_list]])->field('uid,phone_no,user_name,user_group_id')->select();
+                array_push($son_list, $user_group['user_group_id']);
+
+                $user_list = Db::name('user')->where(['company_id'=>$company_id,'user_group_id'=>['in',$son_list]])->field('uid,phone_no,user_name,user_group_id,position_id')->select();
             }
         }
 
@@ -555,8 +571,44 @@ class FrameworkLogic extends Model {
                 }
             }
         }else{
-            $user_group_arr = [];
+            $user_arr = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
+            if(empty($user_arr)){
+                $user_group_arr = [];
+            }else{
+                if($user_arr['position_id'] != -1){
+                    $position_list = Db::name('position')->where(['position_superior_id'=>$user_arr['position_id']])->field('position_id')->select();
+                    
+                    $position_list = array_column($position_list, 'position_id');
+
+                    $user_list = Db::name('user')->where(['company_id'=>$company_id,'position_id'=>['in',$position_list]])->field('uid,phone_no,user_name,user_group_id,position_id')->select();
+
+                    if(!empty($user_list)){
+                        foreach($user_group_arr as $key=>$value){
+                            $user_group_arr[$key]['uid_list'] = [];
+                
+                            foreach($user_list as $i=>$t){
+                                if($value['user_group_id'] == $t['user_group_id']){
+                                    $user_group_arr[$key]['uid_list'][] = $t;
+                                }
+                            }
+                        }
+                    }else{
+                        $user_group_arr = [];
+                    }
+                }else{
+                    $user_group_arr = [];
+                }
+            }
         }
+
+        //剔除空账号数据
+        foreach($user_group_arr as $k=>$v){
+            if(count($v['uid_list']) == 0){
+                unset($user_group_arr[$k]);
+            }
+        }
+
+        $user_group_arr = array_values($user_group_arr);
 
         return msg(200,'success',$user_group_arr);
     }
