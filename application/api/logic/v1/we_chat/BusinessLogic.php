@@ -14,8 +14,6 @@ class BusinessLogic extends Model {
 
     //微信授权事件处理
     public function authCallback(){
-        Log::record('收到微信数据------'.date('YmdHis'));
-
         $app = new Application(wxOptions());
 
         $openPlatform = $app->open_platform;
@@ -24,14 +22,47 @@ class BusinessLogic extends Model {
             // 事件类型常量定义在 \EasyWeChat\OpenPlatform\Guard 类里
             switch ($event->InfoType) {
                 case Guard::EVENT_AUTHORIZED: // 授权成功
-                    $authorizationInfo = $openPlatform->getAuthorizationInfo($event->AuthorizationCode);
-                    // 保存数据库操作等...
+                    $data['company_id'] = '51454009d703c86c91353f61011ecf2f';
+
+                    $authorization_info = $openPlatform->getAuthorizationInfo($event->AuthorizationCode);
+
+                    $auth_info = Db::name('openweixin_authinfo')->where(['appid'=>$authorization_info['authorizer_appid']])->find();
+                    if($auth_info){
+                        if($auth_info['company_id'] != $data['company_id']){
+                            return;
+                        }else{
+                            return;
+                        }
+                    }
+            
+                    $auth_id = Db::name('openweixin_authinfo')->insertGetId([
+                        'appid' => $authorization_info['authorizer_appid'],
+                        'access_token' => $authorization_info['authorizer_access_token'],
+                        'refresh_token' => $authorization_info['authorizer_refresh_token'],
+                        'refresh_time' => strtotime(date('Y-m-d H:i:s')),
+                        'type' => 1,
+                        'company_id' => $data['company_id'],
+                        'nick_name' => $authorizer_info['nick_name'],
+                        'logo' => $authorizer_info['head_img'],
+                        'qrcode_url' => $authorizer_info['qrcode_url'],
+                        'principal_name' => $authorizer_info['principal_name'],
+                        'account_number' => $authorizer_info['user_name'],
+                        'alias' => $authorizer_info['alias']
+                    ]);
+            
+                    Db::name('wx_api_count')->insert([
+                        'auth_id' => $auth_id,
+                        'company_id' => $data['company_id']
+                    ]);
                     break;
                 case Guard::EVENT_UPDATE_AUTHORIZED: // 更新授权
                     // 更新数据库操作等...
                     break;
                 case Guard::EVENT_UNAUTHORIZED: // 授权取消
                     // 更新数据库操作等...
+                    Log::record('取消授权');
+                    $authorization_info = $openPlatform->getAuthorizationInfo($event->AuthorizationCode);
+                    Log::record($authorization_info);
                     break;
             }
         });
@@ -104,14 +135,12 @@ class BusinessLogic extends Model {
     }
 
     //全网发布检测返回数据
-    public function fullNetworkRelease($appid){
-        return '您好!';
+    public function fullNetworkRelease($type, $content){
+        return 'TESTCOMPONENT_MSG_TYPE_TEXT_callback';
     }
 
     //微信公众号事件响应处理
     public function messageEvent($data){
-        Log::record(json_encode($data));
-
         $appid = $data['appid'];
         $openid = $data['openid'];
 
@@ -155,10 +184,6 @@ class BusinessLogic extends Model {
             default:
                 $returnMessage = '您好有什么需要帮助吗？';
                 break;
-        }
-
-        if ($appid == 'wx570bc396a51b8ff8') {
-            $returnMessage = $this->fullNetworkRelease($appid);
         }
 
         $server->setMessageHandler(function ($message) use ($returnMessage) {

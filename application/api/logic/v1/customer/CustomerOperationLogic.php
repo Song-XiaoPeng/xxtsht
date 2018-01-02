@@ -934,6 +934,9 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
+            if(empty($uid_list)){
+                array_push($uid_list,$uid);
+            }
 
             $uid_str = '';
             $end_uid = end($uid_list);
@@ -1005,6 +1008,9 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
+            if(empty($uid_list)){
+                array_push($uid_list,$uid);
+            }
 
             $map['customer_service_uid'] = ['in', $uid_list];
 
@@ -1076,6 +1082,9 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
+            if(empty($uid_list)){
+                array_push($uid_list,$uid);
+            }
 
             $map['customer_service_uid'] = ['in', $uid_list];
 
@@ -1147,6 +1156,9 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
+            if(empty($uid_list)){
+                array_push($uid_list,$uid);
+            }
 
             $map['customer_service_uid'] = ['in', $uid_list];
 

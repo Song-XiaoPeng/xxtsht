@@ -223,7 +223,6 @@ class RemindLogic extends Model {
      * @param page 分页参数 默认1
      * @param uid 账号uid
      * @param search_text 搜索名称(选传)
-     * @param customer_type 客户类型 0线索 1意向客户 2订单客户 3追销客户
      * @param time_type 筛选时间条件类型 1今日需联系 2昨日需联系 3本周需联系 4本月需联系 5超时需联系 6已完成
 	 * @return code 200->成功
 	 */
@@ -231,7 +230,7 @@ class RemindLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $user_type = $data['user_type'];
-        $customer_type = $data['customer_type'];
+        $remind_type = $data['remind_type'];
         $time_type = $data['time_type'];
         $search_text = empty($data['search_text']) == true ? '' : $data['search_text'];
         $page = $data['page'];
@@ -243,7 +242,8 @@ class RemindLogic extends Model {
         $show_page = ($page - 1) * $page_count;
 
         $map['tb_remind.company_id'] = $company_id;
-        $map['tb_customer_info.customer_type'] = $customer_type;
+        // $map['tb_remind.time_type'] = $time_type;
+        $map['tb_remind.remind_type'] = $remind_type;
         $map['tb_remind.is_complete'] = -1;
 
         if($user_type != 3){
