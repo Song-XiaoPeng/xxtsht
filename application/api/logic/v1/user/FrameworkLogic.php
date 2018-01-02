@@ -198,6 +198,17 @@ class FrameworkLogic extends Model {
             return msg(3001,'账号已存在');
         }
 
+        //判断是否达到最大添加客服权限
+        if($is_customer_service == 1){
+            $max_customer_service = Db::name('company')->where(['company_id'=>$company_id])->value('max_customer_service');
+            
+            $num = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->count();
+
+            if($num >= $max_customer_service){
+                return msg(3009,'到达最大可设置的客服数量');
+            }
+        }
+
         if(empty($uid)){
             //新增数据
             $uid = Db::name('user')->insertGetId([
