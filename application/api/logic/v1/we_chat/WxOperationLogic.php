@@ -1934,23 +1934,6 @@ class WxOperationLogic extends Model {
     }
 
     public function test(){
-        Db::name('wx_user_1')->where(['customer_info_id'=>-1])->update(['customer_info_id'=>null]);
-
-
-
-
-        exit;
-        $token_info = Common::getRefreshToken('wx88c6052d06eaaf7d','51454009d703c86c91353f61011ecf2f');
-        if($token_info['meta']['code'] == 200){
-            $refresh_token = $token_info['body']['refresh_token'];
-        }else{
-            return $token_info;
-        }
-
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-
-        $staff = $openPlatform->createAuthorizerApplication('wx88c6052d06eaaf7d',$refresh_token)->staff;
-        dump($staff->lists());
+        // Db::name('wx_user_1')->where(['company_id'=>'51454009d703c86c91353f61011ecf2f'])->update(['customer_service_uid'=>-1]);
     }
 }
