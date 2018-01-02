@@ -934,7 +934,6 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
-            array_push($uid_list, $uid);
 
             $map['customer_service_uid'] = ['in', $uid_list];
         }
@@ -984,9 +983,42 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
-            array_push($uid_list, $uid);
 
             $map['customer_service_uid'] = ['in', $uid_list];
+
+            $uid_str = '';
+            $end_uid = end($uid_list);
+            foreach($uid_list as $k=>$v){
+                if($v != $end_uid){
+                    $uid_str .= $v.',';
+                }else{
+                    $uid_str .= $v;
+                }
+            }
+
+            //获取今日订单客户数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 4 AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月订单数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 4 AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        }else{
+            //获取今日订单客户数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 4  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月订单数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 4  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
         }
 
         //获取订单客户数据
@@ -997,17 +1029,11 @@ class CustomerOperationLogic extends Model {
         ->where($map)
         ->count();
 
-        //获取今日订单客户数据
-        $yesterday_res = getDayTimeSolt();
-        $begin_time = $yesterday_res['begin_time'];
-        $end_time = $yesterday_res['end_time'];
-        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 4  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
-
         $arr = [
             'total' => $total,
             'today' => $today,
             'follow_up' => 0,
-            'intention' => 0
+            'intention' => $intention
         ];
         
         return msg(200,'success',$arr);
@@ -1028,9 +1054,42 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
-            array_push($uid_list, $uid);
 
             $map['customer_service_uid'] = ['in', $uid_list];
+
+            $uid_str = '';
+            $end_uid = end($uid_list);
+            foreach($uid_list as $k=>$v){
+                if($v != $end_uid){
+                    $uid_str .= $v.',';
+                }else{
+                    $uid_str .= $v;
+                }
+            }
+
+            //获取今日加入线索的数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = -1 AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月转意向客户的数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` in (2,3) AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        }else{
+            //获取今日加入线索的数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = -1 AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月转意向客户的数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` in (2,3) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
         }
 
         //获取总线索数据
@@ -1041,17 +1100,11 @@ class CustomerOperationLogic extends Model {
         ->where($map)
         ->count();
 
-        //获取今日加入线索的数据
-        $yesterday_res = getDayTimeSolt();
-        $begin_time = $yesterday_res['begin_time'];
-        $end_time = $yesterday_res['end_time'];
-        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = -1  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
-
         $arr = [
             'clue' => $clue,
             'today' => $today,
             'follow_up' => 0,
-            'intention' => 0
+            'intention' => $intention
         ];
         
         return msg(200,'success',$arr);
@@ -1072,9 +1125,42 @@ class CustomerOperationLogic extends Model {
             }
 
             $uid_list = $uid_res['body'];
-            array_push($uid_list, $uid);
 
             $map['customer_service_uid'] = ['in', $uid_list];
+
+            $uid_str = '';
+            $end_uid = end($uid_list);
+            foreach($uid_list as $k=>$v){
+                if($v != $end_uid){
+                    $uid_str .= $v.',';
+                }else{
+                    $uid_str .= $v;
+                }
+            }
+
+            //获取今日加入意向的数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3 AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月加入意向的数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3 AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        }else{
+            //获取今日加入意向的数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月加入意向的数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
         }
 
         //获取总意向数据
@@ -1084,18 +1170,6 @@ class CustomerOperationLogic extends Model {
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->count();
-
-        //获取今日加入意向的数据
-        $yesterday_res = getDayTimeSolt();
-        $begin_time = $yesterday_res['begin_time'];
-        $end_time = $yesterday_res['end_time'];
-        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
-
-        //获取本月加入意向的数据
-        $yesterday_res = getMonthTimeSolt();
-        $begin_time = $yesterday_res['begin_time'];
-        $end_time = $yesterday_res['end_time'];
-        $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 3  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
 
         $arr = [
             'total' => $total,
@@ -1304,7 +1378,7 @@ class CustomerOperationLogic extends Model {
         ->update([
             'customer_service_uid' => $uid,
             'is_clue' => -1,
-            'set_intention_time' => date('Y-m-d H:i:s')
+            'set_clue_time' => date('Y-m-d H:i:s')
         ]);
 
         if($update_res !== false){
