@@ -44,6 +44,10 @@ class Framework extends Auth{
 	 * API_URL_本地: http://localhost:91/api/v1/user/Framework/addPosition
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Framework/addPosition
 	 * @param position_name 岗位名称
+	 * @param position_id 岗位id (存在则编辑)
+	 * @param user_group_id 所属部门id
+	 * @param describe 岗位描述
+	 * @param position_superior_id 上级岗位id
 	 * @return code 200->成功
 	 */
     public function addPosition () {

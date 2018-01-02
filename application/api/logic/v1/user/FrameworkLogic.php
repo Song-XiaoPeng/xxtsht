@@ -59,7 +59,7 @@ class FrameworkLogic extends Model {
     /**
      * 添加岗位
 	 * @param company_id 商户id
-	 * @param position_id 岗位id
+	 * @param position_id 岗位id（存在则编辑）
 	 * @param position_name 岗位名称
 	 * @param user_group_id 所属部门id
 	 * @param describe 岗位描述
@@ -79,14 +79,16 @@ class FrameworkLogic extends Model {
             ->update([
                 'position_name' => $position_name,
                 'user_group_id' => $user_group_id,
-                'describe' => $describe
+                'describe' => $describe,
+                'position_superior_id' => $position_superior_id
             ]);
         }else{
             $position_id = Db::name('position')->insertGetId([
                 'company_id' => $company_id,
                 'position_name' => $position_name,
                 'user_group_id' => $user_group_id,
-                'describe' => $describe
+                'describe' => $describe,
+                'position_superior_id' => $position_superior_id
             ]);
         }
 
