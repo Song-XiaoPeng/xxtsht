@@ -935,7 +935,41 @@ class CustomerOperationLogic extends Model {
 
             $uid_list = $uid_res['body'];
 
+            $uid_str = '';
+            $end_uid = end($uid_list);
+            foreach($uid_list as $k=>$v){
+                if($v != $end_uid){
+                    $uid_str .= $v.',';
+                }else{
+                    $uid_str .= $v;
+                }
+            }
+
             $map['customer_service_uid'] = ['in', $uid_list];
+
+            //获取今日追销客户数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 5 AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月加入追销的数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 5 AND `customer_service_uid` in ($uid_str) AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        }else{
+            //获取今日追销客户数据
+            $yesterday_res = getDayTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 5  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+
+            //获取本月加入追销的数据
+            $yesterday_res = getMonthTimeSolt();
+            $begin_time = $yesterday_res['begin_time'];
+            $end_time = $yesterday_res['end_time'];
+            $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 5  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
         }
 
         //获取追销客户数据
@@ -945,18 +979,6 @@ class CustomerOperationLogic extends Model {
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
         ->count();
-
-        //获取今日追销客户数据
-        $yesterday_res = getDayTimeSolt();
-        $begin_time = $yesterday_res['begin_time'];
-        $end_time = $yesterday_res['end_time'];
-        $today = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 5  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
-
-        //获取本月加入追销的数据
-        $yesterday_res = getMonthTimeSolt();
-        $begin_time = $yesterday_res['begin_time'];
-        $end_time = $yesterday_res['end_time'];
-        $intention = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS wx_user WHERE  `company_id` = '$company_id'  AND `is_clue` = 5  AND `set_clue_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
 
         $arr = [
             'total' => $total,
