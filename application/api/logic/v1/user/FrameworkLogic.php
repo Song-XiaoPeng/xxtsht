@@ -398,6 +398,38 @@ class FrameworkLogic extends Model {
     }
 
     /**
+     * 获取岗位数据
+	 * @param position_id 职位id
+	 */
+    public function getPosition($company_id, $position_id){
+        $arr1 = Db::name('position')->where(['company_id'=>$company_id])->select();
+        $arr2 = Db::name('position')->where(['company_id'=>$company_id,'position_id'=>$position_id])->select();
+        if(empty($arr2)){
+            return [];
+        }else{
+            $arr2[0]['level'] = 1;
+        }
+
+        $res = self::tree($arr1,$position_id,2);
+
+        return array_merge($res,$arr2);
+    }
+
+    static public $treeList = array();
+
+    //接收$data二维数组,$pid默认为0，$level级别默认为1
+    static public function tree($data, $pid=-1, $level = 1){
+        foreach($data as $v){
+            if($v['position_superior_id'] == $pid){
+                $v['level'] = $level;
+                self::$treeList[]=$v;//将结果装到$treeList中
+                self::tree($data,$v['position_id'],$level+1);
+            }
+        }
+        return self::$treeList;
+    }
+
+    /**
      * 获取组织架构图数据
 	 * @param company_id 商户id
 	 * @return code 200->成功
@@ -431,6 +463,8 @@ class FrameworkLogic extends Model {
                     ->field('uid,user_name,phone_no')
                     ->select();
     
+
+
                     $son_position[$c]['staff'] = $user_arr_data;
                 }
 

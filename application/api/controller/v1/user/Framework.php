@@ -198,4 +198,8 @@ class Framework extends Auth{
 	public function getFrameworkData(){
         return \think\Loader::model('FrameworkLogic','logic\v1\user')->getFrameworkData($this->company_id);
 	}
+
+	public function getPosition(){
+		return \think\Loader::model('FrameworkLogic','logic\v1\user')->getPosition($this->company_id,19);
+	}
 }
