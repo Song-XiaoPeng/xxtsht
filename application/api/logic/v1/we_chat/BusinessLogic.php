@@ -8,9 +8,12 @@ use think\Log;
 use app\api\common\Common;
 use EasyWeChat\Message\Image;
 use EasyWeChat\Message\Material;
+use EasyWeChat\Message\Text;
 
 class BusinessLogic extends Model {
     private $default_message = '';
+
+    private $release_appid = 'wx570bc396a51b8ff8';
 
     //微信授权事件处理
     public function authCallback(){
@@ -24,7 +27,9 @@ class BusinessLogic extends Model {
                 case Guard::EVENT_AUTHORIZED: // 授权成功
                     $data['company_id'] = '51454009d703c86c91353f61011ecf2f';
 
-                    $authorization_info = $openPlatform->getAuthorizationInfo($event->AuthorizationCode);
+                    $authorization_info = $openPlatform->getAuthorizationInfo($event->AuthorizationCode)['authorization_info'];
+
+                    $authorizer_info = $openPlatform->getAuthorizerInfo($authorization_info['authorizer_appid'])['authorizer_info'];
 
                     $auth_info = Db::name('openweixin_authinfo')->where(['appid'=>$authorization_info['authorizer_appid']])->find();
                     if($auth_info){
@@ -60,9 +65,6 @@ class BusinessLogic extends Model {
                     break;
                 case Guard::EVENT_UNAUTHORIZED: // 授权取消
                     // 更新数据库操作等...
-                    Log::record('取消授权');
-                    $authorization_info = $openPlatform->getAuthorizationInfo($event->AuthorizationCode);
-                    Log::record($authorization_info);
                     break;
             }
         });
@@ -134,11 +136,6 @@ class BusinessLogic extends Model {
         }, false)</script></body></html>';
     }
 
-    //全网发布检测返回数据
-    public function fullNetworkRelease($type, $content){
-        return 'TESTCOMPONENT_MSG_TYPE_TEXT_callback';
-    }
-
     //微信公众号事件响应处理
     public function messageEvent($data){
         $appid = $data['appid'];
@@ -161,10 +158,36 @@ class BusinessLogic extends Model {
         $message = $server->getMessage();
         switch ($message['MsgType']) {
             case 'event':
-                $returnMessage = $this->clickEvent($appid,$openid,$message);
+                if($appid == $this->release_appid){
+                    $returnMessage = $message['Event'].'from_callback';
+            
+                    $app = new Application(wxOptions());
+                    $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+                    $message_text = new Text(['content' => $returnMessage]);
+                    $staff->message($message_text)->to($openid)->send();
+                    exit;
+                }else{
+                    $returnMessage = $this->clickEvent($appid,$openid,$message);
+                }
+
                 break;
             case 'text':
-                $returnMessage = $this->textEvent($appid,$openid,$message['Content']);
+                if($appid == $this->release_appid){
+                    if ($message['Content'] == 'TESTCOMPONENT_MSG_TYPE_TEXT') {
+                        $returnMessage = 'TESTCOMPONENT_MSG_TYPE_TEXT_callback';
+                    }else if(substr($message['Content'],0,15) == 'QUERY_AUTH_CODE'){
+                        $returnMessage = substr($message['Content'],16).'_from_api';
+            
+                        $app = new Application(wxOptions());
+                        $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
+                        $message_text = new Text(['content' => $returnMessage]);
+                        $staff->message($message_text)->to($openid)->send();
+                        exit;
+                    }
+                }else{
+                    $returnMessage = $this->textEvent($appid,$openid,$message['Content']);
+                }
+                
                 break;
             case 'image':
                 $returnMessage = $this->imgEvent($appid,$openid,$message);
@@ -185,6 +208,11 @@ class BusinessLogic extends Model {
                 $returnMessage = '您好有什么需要帮助吗？';
                 break;
         }
+
+        /* 第三方全网发布start */
+        Log::record('收到微信数据');
+        Log::record(json_encode($message));
+        /* 第三方全网发布end */
 
         $server->setMessageHandler(function ($message) use ($returnMessage) {
             return $returnMessage;

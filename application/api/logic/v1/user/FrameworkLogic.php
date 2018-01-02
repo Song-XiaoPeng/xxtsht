@@ -395,14 +395,12 @@ class FrameworkLogic extends Model {
             //获取岗位信息
             $position_list = Db::name('position')
             ->where(['company_id'=>$company_id,'user_group_id'=>$v['user_group_id']])
-            ->field('')
             ->select();
 
             foreach($position_list as $i=>$t){
                 $user_list = Db::name('user')
-                ->where(['company_id'=>$company_id,'position_id'=>$t['position_id']])
+                ->where(['company_id'=>$company_id,'position_id'=>$t['position_id'],'user_state'=>1])
                 ->field('uid,user_name,phone_no')
-                ->cache(true,60)
                 ->select();
 
                 $position_list[$i]['staff'] = $user_list;
