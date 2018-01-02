@@ -32,9 +32,9 @@ class SurveyLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getCustomerServiceTotal($company_id){
-        $on_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>1])->group('wx_sign')->cache(true,10)->count();
-        $off_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>-1])->group('wx_sign')->cache(true,10)->count();
-        $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('wx_sign')->cache(true,60)->count();
+        $on_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>1])->group('uid')->cache(true,10)->count();
+        $off_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>-1])->group('uid')->cache(true,10)->count();
+        $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,60)->count();
 
         return msg(200,'success',[
             'on_line_total' => $on_line_total,
@@ -203,7 +203,7 @@ class SurveyLogic extends Model {
                 break;
         }
 
-        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5 UNION SELECT * FROM tb_wx_user_6 UNION SELECT * FROM tb_wx_user_7 UNION SELECT * FROM tb_wx_user_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_wx_user_1 UNION SELECT * FROM tb_wx_user_2 UNION SELECT * FROM tb_wx_user_3 UNION SELECT * FROM tb_wx_user_4 UNION SELECT * FROM tb_wx_user_5) AS message_session WHERE  `company_id` = '$company_id'  AND `customer_service_uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
 
         return $session_total;
     }
