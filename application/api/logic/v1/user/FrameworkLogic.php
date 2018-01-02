@@ -70,6 +70,7 @@ class FrameworkLogic extends Model {
         $position_id = $data['position_id'];
         $position_name = $data['position_name'];
         $user_group_id = $data['user_group_id'];
+        $position_superior_id = empty($data['position_superior_id']) == true ? -1 : $data['position_superior_id'];
         $describe = $data['describe'];
 
         if($position_id){
