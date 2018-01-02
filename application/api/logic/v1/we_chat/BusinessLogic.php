@@ -103,6 +103,11 @@ class BusinessLogic extends Model {
         }, false)</script></body></html>';
     }
 
+    //全网发布检测返回数据
+    public function fullNetworkRelease($appid){
+        return '您好!';
+    }
+
     //微信公众号事件响应处理
     public function messageEvent($data){
         Log::record(json_encode($data));
@@ -150,6 +155,10 @@ class BusinessLogic extends Model {
             default:
                 $returnMessage = '您好有什么需要帮助吗？';
                 break;
+        }
+
+        if ($appid == 'wx570bc396a51b8ff8') {
+            $returnMessage = $this->fullNetworkRelease($appid);
         }
 
         $server->setMessageHandler(function ($message) use ($returnMessage) {
