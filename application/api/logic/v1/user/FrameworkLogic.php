@@ -467,7 +467,6 @@ class FrameworkLogic extends Model {
     public function getSubordinateList($data){
         $company_id = $data['company_id'];
         $uid = $data['uid'];
-        $user_type = $data['user_type'];
 
         $user_res = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
 

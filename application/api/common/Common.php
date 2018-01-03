@@ -190,7 +190,6 @@ class Common {
     public static function getAscriptionUidList($company_id,$uid,$user_type){
         $data['company_id'] = $company_id;
         $data['uid'] = $uid;
-        $data['user_type'] = $user_type;
 
         $res = \think\Loader::model('FrameworkLogic','logic\v1\user')->getSubordinateList($data);
         if($res['meta']['code'] != 200){
@@ -202,9 +201,7 @@ class Common {
         $uid_list = [];
 
         foreach($arr as $k=>$v){
-            foreach($v['uid_list'] as $i=>$t){
-                array_push($uid_list, $t['uid']);
-            }
+            array_push($uid_list, $v['uid']);
         }
 
         return msg(200,'success',$uid_list);
