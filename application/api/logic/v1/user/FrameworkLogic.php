@@ -484,7 +484,7 @@ class FrameworkLogic extends Model {
         ->field('uid,phone_no,user_name,sex')
         ->select();
 
-        return $user_list;
+        return msg(200,'success',empty($user_list) == true ? [] : $user_list);
     }
 
     //获取子岗位
