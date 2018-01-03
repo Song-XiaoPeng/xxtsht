@@ -652,9 +652,9 @@ class WxOperationLogic extends Model {
 
             if($v['qrcode_id']){
                 $activity_name = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
-                $wx_user_list[$k]['source_qrcode_name'] = empty($activity_name) == true ? '暂无来源二维码' : $activity_name;
+                $wx_user_list[$k]['source_qrcode_name'] = empty($activity_name) == true ? '公众号' : $activity_name;
             }else{
-                $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
+                $wx_user_list[$k]['source_qrcode_name'] = '公众号';
             }
         }
 
