@@ -397,36 +397,36 @@ class FrameworkLogic extends Model {
         return msg(200, 'success', $res);
     }
 
-    /**
-     * 获取岗位数据
-	 * @param position_id 职位id
-	 */
-    public function getPosition($company_id, $position_id){
-        $arr1 = Db::name('position')->where(['company_id'=>$company_id])->select();
-        $arr2 = Db::name('position')->where(['company_id'=>$company_id,'position_id'=>$position_id])->select();
-        if(empty($arr2)){
-            return [];
-        }else{
-            $arr2[0]['level'] = 1;
-        }
-
-        $res = self::tree($arr1,$position_id,2);
-
-        return array_merge($res,$arr2);
-    }
-
-    static public $treeList = array();
-
-    //接收$data二维数组,$pid默认为0，$level级别默认为1
-    static public function tree($data, $pid=-1, $level = 1){
-        foreach($data as $v){
-            if($v['position_superior_id'] == $pid){
-                $v['level'] = $level;
-                self::$treeList[]=$v;//将结果装到$treeList中
-                self::tree($data,$v['position_id'],$level+1);
+    // 职位递归
+    function genPositionTree($items,$pid = "position_superior_id") {
+        $map  = [];
+        $tree = [];    
+        foreach ($items as &$it){ $map[$it['position_id']] = &$it; }  //数据的ID名生成新的引用索引树
+        foreach ($items as &$it){
+            $parent = &$map[$it[$pid]];
+            if($parent) {
+                $parent['position'][] = &$it;
+            }else{
+                $tree[] = &$it;
             }
         }
-        return self::$treeList;
+        return $tree;
+    }
+
+    // 部门递归
+    function genDepartmentTree($items,$pid ="parent_id") {
+        $map  = [];
+        $tree = [];    
+        foreach ($items as &$it){ $map[$it['user_group_id']] = &$it; }  //数据的ID名生成新的引用索引树
+        foreach ($items as &$it){
+            $parent = &$map[$it[$pid]];
+            if($parent) {
+                $parent['department'][] = &$it;
+            }else{
+                $tree[] = &$it;
+            }
+        }
+        return $tree;
     }
 
     /**
@@ -435,76 +435,36 @@ class FrameworkLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getFrameworkData($company_id){
+        //获取职位数据
+        $position_list = Db::name('position')->where(['company_id'=>$company_id])->field('position_id,position_name,user_group_id,position_superior_id')->select();
+        foreach($position_list as $k=>$v){
+            if($v['position_id'] != -1){
+                $position_list[$k]['user_list'] = Db::name('user')->where(['company_id'=>$company_id,'position_id'=>$v['position_id']])->field('uid,phone_no,user_name')->select();
+            }else{
+                $position_list[$k]['user_list'] = [];
+            }
+
+            $position_list[$k]['position'] = [];
+        }
+
+        $position_arr = $this->genPositionTree($position_list, 'position_superior_id');
+
         //获取部门数据
-        $group_list = Db::name('user_group')->where(['company_id'=>$company_id])->select();
-
-        $parent_list = [];
-        $son_list = [];
-
+        $group_list = Db::name('user_group')->where(['company_id'=>$company_id])->field('user_group_id,user_group_name,parent_id')->select();
         foreach($group_list as $k=>$v){
-            //获取岗位信息
-            $position_list = Db::name('position')
-            ->where(['company_id'=>$company_id,'user_group_id'=>$v['user_group_id'],'position_superior_id'=>-1])
-            ->select();
+            $group_list[$k]['position'] = [];
+            $group_list[$k]['department'] = [];
 
-            foreach($position_list as $i=>$t){
-                $user_list = Db::name('user')
-                ->where(['company_id'=>$company_id,'position_id'=>$t['position_id'],'user_state'=>1])
-                ->field('uid,user_name,phone_no')
-                ->select();
-
-                $position_list[$i]['staff'] = $user_list;
-
-                //获取下级岗位
-                $son_position = Db::name('position')->where(['position_superior_id'=>$t['position_id']])->select();
-                foreach($son_position as $c=>$z){
-                    $user_arr_data = Db::name('user')
-                    ->where(['company_id'=>$company_id,'position_id'=>$z['position_id'],'user_state'=>1])
-                    ->field('uid,user_name,phone_no')
-                    ->select();
-    
-
-
-                    $son_position[$c]['staff'] = $user_arr_data;
-                }
-
-                $position_list[$i]['position'] = $son_position;
-            }
-
-            $v['position'] = $position_list;
-
-            //获取领导层信息
-            $person_charge = json_decode($v['person_charge'],true);
-            if($person_charge){
-                $user_arr = [];
-                foreach($person_charge as $i=>$uid){
-                    $user_arr[] = Db::name('user')
-                    ->where(['company_id'=>$company_id,'uid'=>$uid])
-                    ->field('uid,user_name,phone_no')
-                    ->find();
-                }
-
-                $v['staff'] = $user_arr;
-            }else{
-                $v['staff'] = [];
-            }
-
-            if($v['parent_id'] == -1){
-                array_push($parent_list,$v);
-            }else{
-                array_push($son_list,$v);
-            }
-        }
-
-        foreach($parent_list as $k=>$v){
-            foreach($son_list as $c=>$t){
-                if($t['parent_id'] == $v['user_group_id']){
-                    $parent_list[$k]['son_list'][] = $t;
+            foreach($position_arr as $c=>$t){
+                if($v['user_group_id'] == $t['user_group_id']){
+                    $group_list[$k]['position'][] = $t;
                 }
             }
         }
 
-        return msg(200,'success',$parent_list);
+        $group_list = $this->genDepartmentTree($group_list, 'parent_id');
+
+        return msg(200,'success',$group_list);
     }
 
     /**
