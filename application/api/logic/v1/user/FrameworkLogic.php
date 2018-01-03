@@ -142,7 +142,7 @@ class FrameworkLogic extends Model {
             $list[$k]['position_superior_name'] = Db::name('position')->where(['position_id'=>$v['position_superior_id']])->value('position_name');
         }
 
-        return msg(200, 'success', $list);
+        return msg(200, 'success', empty($list) == true ? [] : $list);
     }
 
     /**
