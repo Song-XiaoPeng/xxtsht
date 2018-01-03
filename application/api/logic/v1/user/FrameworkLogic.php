@@ -377,16 +377,7 @@ class FrameworkLogic extends Model {
                 $user_list[$k]['user_state_name'] = '正常';
             }else{
                 $user_list[$k]['user_state_name'] = '禁用';
-            }
-
-            //判断是否部门领导
-            $uid = $v['uid'];
-            $user_group_id = Db::name('user_group')->where(['company_id'=>$company_id,'person_charge'=>['like', "%$uid%"]])->value('user_group_id'); 
-            if($user_group_id){
-                $user_list[$k]['leader_id'] = $user_group_id;
-            }else{
-                $user_list[$k]['leader_id'] = null;
-            }        
+            }   
         }
 
         $res['data_list'] = count($user_list) == 0 ? array() : $user_list;
@@ -468,69 +459,6 @@ class FrameworkLogic extends Model {
     }
 
     /**
-     * 设置部门领导
-	 * @param company_id 商户id
-	 * @param set_uid 设置的账号uid
-	 * @param user_group_id 分组id
-	 * @return code 200->成功
-	 */
-    public function setLeader($data){
-        $company_id = $data['company_id'];
-        $set_uid = empty($data['set_uid']) == true ? '' : intval($data['set_uid']);
-        $user_group_id = $data['user_group_id'];
-
-        $map['company_id'] = $company_id;
-        $map['person_charge'] = ['like', "%$set_uid%"];
-        $user_group_res = Db::name('user_group')->where($map)->find();
-
-        $person_charge = json_decode($user_group_res['person_charge'], true);
-
-        $is_reset = false;
-
-        if ($person_charge) {
-            foreach($person_charge as $k=>$v){
-                if($v == $set_uid){
-                    $is_reset = true;
-                    unset($person_charge[$k]);
-                }
-            }
-        }
-
-        if($is_reset){
-            $person_charge = array_values($person_charge);
-
-            Db::name('user_group')
-            ->where(['user_group_id' => $user_group_res['user_group_id']])
-            ->update(['person_charge' => json_encode($person_charge)]);
-        }
-
-        if ($set_uid) {
-            $group_res = Db::name('user_group')
-            ->where(['user_group_id' => $user_group_id])
-            ->find();
-    
-            $person_charge_arr = json_decode($group_res['person_charge'],true);
-            if(!$person_charge_arr){
-                $person_charge_arr = [];
-            }
-    
-            array_push($person_charge_arr, $set_uid);
-    
-            $update_res = Db::name('user_group')
-            ->where(['user_group_id' => $user_group_id])
-            ->update(['person_charge' => json_encode($person_charge_arr)]);
-    
-            if($update_res !== false){
-                return msg(200,'success');
-            }else{
-                return msg(3001,'更新数据失败');
-            }
-        } else {
-            return msg(200,'success');
-        }
-    }
-
-    /**
      * 获取我的下属账号信息list
 	 * @param company_id 商户id
 	 * @param uid 登录账号uid
@@ -541,81 +469,43 @@ class FrameworkLogic extends Model {
         $uid = $data['uid'];
         $user_type = $data['user_type'];
 
-        $user_group_arr = Db::name('user_group')->where(['company_id'=>$company_id])->field('user_group_id,user_group_name')->cache(true,60)->select();
+        $user_res = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
 
-        if($user_type == 3){
-            $user_list = Db::name('user')->where(['company_id'=>$company_id])->cache(true,60)->field('uid,phone_no,user_name,user_group_id,position_id')->select();
-        }else{
-            $map['person_charge'] = ['like',"%$uid%"];
-            $map['company_id'] = $company_id;
-
-            $user_group = Db::name('user_group')
-            ->where($map)
-            ->find();
-
-            if ($user_group['parent_id'] == -1) {
-                $son_list = Db::name('user_group')
-                ->where(['parent_id'=>$user_group['user_group_id']])
-                ->select();
-
-                $son_list = array_column($son_list, 'user_group_id');
-
-                array_push($son_list, $user_group['user_group_id']);
-
-                $user_list = Db::name('user')->where(['company_id'=>$company_id,'user_group_id'=>['in',$son_list]])->field('uid,phone_no,user_name,user_group_id,position_id')->select();
+        $position_list = $this->getAllPositionIds($user_res['position_id']);
+        foreach($position_list as $k=>$v){
+            if($v == $user_res['position_id']){
+                unset($position_list[$k]);
             }
         }
 
-        if(!empty($user_list)){
-            foreach($user_group_arr as $key=>$value){
-                $user_group_arr[$key]['uid_list'] = [];
-    
-                foreach($user_list as $i=>$t){
-                    if($value['user_group_id'] == $t['user_group_id']){
-                        $user_group_arr[$key]['uid_list'][] = $t;
-                    }
-                }
-            }
-        }else{
-            $user_arr = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
-            if(empty($user_arr)){
-                $user_group_arr = [];
-            }else{
-                if($user_arr['position_id'] != -1){
-                    $position_list = Db::name('position')->where(['position_superior_id'=>$user_arr['position_id']])->field('position_id')->select();
-                    
-                    $position_list = array_column($position_list, 'position_id');
+        $position_list = array_merge($position_list);
 
-                    $user_list = Db::name('user')->where(['company_id'=>$company_id,'position_id'=>['in',$position_list]])->field('uid,phone_no,user_name,user_group_id,position_id')->select();
+        $user_list = Db::name('user')
+        ->where(['company_id'=>$company_id,'position_id'=>['in',$position_list]])
+        ->field('uid,phone_no,user_name,sex')
+        ->select();
 
-                    if(!empty($user_list)){
-                        foreach($user_group_arr as $key=>$value){
-                            $user_group_arr[$key]['uid_list'] = [];
-                
-                            foreach($user_list as $i=>$t){
-                                if($value['user_group_id'] == $t['user_group_id']){
-                                    $user_group_arr[$key]['uid_list'][] = $t;
-                                }
-                            }
-                        }
-                    }else{
-                        $user_group_arr = [];
-                    }
-                }else{
-                    $user_group_arr = [];
-                }
+        return $user_list;
+    }
+
+    //获取子岗位
+    public function getAllPositionIds($position_id){
+        //初始化ID数组
+        $array[] = $position_id;
+        do
+        {
+            $ids = '';
+            $where['position_superior_id'] = array('in',$position_id);
+            $cate = Db::name('position')->where($where)->cache(true,10)->select();
+            foreach ($cate as $k=>$v)
+            {
+                $array[] = $v['position_id'];
+                $ids .= ',' . $v['position_id'];
             }
+            $ids = substr($ids, 1, strlen($ids));
+            $position_id = $ids;
         }
-
-        //剔除空账号数据
-        foreach($user_group_arr as $k=>$v){
-            if(count($v['uid_list']) == 0){
-                unset($user_group_arr[$k]);
-            }
-        }
-
-        $user_group_arr = array_values($user_group_arr);
-
-        return msg(200,'success',$user_group_arr);
+        while (!empty($cate));
+        return $array;
     }
 }
