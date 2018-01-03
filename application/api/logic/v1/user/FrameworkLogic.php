@@ -67,7 +67,7 @@ class FrameworkLogic extends Model {
 	 */
     public function addPosition($data){
         $company_id = $data['company_id'];
-        $position_id = $data['position_id'];
+        $position_id = empty($data['position_id']) == true ? '' : $data['position_id'];
         $position_name = $data['position_name'];
         $user_group_id = $data['user_group_id'];
         $position_superior_id = empty($data['position_superior_id']) == true ? -1 : $data['position_superior_id'];
