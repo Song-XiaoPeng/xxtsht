@@ -42,7 +42,7 @@ class CustomerOperationLogic extends Model {
         $wx_number = empty($data['wx_number']) == true ? '' : $data['wx_number'];
         $email = empty($data['email']) == true ? '' : $data['email'];
         $tel = empty($data['tel']) == true ? '' : $data['tel'];
-        $product_id = empty($data['product_id']) == true ? '' : $data['product_id'];
+        $product_id = empty($data['product_id']) == true ? [] : $data['product_id'];
 
         $time = date('Y-m-d H:i:s');
 
