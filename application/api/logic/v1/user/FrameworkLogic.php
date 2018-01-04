@@ -327,6 +327,7 @@ class FrameworkLogic extends Model {
         $user_list = Db::name('user')
         ->where($map)
         ->limit($show_page,$page_count)
+        ->order('create_time desc')
         ->select();
 
         $count = Db::name('user')->where($map)->count();
