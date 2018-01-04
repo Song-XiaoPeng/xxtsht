@@ -204,6 +204,8 @@ class Common {
             array_push($uid_list, $v['uid']);
         }
 
+        array_push($uid_list, $uid);
+
         return msg(200,'success',$uid_list);
     }
 }
