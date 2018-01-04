@@ -471,7 +471,7 @@ class FrameworkLogic extends Model {
         $user_res = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
         if($user_res['user_type'] == 3){
             $user_list = Db::name('user')
-            ->where(['company_id'=>$company_id])
+            ->where(['company_id'=>$company_id,'user_type'=>4])
             ->field('uid,phone_no,user_name,sex')
             ->select();
 
