@@ -61,8 +61,14 @@ class UserOperationLogic extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $user_list = Db::name('user')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->select();
-        $count = Db::name('user')->where(['company_id'=>$company_id])->count();
+        $map['company_id'] = $company_id;
+        $map['user_type'] = 4;
+        if($user_group_id){
+            $map['user_group_id'] = $user_group_id;
+        }
+
+        $user_list = Db::name('user')->where($map)->order('create_time desc')->limit($show_page,$page_count)->select();
+        $count = Db::name('user')->where($map)->order('create_time desc')->count();
 
         foreach($user_list as $k=>$v){
             $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
