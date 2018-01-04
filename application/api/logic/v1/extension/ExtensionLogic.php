@@ -322,6 +322,9 @@ class ExtensionLogic extends Model {
 
             $list[$k]['create_user_name'] = empty($user_info['user_name']) == true ? '账号不存在' : $user_info['user_name'];
             $list[$k]['create_user_group_name'] = empty($user_group_name) == true ? '分组不存在' : $user_group_name;
+
+            $customer_service_name = Db::name('customer_service')->where(['company_id'=>$company_id,'customer_service_id'=>$v['customer_service_id']])->value('name');
+            $list[$k]['customer_service_name'] = empty($customer_service_name) == true ? '暂无' : $customer_service_name;
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
