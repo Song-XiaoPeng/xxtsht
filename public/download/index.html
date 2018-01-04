@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>网鱼客服系统下载</title>
+    <style>
+        html,body{
+            height: 100%;
+            width: 100%;
+        }
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .section{
+            height: 100%;
+            width: 100%;
+            background-image: url("images/download-bg.jpg");
+            background-repeat: no-repeat;
+            position: relative;
+            object-fit: cover;
+            object-position: 100% 100%;
+            background-size: 100% 100%;
+            overflow: auto;
+            font-family: "Microsoft YaHei";
+        }
+        .content{
+            position: absolute;
+            top: 480px;
+            width: 600px;
+            left: 50%;
+            margin-left: -300px;
+            border-radius: 20px;
+            padding: 20px 0;
+        }
+        .explain{
+            padding: 10px;
+            position: absolute;
+            bottom: 10px;
+        }
+        .explain ul{
+            list-style: none;
+        }
+        .explain ul li{
+            color: #d9d9d9;
+            padding:3px 0px;
+            font-size: 12px;
+        }
+        .btn-box{
+            padding: 10px;
+            text-align: center;
+        }
+        .btn-box .button{
+            padding: 10px 50px;
+            border-radius: 25px;
+            color: #fff;
+            background-color: #2baee9;
+            font-size: 20px;
+            margin: 0 20px;
+            outline: 0;
+            border: 0;
+            cursor: pointer;
+            transition: all .5s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-box .button:hover{
+            background-color: #fff;
+            color: #2baee9;
+        }
+    </style>
+
+</head>
+<body>
+   <div class="section">
+       <div class="content">
+           <div class="btn-box">
+               <a class="button download64" href="">64版本</a>
+               <a class="button download32" href="">32版本</a>
+           </div>
+       </div>
+       <div class="explain">
+           <h4 style="color: #e6e6e6">更新内容：</h4>
+           <ul>
+
+           </ul>
+       </div>
+   </div>
+   <script src="jquery.min.js" ></script>
+   <script>
+       $(document).ready(function () {
+         $.get("http://kf.lyfz.net/api/v1/update/Client/getVersion", function(data){
+           var obj = JSON.parse(JSON.stringify(data));
+           var txtArr = JSON.parse(obj['darwin-x64-prod'].readme);
+           for (var i = 0; i < txtArr.length; i++) {
+             $('.explain ul').append('<li>' + txtArr[i] + '</li>');
+           }
+           $('.download64').attr('href',obj['darwin-x64-prod'].install);
+           $('.download32').attr('href',obj['win32-x64-prod'].install);
+         });
+       });
+   </script>
+</body>
+</html>
