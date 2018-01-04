@@ -284,7 +284,9 @@ class ExtensionLogic extends Model {
         ->count();
 
         foreach($list as $k=>$v){
-            $list[$k]['nick_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            $list[$k]['nick_name'] = empty($nick_name) == true ? '公众号或小程序已解绑' : $nick_name;
 
             $list[$k]['qrcode_group_name'] = Db::name('extension_qrcode_group')->where(['qrcode_group_id'=>$v['qrcode_group_id']])->cache(true,60)->value('qrcode_group_name');
 
@@ -318,8 +320,8 @@ class ExtensionLogic extends Model {
                 $list[$k]['file_url'] = '';
             }
 
-            $list[$k]['create_user_name'] = $user_info['user_name'];
-            $list[$k]['create_user_group_name'] = $user_group_name;
+            $list[$k]['create_user_name'] = empty($user_info['user_name']) == true ? '账号不存在' : $user_info['user_name'];
+            $list[$k]['create_user_group_name'] = empty($user_group_name) == true ? '分组不存在' : $user_group_name;
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
