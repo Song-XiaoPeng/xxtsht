@@ -288,6 +288,9 @@ class BusinessLogic extends Model {
 	 * @return code 200->成功
 	 */
     private function textEvent($appid,$openid,$key_word){
+        // 小程序客服消息待修改
+        //$this->addWxUserInfo($appid,$openid);
+
         $this->createSession($appid,$openid,'other');
 
         //判断是否存在客服会话
@@ -687,7 +690,7 @@ class BusinessLogic extends Model {
         if(empty($company_id)){
             return '公众号未绑定第三方平台';
         }
-        
+
         //匹配是否存在正在会话中数据
         $session_res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
