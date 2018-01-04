@@ -57,7 +57,7 @@ class FrameworkLogic extends Model {
             if($v['parent_id'] != -1){
                 $list[$k]['parent_name'] = Db::name('user_group')->where(['parent_id'=>$v['parent_id']])->value('user_group_name');
             }else{
-                $list[$k]['parent_name'] = null;
+                $list[$k]['parent_name'] = '顶级岗位';
             }
         }
 
