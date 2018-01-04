@@ -53,7 +53,15 @@ class FrameworkLogic extends Model {
     public function getDepartmentList($company_id){
         $list = Db::name('user_group')->where(['company_id'=>$company_id])->select();
 
-        return msg(200,'success',$list);
+        foreach($list as $k=>$v){
+            if($v['parent_id'] != -1){
+                $list[$k]['parent_name'] = Db::name('user_group')->where(['parent_id'=>$v['parent_id']])->value('user_group_name');
+            }else{
+                $list[$k]['parent_name'] = null;
+            }
+        }
+
+        return msg(200,'success',empty($list) == true ? [] : $list);
     }
 
     /**
