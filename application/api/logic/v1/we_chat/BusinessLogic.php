@@ -209,10 +209,8 @@ class BusinessLogic extends Model {
                 break;
         }
 
-        /* 第三方全网发布start */
         Log::record('收到微信数据');
         Log::record(json_encode($message));
-        /* 第三方全网发布end */
 
         $server->setMessageHandler(function ($message) use ($returnMessage) {
             return $returnMessage;
