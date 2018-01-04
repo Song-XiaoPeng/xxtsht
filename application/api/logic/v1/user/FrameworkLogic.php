@@ -55,7 +55,7 @@ class FrameworkLogic extends Model {
 
         foreach($list as $k=>$v){
             if($v['parent_id'] != -1){
-                $list[$k]['parent_name'] = Db::name('user_group')->where(['parent_id'=>$v['parent_id']])->value('user_group_name');
+                $list[$k]['parent_name'] = Db::name('user_group')->where(['user_group_id'=>$v['parent_id']])->value('user_group_name');
             }else{
                 $list[$k]['parent_name'] = '顶级部门';
             }
