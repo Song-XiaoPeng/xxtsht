@@ -227,6 +227,7 @@ class FrameworkLogic extends Model {
                 'user_group_id' => $user_group_id,
                 'position_id' => $position_id,
                 'user_name' => $user_name,
+                'create_time' => date('Y-m-d H:i:s'),
                 'sex' => $sex
             ]);
 
