@@ -469,6 +469,15 @@ class FrameworkLogic extends Model {
         $uid = $data['uid'];
 
         $user_res = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->find();
+        if($user_res['user_type'] == 3){
+            $user_list = Db::name('user')
+            ->where(['company_id'=>$company_id])
+            ->field('uid,phone_no,user_name,sex')
+            ->select();
+
+            return msg(200,'success',empty($user_list) == true ? [] : $user_list);
+        }
+
 
         $position_list = $this->getAllPositionIds($user_res['position_id']);
         foreach($position_list as $k=>$v){
