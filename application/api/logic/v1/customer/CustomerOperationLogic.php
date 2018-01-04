@@ -176,7 +176,6 @@ class CustomerOperationLogic extends Model {
             case 1:
                 $wx_user_data['is_clue'] = 3;
                 $wx_user_data['set_intention_time'] = $time;
-                $wx_user_data['customer_service_uid'] = -1;
                 break;
             // 2订单客户
             case 2:
