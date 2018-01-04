@@ -42,7 +42,7 @@ class CustomerOperationLogic extends Model {
         $wx_number = empty($data['wx_number']) == true ? '' : $data['wx_number'];
         $email = empty($data['email']) == true ? '' : $data['email'];
         $tel = empty($data['tel']) == true ? '' : $data['tel'];
-        $product_id = empty($data['product_id']) == true ? -1 : $data['product_id'];
+        $product_id = empty($data['product_id']) == true ? '' : $data['product_id'];
 
         $time = date('Y-m-d H:i:s');
 
@@ -132,7 +132,7 @@ class CustomerOperationLogic extends Model {
                 'email' => $email,
                 'tel' => $tel,
                 'uid' => $uid,
-                'product_id' => $product_id,
+                'product_id' => json_encode($product_id),
                 'customer_type' => $customer_type,
                 'add_time' => date('Y-m-d H:i:s'),
             ]);
@@ -158,7 +158,7 @@ class CustomerOperationLogic extends Model {
                 'wx_number' => $wx_number,
                 'email' => $email,
                 'tel' => $tel,
-                'product_id' => $product_id,
+                'product_id' => json_encode($product_id),
                 'customer_type' => $customer_type,
             ]);
         }
@@ -259,6 +259,14 @@ class CustomerOperationLogic extends Model {
             ->find();
         }else{
             $customer_info['wx_company_name'] = null;
+        }
+
+        if(!empty($customer_info['product_id'])){
+            $product_list = json_decode($customer_info['product_id']);
+
+            $customer_info['product_list'] = Db::name('product')->where(['product_id'=>array('in',$product_list)])->cache(true,60)->field('product_id,product_name')->select();
+        }else{
+            $customer_info['product_list'] = [];
         }
 
         return msg(200,'success',$customer_info);
@@ -466,10 +474,12 @@ class CustomerOperationLogic extends Model {
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
 
-            if($v['product_id']){
-                $wx_user_list[$k]['product_name'] = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
+            if(!empty($v['product_id'])){
+                $product_list = json_decode($v['product_id']);
+
+                $wx_user_list[$k]['product_list'] = Db::name('product')->where(['product_id'=>array('in',$product_list)])->cache(true,60)->field('product_id,product_name')->select();
             }else{
-                $wx_user_list[$k]['product_name'] = null;
+                $wx_user_list[$k]['product_list'] = [];
             }
 
             if($v['customer_service_uid']){
@@ -619,10 +629,12 @@ class CustomerOperationLogic extends Model {
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
 
-            if($v['product_id']){
-                $wx_user_list[$k]['product_name'] = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
+            if(!empty($v['product_id'])){
+                $product_list = json_decode($v['product_id']);
+
+                $wx_user_list[$k]['product_list'] = Db::name('product')->where(['product_id'=>array('in',$product_list)])->cache(true,60)->field('product_id,product_name')->select();
             }else{
-                $wx_user_list[$k]['product_name'] = null;
+                $wx_user_list[$k]['product_list'] = [];
             }
 
             if($v['customer_service_uid']){
@@ -755,10 +767,12 @@ class CustomerOperationLogic extends Model {
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
 
-            if($v['product_id']){
-                $wx_user_list[$k]['product_name'] = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
+            if(!empty($v['product_id'])){
+                $product_list = json_decode($v['product_id']);
+
+                $wx_user_list[$k]['product_list'] = Db::name('product')->where(['product_id'=>array('in',$product_list)])->cache(true,60)->field('product_id,product_name')->select();
             }else{
-                $wx_user_list[$k]['product_name'] = null;
+                $wx_user_list[$k]['product_list'] = [];
             }
 
             if($v['customer_service_uid']){
@@ -891,10 +905,12 @@ class CustomerOperationLogic extends Model {
                 $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
             }
 
-            if($v['product_id']){
-                $wx_user_list[$k]['product_name'] = Db::name('product')->where(['product_id'=>$v['product_id']])->cache(true,60)->value('product_name');
+            if(!empty($v['product_id'])){
+                $product_list = json_decode($v['product_id']);
+
+                $wx_user_list[$k]['product_list'] = Db::name('product')->where(['product_id'=>array('in',$product_list)])->cache(true,60)->field('product_id,product_name')->select();
             }else{
-                $wx_user_list[$k]['product_name'] = null;
+                $wx_user_list[$k]['product_list'] = [];
             }
 
             if($v['customer_service_uid']){
