@@ -288,7 +288,12 @@ class ExtensionLogic extends Model {
 
             $list[$k]['qrcode_group_name'] = Db::name('extension_qrcode_group')->where(['qrcode_group_id'=>$v['qrcode_group_id']])->cache(true,60)->value('qrcode_group_name');
 
-            $list[$k]['attention_num'] = 0;
+            $list[$k]['attention_num'] = Db::name('wx_user')
+            ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['company_id'=>$company_id,'qrcode_id'=>$v['qrcode_id']])
+            ->cache(true,360)
+            ->count();
+
             $label = json_decode($v['label'],true);
             if($label){
                 foreach($label as $index=>$label_id){
@@ -307,10 +312,10 @@ class ExtensionLogic extends Model {
     
             $user_group_name = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_info['user_group_id']])->cache(true,60)->value('user_group_name');
 
-            if($v['reply_type'] = 2){
+            if($v['reply_type'] = 2 && empty($v['resources_id']) == false){
                 $list[$k]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['resources_id'];
             }else{
-                $list[$k]['file_url'] = null;
+                $list[$k]['file_url'] = '';
             }
 
             $list[$k]['create_user_name'] = $user_info['user_name'];
