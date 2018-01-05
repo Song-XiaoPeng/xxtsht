@@ -488,18 +488,25 @@ class FrameworkLogic extends Model {
             return msg(200,'success',empty($user_list) == true ? [] : $user_list);
         }
 
+        $group_res = $this->getAllGroupIds($user_res['user_group_id']);
 
-        $position_list = $this->getAllPositionIds($user_res['position_id']);
-        foreach($position_list as $k=>$v){
-            if($v == $user_res['position_id']){
-                unset($position_list[$k]);
+        $position_list = [];
+
+        foreach($group_res as $user_group_id){
+            $position_arr = Db::name('position')
+            ->where(['company_id'=>$company_id,'position_superior_id'=>-1,'user_group_id'=>$user_group_id])
+            ->cache(true,60)
+            ->select();
+            foreach($position_arr as $c=>$t){
+                $arr = $this->getAllPositionIds($t['position_id']);
+                foreach($arr as $i=>$h){
+                    array_push($position_list,$h);
+                }
             }
         }
 
-        $position_list = array_merge($position_list);
-
         $user_list = Db::name('user')
-        ->where(['company_id'=>$company_id,'position_id'=>['in',$position_list]])
+        ->where(['company_id'=>$company_id,'position_id'=>['in',$position_list],'uid'=>['not in',[$uid]]])
         ->field('uid,phone_no,user_name,sex')
         ->select();
 
@@ -514,7 +521,7 @@ class FrameworkLogic extends Model {
         {
             $ids = '';
             $where['position_superior_id'] = array('in',$position_id);
-            $cate = Db::name('position')->where($where)->cache(true,10)->select();
+            $cate = Db::name('position')->where($where)->cache(true,60)->select();
             foreach ($cate as $k=>$v)
             {
                 $array[] = $v['position_id'];
@@ -522,6 +529,27 @@ class FrameworkLogic extends Model {
             }
             $ids = substr($ids, 1, strlen($ids));
             $position_id = $ids;
+        }
+        while (!empty($cate));
+        return $array;
+    }
+
+    //获取子部门
+    public function getAllGroupIds($user_group_id){
+        //初始化ID数组
+        $array[] = $user_group_id;
+        do
+        {
+            $ids = '';
+            $where['parent_id'] = array('in',$user_group_id);
+            $cate = Db::name('user_group')->where($where)->cache(true,60)->select();
+            foreach ($cate as $k=>$v)
+            {
+                $array[] = $v['user_group_id'];
+                $ids .= ',' . $v['user_group_id'];
+            }
+            $ids = substr($ids, 1, strlen($ids));
+            $user_group_id = $ids;
         }
         while (!empty($cate));
         return $array;
