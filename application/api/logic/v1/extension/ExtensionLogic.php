@@ -325,6 +325,18 @@ class ExtensionLogic extends Model {
 
             $customer_service_name = Db::name('customer_service')->where(['company_id'=>$company_id,'customer_service_id'=>$v['customer_service_id']])->value('name');
             $list[$k]['customer_service_name'] = empty($customer_service_name) == true ? '暂无' : $customer_service_name;
+
+            //产生意向客户数量
+            $list[$k]['intention_num'] = Db::name('wx_user')
+            ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['company_id'=>$company_id,'qrcode_id'=>$v['qrcode_id'],'is_clue'=>array('in',[2,3])])
+            ->count();
+
+            //产生订单客户数量
+            $list[$k]['order_num'] = Db::name('wx_user')
+            ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['company_id'=>$company_id,'qrcode_id'=>$v['qrcode_id'],'is_clue'=>4])
+            ->count();
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
