@@ -81,43 +81,51 @@ class SurveyLogic extends Model {
         $start_time = empty($data['start_time']) == true ? '' : $data['start_time'];
         $end_time = empty($data['end_time']) == true ? '' : $data['end_time'];
 
-        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,360)->field('name,customer_service_id,uid')->select();
+        $cache_key_key = 'service_ranking_'.$type.'_'.$start_time.'_'.$end_time;
 
-        foreach($list as $k=>$v){
-            $statistical_data = [
-                'session_total' => 0, //会话总数
-                'first_session' => 0, //首次会话
-                'effective' => 0, //有效会话
-                'effective_percentage' => 0, //有效会话率
-                'invalid_session' => 0, //无效会话
-                'session_missing' => 0, //会话遗漏
-                'own_session' => 0, //手动接入会话
-                'auto_session' => 0, //自动分配会话
-                'active_session' => 0, //主动发起会话
-                'collection' => 0, //采集客咨
-                'collection_percentage' => 0, //采集客咨率
-                'send_message_total' => 0, //发出消息
-            ];
+        if(empty(cache($cache_key_key))){
+            $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,360)->field('name,customer_service_id,uid')->select();
 
-            $statistical_data['session_total'] = $this->getSessionTotal($v['uid'],$company_id,$type,$start_time,$end_time);
+            foreach($list as $k=>$v){
+                $statistical_data = [
+                    'session_total' => 0, //会话总数
+                    'first_session' => 0, //首次会话
+                    'effective' => 0, //有效会话
+                    'effective_percentage' => 0, //有效会话率
+                    'invalid_session' => 0, //无效会话
+                    'session_missing' => 0, //会话遗漏
+                    'own_session' => 0, //手动接入会话
+                    'auto_session' => 0, //自动分配会话
+                    'active_session' => 0, //主动发起会话
+                    'collection' => 0, //采集客咨
+                    'collection_percentage' => 0, //采集客咨率
+                    'send_message_total' => 0, //发出消息
+                ];
+    
+                $statistical_data['session_total'] = $this->getSessionTotal($v['uid'],$company_id,$type,$start_time,$end_time);
+    
+                $statistical_data['first_session'] = $this->getFirstSession($v['uid'],$company_id,$type,$start_time,$end_time);
+    
+                $effective = $this->getEffective($v['uid'],$company_id,$type,$start_time,$end_time);
+    
+                $statistical_data['effective'] = $effective;
+                $statistical_data['auto_session'] = $effective;
+    
+                $invalid_session = $this->getInvalidSession($v['uid'],$company_id,$type,$start_time,$end_time);
+    
+                $statistical_data['invalid_session'] = $invalid_session;
+                $statistical_data['session_missing'] = $invalid_session;
+    
+                $statistical_data['collection'] = $this->getCollection($v['uid'],$company_id,$type,$start_time,$end_time);
+    
+                $statistical_data['send_message_total'] = $this->getSendMessageTotal($v['uid'],$company_id,$type,$start_time,$end_time);
+    
+                $list[$k] = array_merge($statistical_data,$v);
+            }
 
-            $statistical_data['first_session'] = $this->getFirstSession($v['uid'],$company_id,$type,$start_time,$end_time);
-
-            $effective = $this->getEffective($v['uid'],$company_id,$type,$start_time,$end_time);
-
-            $statistical_data['effective'] = $effective;
-            $statistical_data['auto_session'] = $effective;
-
-            $invalid_session = $this->getInvalidSession($v['uid'],$company_id,$type,$start_time,$end_time);
-
-            $statistical_data['invalid_session'] = $invalid_session;
-            $statistical_data['session_missing'] = $invalid_session;
-
-            $statistical_data['collection'] = $this->getCollection($v['uid'],$company_id,$type,$start_time,$end_time);
-
-            $statistical_data['send_message_total'] = $this->getSendMessageTotal($v['uid'],$company_id,$type,$start_time,$end_time);
-
-            $list[$k] = array_merge($statistical_data,$v);
+            cache($cache_key_key, $list, 3600);
+        }else{
+            $list = cache($cache_key_key);
         }
 
         return msg(200,'success',$list);
