@@ -250,10 +250,10 @@ class RuleLogic extends Model {
             $map['label_name'] = ['like',"%$label_name%"];
         }
 
-        $label_res = Db::name('label')->where($map)->cache(true,60)->select();
+        $label_res = Db::name('label')->where($map)->select();
         
         foreach($label_res as $key=>$value){
-            $label_res[$key]['group_name'] = Db::name('label_group')->where(['company_id'=>$data['company_id'],'label_group_id'=>$value['label_group_id']])->cache(true,60)->value('group_name');
+            $label_res[$key]['group_name'] = Db::name('label_group')->where(['company_id'=>$data['company_id'],'label_group_id'=>$value['label_group_id']])->value('group_name');
         }
 
         return msg(200,'success',$label_res);
