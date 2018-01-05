@@ -165,11 +165,15 @@ class InteractionLogic extends Model {
             $session_map['uid'] = ['in',$uid_list];
         }
 
-        $session_list = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where($session_map)
-        ->order('add_time desc')
-        ->select();
+        if(empty($uid_list)){
+            $session_list = [];
+        }else{
+            $session_list = Db::name('message_session')
+            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->where($session_map)
+            ->order('add_time desc')
+            ->select();
+        }
 
         $line_up_session_res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
