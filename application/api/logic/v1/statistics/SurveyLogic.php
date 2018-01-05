@@ -81,7 +81,7 @@ class SurveyLogic extends Model {
         $start_time = empty($data['start_time']) == true ? '' : $data['start_time'];
         $end_time = empty($data['end_time']) == true ? '' : $data['end_time'];
 
-        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,120)->field('name,customer_service_id,uid')->select();
+        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,360)->field('name,customer_service_id,uid')->select();
 
         foreach($list as $k=>$v){
             $statistical_data = [
