@@ -22,7 +22,7 @@ function wxOptions(){
             'aes_key' => config('wx_aes_key')
         ],
         'guzzle' => [
-            'timeout' => 10.0
+            'timeout' => 30.0
         ],
         'debug'  => false,
         'oauth' => [
