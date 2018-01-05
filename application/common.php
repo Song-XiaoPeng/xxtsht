@@ -289,3 +289,14 @@ function randFloat($min=0, $max=1){
 function short_md5($str) {
     return substr(md5($str), 8, 16);
 }
+
+//解析url参数
+function convertUrlQuery($query){
+    $queryParts = explode('&', $query);
+    $params = array();
+    foreach ($queryParts as $param) {
+        $item = explode('=', $param);
+        $params[$item[0]] = $item[1];
+    }
+    return $params;
+}
