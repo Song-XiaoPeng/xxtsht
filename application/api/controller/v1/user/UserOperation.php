@@ -234,6 +234,26 @@ class UserOperation extends Auth{
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->setUserGroup($data);
     }
 
+
+    /**
+     * 修改账号密码
+     * 请求类型 post
+	 * 传入JSON格式: {"password":"password...","new_password":"new_password..."}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/updatePassword
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/updatePassword
+	 * @param password 旧密码
+	 * @param new_password 新密码
+	 * @return code 200->成功
+	 */
+    public function updatePassword(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('UserOperationLogic','logic\v1\user')->updatePassword($data);
+    }
+
     /**
      * 解除子账号硬件绑定
      * 请求类型 post

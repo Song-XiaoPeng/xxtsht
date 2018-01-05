@@ -382,6 +382,33 @@ class UserOperationLogic extends Model {
     }
 
     /**
+     * 修改账号密码
+	 * @param company_id 商户company_id
+	 * @param uid 账号uid
+	 * @param password 旧密码
+	 * @param new_password 新密码
+	 * @return code 200->成功
+	 */
+    public function updatePassword($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $password = $data['password'];
+        $new_password = $data['new_password'];
+
+        $update_res = Db::name('user')
+        ->where(['company_id'=>$company_id,'uid'=>$uid,'password'=>$password])
+        ->update([
+            'password' => $new_password
+        ]);
+
+        if($update_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'原密码错误');
+        }
+    }
+
+    /**
      * 获取微信客服账号列表
 	 * @param company_id 商户company_id
 	 * @param appid 微信公众号appid (选传)
