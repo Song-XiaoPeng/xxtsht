@@ -1631,7 +1631,7 @@ class WxOperationLogic extends Model {
             if($e->getCode() == 45015){
                 return msg(3020,'此客户近期未与公众号发生消息交互,不得主动发送消息');
             }else{
-                return msg(3001,$e->getMessage());
+                return msg(3021,$e->getMessage());
             }
         }
 
