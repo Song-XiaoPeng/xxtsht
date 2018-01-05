@@ -81,7 +81,7 @@ class SurveyLogic extends Model {
         $start_time = empty($data['start_time']) == true ? '' : $data['start_time'];
         $end_time = empty($data['end_time']) == true ? '' : $data['end_time'];
 
-        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->field('name,customer_service_id,uid')->select();
+        $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,120)->field('name,customer_service_id,uid')->select();
 
         foreach($list as $k=>$v){
             $statistical_data = [
@@ -161,7 +161,7 @@ class SurveyLogic extends Model {
                 break;
         }
 
-        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")[0]['count'];
+        $session_total = Db::query("SELECT COUNT(*) AS count FROM ( SELECT * FROM tb_message_session_1 UNION SELECT * FROM tb_message_session_2 UNION SELECT * FROM tb_message_session_3 UNION SELECT * FROM tb_message_session_4 UNION SELECT * FROM tb_message_session_5 UNION SELECT * FROM tb_message_session_6 UNION SELECT * FROM tb_message_session_7 UNION SELECT * FROM tb_message_session_8) AS message_session WHERE  `company_id` = '$company_id'  AND `uid` = $uid  AND `add_time` BETWEEN '$begin_time' AND '$end_time' LIMIT 1")->cache(true,3600)[0]['count'];
 
         return $session_total;
     }
