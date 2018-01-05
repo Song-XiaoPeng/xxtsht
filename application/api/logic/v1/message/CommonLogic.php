@@ -212,6 +212,8 @@ class CommonLogic extends Model {
 
         $position_locus = Db::name('geographical_position')
         ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
+        ->limit(20)
+        ->cache(true,60)
         ->select();
 
         $session_frequency = Db::name('message_session')
