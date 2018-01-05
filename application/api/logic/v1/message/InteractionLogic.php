@@ -250,13 +250,11 @@ class InteractionLogic extends Model {
         ->where(['session_id'=>$session_id,'company_id'=>$company_id])
         ->limit($show_page, $page_count)
         ->order('add_time desc')
-        ->cache(true,6)
         ->select();
 
         $count = Db::name('message_data')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_data']])
         ->where(['session_id'=>$session_id,'company_id'=>$company_id])
-        ->cache(true,6)
         ->count();
 
         foreach($list as $i=>$c){
