@@ -211,7 +211,10 @@ class Rule extends Auth{
 	 * @return code 200->成功
 	 */
 	public function getLabelList(){
-		return \think\Loader::model('RuleLogic','logic\v1\setting')->getLabelList($this->company_id);
+		$data = input('get.');
+		$data['company_id'] = $this->company_id;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->getLabelList($data);
 	}
 
 
