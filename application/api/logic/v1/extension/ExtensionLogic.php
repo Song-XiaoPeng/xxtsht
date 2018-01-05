@@ -57,7 +57,7 @@ class ExtensionLogic extends Model {
             }
         }
 
-        if(empty($customer_service_id) == false && $reply_type == 1){
+        if(empty($customer_service_id) == false && $reception_type == 1){
             $customer_service_res = Db::name('customer_service')->where(['appid'=>$appid,'company_id'=>$company_id,'customer_service_id'=>$customer_service_id])->find();
             if(empty($customer_service_res)){
                 return msg(3003,'客服不存在');
@@ -79,7 +79,6 @@ class ExtensionLogic extends Model {
             ->update([
                 'invalid_time' => $invalid_time,
                 'activity_name' => $activity_name,
-                'create_time' => date('Y-m-d H:i:s'),
                 'label' => json_encode($label),
                 'customer_service_id' => $customer_service_id,
                 'reception_type' => $reception_type,
