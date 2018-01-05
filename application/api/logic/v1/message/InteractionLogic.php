@@ -171,7 +171,7 @@ class InteractionLogic extends Model {
             $session_list = Db::name('message_session')
             ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->where($session_map)
-            ->order('send_time desc')
+            ->order('receive_message_time desc')
             ->cache(true,12)
             ->select();
         }
@@ -179,7 +179,7 @@ class InteractionLogic extends Model {
         $line_up_session_res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['company_id'=>$company_id,'state'=>3])
-        ->order('send_time desc')
+        ->order('receive_message_time desc')
         ->cache(true,12)
         ->select();
 
