@@ -172,7 +172,6 @@ class InteractionLogic extends Model {
             ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->where($session_map)
             ->order('receive_message_time desc')
-            ->cache(true,12)
             ->select();
         }
 
@@ -180,7 +179,6 @@ class InteractionLogic extends Model {
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['company_id'=>$company_id,'state'=>3])
         ->order('receive_message_time desc')
-        ->cache(true,12)
         ->select();
 
         $list = array_merge($session_list,$line_up_session_res);
@@ -335,7 +333,7 @@ class InteractionLogic extends Model {
                 $session_arr = json_decode($str,true);
             
                 if($session_arr['session_id'] == $session_data['session_id']){
-                    $redis->SREM($session_data['uid'], $str);
+                    $redis->SREM($company_id, $str);
                 }
             }
         } catch (\Exception $e) {
