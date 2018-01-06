@@ -8,7 +8,7 @@ class RemindLogic extends Model {
     /**
      * 增加客户提醒
      * @param remind_content 提醒内容
-	 * @param customer_info_id 客户基础信息id
+	 * @param wx_user_id 客户基础信息id
 	 * @param remind_time 提醒时间
 	 * @param uid 账号uid
 	 * @param remind_uid 提醒账号uid
@@ -17,24 +17,21 @@ class RemindLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function addRemind($data){
+
+
+        dump($_SERVER['HTTP_HOST']);
+        exit;
         $remind_content = $data['remind_content'];
-        $customer_info_id = $data['customer_info_id'];
+        $wx_user_id = $data['wx_user_id'];
         $remind_time = $data['remind_time'];
         $uid = $data['uid'];
-        $remind_uid = $data['remind_uid'];
+        $remind_uid = empty($data['remind_uid']) == true ? $uid : $data['remind_uid'];
         $company_id = $data['company_id'];
         $remind_type = empty($data['remind_type']) == true ? -1 : $data['remind_type'];
 
         $time = date('Y-m-d H:i:s');
         if(strtotime($time) >= strtotime($remind_time)){
             return msg(3002,'提醒时间不合法');
-        }
-
-        $customer_info = Db::name('customer_info')
-        ->where(['company_id'=>$company_id,'customer_info_id'=>$customer_info_id])
-        ->find();
-        if(!$customer_info){
-            return msg(3001,'客户信息不存在');
         }
 
         $customer_service_res = Db::name('customer_service')
@@ -54,7 +51,7 @@ class RemindLogic extends Model {
             'add_time' => $time,
             'remind_time' => $remind_time,
             'remind_uid' => $remind_uid,
-            'customer_info_id' => $customer_info['customer_info_id'],
+            'wx_user_id' => $wx_user_id,
             'remind_type' => $remind_type
         ];
 
@@ -70,20 +67,20 @@ class RemindLogic extends Model {
     /**
      * 获取客户提醒列表
      * @param page 分页参数默认1
-     * @param customer_info_id 客户基础信息id
+     * @param wx_user_id 客户基础信息id
 	 * @param uid 账号uid
 	 * @param company_id 商户company_id
 	 * @return code 200->成功
 	 */
     public function getRemindList($data){
         $company_id = $data['company_id'];
-        $customer_info_id = empty($data['customer_info_id']) == true ? '' : $data['customer_info_id'];
+        $wx_user_id = empty($data['wx_user_id']) == true ? '' : $data['wx_user_id'];
         $uid = $data['uid'];
         $token = $data['token'];
         $page = empty($data['page']) == true ? '' : $data['page'];
 
-        if($customer_info_id){
-            $map['customer_info_id'] = $customer_info_id;
+        if($wx_user_id){
+            $map['wx_user_id'] = $wx_user_id;
         }
         $map['company_id'] = $company_id;
         $map['uid'] = $uid;
