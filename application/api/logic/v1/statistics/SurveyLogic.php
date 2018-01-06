@@ -10,6 +10,12 @@ class SurveyLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getHomeSurvey($company_id,$uid){
+        $cache_key = 'home_survey_data_'.$company_id.'_'.$uid;
+
+        if(!empty(cache($cache_key))){
+            return msg(200,'success',cache($cache_key));
+        }
+
         $customer_service_total = $this->getCustomerServiceTotal($company_id)['body'];
 
         $visitor_total = $this->getVisitorTotal($company_id)['body'];
@@ -19,11 +25,17 @@ class SurveyLogic extends Model {
             'average_response' => 0
         ];
 
-        return msg(200,'success',[
+        $return_data = [
             'customer_service_total' => $customer_service_total,
             'visitor_total' => $visitor_total,
             'response_time' => $response_time,
-        ]);
+        ];
+
+        if(empty(cache($cache_key))){
+            cache($cache_key, $return_data, 360);
+        }
+
+        return msg(200, 'success', $return_data);
     }
 
     /**
