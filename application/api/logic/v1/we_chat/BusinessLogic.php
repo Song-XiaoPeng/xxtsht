@@ -101,8 +101,8 @@ class BusinessLogic extends Model {
         }
 
         $count = Db::name('openweixin_authinfo')->where(['company_id'=>$data['company_id']])->count();
-        if($count > $max_auth_wx_num){
-            return msg(3004,'账号已达到最大接入数量');
+        if($count >= $max_auth_wx_num){
+            return msg(3004,'商户公众号或小程序已达到最大接入数量');
         }
 
         $app = new Application(wxOptions());
