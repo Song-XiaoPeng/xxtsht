@@ -81,30 +81,35 @@ class RemindLogic extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $map['company_id'] = $company_id;
-        $map['wx_user_id'] = $wx_user_id;
-
-        $wx_user_sql = Db::name('wx_user')
-        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where($map)
-        ->order('subscribe_time desc')
-        ->buildSql();
-
-        $wx_user_list = Db::table('tb_customer_info')
-        ->alias('a')
-        ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
-        ->limit($show_page,$page_count)
+        $remind_list = Db::name('remind')
+        ->where(['company_id'=>$company_id, 'wx_user_id'=>$wx_user_id])
+        ->limit($show_page, $page_count)
         ->select();
 
-        $count = Db::table('tb_customer_info')
-        ->alias('a')
-        ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+        $count = Db::name('remind')
+        ->where(['company_id'=>$company_id, 'wx_user_id'=>$wx_user_id])
+        ->limit($show_page, $page_count)
         ->count();
 
-        $customer_operation = new CustomerOperationLogic();
-        $wx_user_list = $customer_operation->getCustomerDetails($wx_user_list);
+        foreach($remind_list as $k=>$v){
+            $wx_user_sql = Db::name('wx_user')
+            ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['wx_user_id'=>$v['wx_user_id']])
+            ->order('subscribe_time desc')
+            ->buildSql();
+    
+            $wx_user_list = Db::table('tb_customer_info')
+            ->alias('a')
+            ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+            ->select();
+    
+            $customer_operation = new CustomerOperationLogic();
+            $wx_user_res = $customer_operation->getCustomerDetails($wx_user_list)[0];
 
-        $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
+            $remind_list[$k] = array_merge($remind_list[$k], $wx_user_res);
+        }
+
+        $res['data_list'] = count($remind_list) == 0 ? array() : $remind_list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
