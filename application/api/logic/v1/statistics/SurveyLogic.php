@@ -81,7 +81,7 @@ class SurveyLogic extends Model {
         $start_time = empty($data['start_time']) == true ? '' : $data['start_time'];
         $end_time = empty($data['end_time']) == true ? '' : $data['end_time'];
 
-        $cache_key_key = 'service_ranking_'.$type.'_'.$start_time.'_'.$end_time;
+        $cache_key_key = 'service_ranking_'.$company_id.'_'.$type.'_'.$start_time.'_'.$end_time;
 
         if(empty(cache($cache_key_key))){
             $list = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,360)->field('name,customer_service_id,uid')->select();

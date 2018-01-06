@@ -1089,6 +1089,12 @@ class CustomerOperationLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getClueStatisticData($company_id, $uid, $user_type){
+        $cache_key = 'clue_statistic_data_'.$company_id.'_'.$uid.'_'.$user_type;
+
+        if(!empty(cache($cache_key))){
+            return msg(200,'success',cache($cache_key));
+        }
+
         if($user_type != 3){
             //获取我的团队账号
             $uid_res = Common::getAscriptionUidList($company_id, $uid, $user_type);
@@ -1152,6 +1158,10 @@ class CustomerOperationLogic extends Model {
             'follow_up' => 0,
             'intention' => $intention
         ];
+
+        if(empty(cache($cache_key))){
+            cache($cache_key, $arr, 360);
+        }
         
         return msg(200,'success',$arr);
     }
