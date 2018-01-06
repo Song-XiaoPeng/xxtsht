@@ -102,7 +102,7 @@ class BusinessLogic extends Model {
 
         $count = Db::name('openweixin_authinfo')->where(['company_id'=>$data['company_id']])->count();
         if($count >= $max_auth_wx_num){
-            return msg(3004,'商户公众号或小程序已达到最大接入数量');
+           return msg(3004,'商户公众号或小程序已达到最大接入数量');
         }
 
         $app = new Application(wxOptions());
@@ -128,7 +128,7 @@ class BusinessLogic extends Model {
             'access_token' => $authorization_info['authorizer_access_token'],
             'refresh_token' => $authorization_info['authorizer_refresh_token'],
             'refresh_time' => strtotime(date('Y-m-d H:i:s')),
-            'type' => 1,
+            'type' => $authorization_info['service_type_info']['id'] == 0 ? 2 : 1,
             'company_id' => $data['company_id'],
             'nick_name' => $authorizer_info['nick_name'],
             'logo' => $authorizer_info['head_img'],
