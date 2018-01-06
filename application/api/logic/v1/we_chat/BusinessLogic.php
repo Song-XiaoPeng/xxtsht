@@ -25,40 +25,40 @@ class BusinessLogic extends Model {
             // 事件类型常量定义在 \EasyWeChat\OpenPlatform\Guard 类里
             switch ($event->InfoType) {
                 case Guard::EVENT_AUTHORIZED: // 授权成功
-                    $data['company_id'] = '51454009d703c86c91353f61011ecf2f';
+                    // $data['company_id'] = '51454009d703c86c91353f61011ecf2f';
 
-                    $authorization_info = $openPlatform->getAuthorizationInfo($event->AuthorizationCode)['authorization_info'];
+                    // $authorization_info = $openPlatform->getAuthorizationInfo($event->AuthorizationCode)['authorization_info'];
 
-                    $authorizer_info = $openPlatform->getAuthorizerInfo($authorization_info['authorizer_appid'])['authorizer_info'];
+                    // $authorizer_info = $openPlatform->getAuthorizerInfo($authorization_info['authorizer_appid'])['authorizer_info'];
 
-                    $auth_info = Db::name('openweixin_authinfo')->where(['appid'=>$authorization_info['authorizer_appid']])->find();
-                    if($auth_info){
-                        if($auth_info['company_id'] != $data['company_id']){
-                            return;
-                        }else{
-                            return;
-                        }
-                    }
+                    // $auth_info = Db::name('openweixin_authinfo')->where(['appid'=>$authorization_info['authorizer_appid']])->find();
+                    // if($auth_info){
+                    //     if($auth_info['company_id'] != $data['company_id']){
+                    //         return;
+                    //     }else{
+                    //         return;
+                    //     }
+                    // }
             
-                    $auth_id = Db::name('openweixin_authinfo')->insertGetId([
-                        'appid' => $authorization_info['authorizer_appid'],
-                        'access_token' => $authorization_info['authorizer_access_token'],
-                        'refresh_token' => $authorization_info['authorizer_refresh_token'],
-                        'refresh_time' => strtotime(date('Y-m-d H:i:s')),
-                        'type' => 1,
-                        'company_id' => $data['company_id'],
-                        'nick_name' => $authorizer_info['nick_name'],
-                        'logo' => $authorizer_info['head_img'],
-                        'qrcode_url' => $authorizer_info['qrcode_url'],
-                        'principal_name' => $authorizer_info['principal_name'],
-                        'account_number' => $authorizer_info['user_name'],
-                        'alias' => $authorizer_info['alias']
-                    ]);
+                    // $auth_id = Db::name('openweixin_authinfo')->insertGetId([
+                    //     'appid' => $authorization_info['authorizer_appid'],
+                    //     'access_token' => $authorization_info['authorizer_access_token'],
+                    //     'refresh_token' => $authorization_info['authorizer_refresh_token'],
+                    //     'refresh_time' => strtotime(date('Y-m-d H:i:s')),
+                    //     'type' => 1,
+                    //     'company_id' => $data['company_id'],
+                    //     'nick_name' => $authorizer_info['nick_name'],
+                    //     'logo' => $authorizer_info['head_img'],
+                    //     'qrcode_url' => $authorizer_info['qrcode_url'],
+                    //     'principal_name' => $authorizer_info['principal_name'],
+                    //     'account_number' => $authorizer_info['user_name'],
+                    //     'alias' => $authorizer_info['alias']
+                    // ]);
             
-                    Db::name('wx_api_count')->insert([
-                        'auth_id' => $auth_id,
-                        'company_id' => $data['company_id']
-                    ]);
+                    // Db::name('wx_api_count')->insert([
+                    //     'auth_id' => $auth_id,
+                    //     'company_id' => $data['company_id']
+                    // ]);
                     break;
                 case Guard::EVENT_UPDATE_AUTHORIZED: // 更新授权
                     // 更新数据库操作等...
@@ -106,7 +106,7 @@ class BusinessLogic extends Model {
         if($auth_info){
             if($auth_info['company_id'] != $data['company_id']){
                 $company_id = $auth_info['company_id'];
-                return msg(3001,"绑定失败,此公众平台或小程序已绑定company_id为:$company_id的账号,请先解绑原账号!");
+                return msg(3001,'绑定失败,此公众平台或小程序已绑定company_id为:'.$company_id.'的账号,请先解绑原账号!');
             }else{
                 return msg(3002,"此公众平台或小程序已绑定完成，请勿重复绑定!");
             }
