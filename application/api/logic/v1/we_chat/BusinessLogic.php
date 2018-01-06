@@ -169,6 +169,11 @@ class BusinessLogic extends Model {
         $message = $server->getMessage();
         switch ($message['MsgType']) {
             case 'event':
+                //判断是否小程序用户
+                if($message['Event'] == 'user_enter_tempsession' && $message['SessionFrom'] == 'wxapp'){
+                    $this->addWxUserInfo($appid,$openid);
+                }
+
                 if($appid == $this->release_appid){
                     $returnMessage = $message['Event'].'from_callback';
             
@@ -299,9 +304,6 @@ class BusinessLogic extends Model {
 	 * @return code 200->成功
 	 */
     private function textEvent($appid,$openid,$key_word){
-        // 小程序客服消息待修改
-        //$this->addWxUserInfo($appid,$openid);
-
         $this->createSession($appid,$openid,'other');
 
         //判断是否存在客服会话
@@ -947,11 +949,11 @@ class BusinessLogic extends Model {
         }catch (\Exception $e) {
             $wx_info['nickname'] = '小程序客户'.date('YmdHis');
             $wx_info['headimgurl'] = 'http://kf.lyfz.net/static/images/portrait.jpg';
-            $wx_info['gender'] = 0;
             $wx_info['city'] = '';
             $wx_info['province'] = '';
             $wx_info['language'] = 'zh_CN';
             $wx_info['country'] = '中国';
+            $wx_info['sex'] = 0;
             $wx_info['groupid'] = 0;
             $wx_info['remark'] = '';
             $wx_info['tagid_list'] = [];
