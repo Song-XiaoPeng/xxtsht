@@ -293,7 +293,7 @@ class InteractionLogic extends Model {
     public function closeSession($data){
         $company_id = $data['company_id'];
         $session_id = $data['session_id'];
-        $close_explain = empty($data['close_explain']) == true ? '' : $data['close_explain'];
+        $close_explain = empty($data['close_explain']) == true ? '监控操作关闭' : $data['close_explain'];
 
         $session_data = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
