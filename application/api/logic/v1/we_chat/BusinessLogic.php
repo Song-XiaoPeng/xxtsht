@@ -945,8 +945,19 @@ class BusinessLogic extends Model {
             $userService = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
             $wx_info = $userService->get($openid);
         }catch (\Exception $e) {
-            Log::record($e->getMessage());
-            return;
+            $wx_info['nickname'] = '小程序客户'.date('YmdHis');
+            $wx_info['headimgurl'] = 'http://kf.lyfz.net/static/images/portrait.jpg';
+            $wx_info['gender'] = 0;
+            $wx_info['city'] = '';
+            $wx_info['province'] = '';
+            $wx_info['language'] = 'zh_CN';
+            $wx_info['country'] = '中国';
+            $wx_info['groupid'] = 0;
+            $wx_info['remark'] = '';
+            $wx_info['tagid_list'] = [];
+            $wx_info['unionid'] = '';
+            $wx_info['subscribe_time'] = time();
+            $wx_info['subscribe'] = 1;
         }
 
         $wx_user_res = Db::name('wx_user')
