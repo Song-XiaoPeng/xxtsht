@@ -217,6 +217,9 @@ class RemindLogic extends Model {
         $map['tb_remind.company_id'] = $company_id;
         $map['tb_remind.uid'] = $uid;
         $map['tb_remind.remind_type'] = $remind_type;
+        if($search_text){
+            $map['tb_customer_info.real_name'] = ['like', "%$search_text%"];
+        }
         if($time_type == 6){
             $map['tb_remind.is_complete'] = 1;
         }
@@ -225,26 +228,20 @@ class RemindLogic extends Model {
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->buildSql();
 
-        $remind_res = Db::name('remind')
-        ->alias(['tb_remind' => 'a', 'tb_customer_info'=>])
+        $list = Db::name('remind')
+        ->alias('a')
         ->where($map)
         ->join([$wx_user_sql=> 'b'], 'a.wx_user_id = b.wx_user_id','RIGHT')
-        ->join([$wx_user_sql=> 'c'], 'tb_customer_info.customer_info_id = c.customer_info_id')
+        ->join('tb_customer_info c', 'b.customer_info_id = c.customer_info_id','LEFT')
         ->limit($show_page, $page_count)
         ->select();
 
-
-
-
-        dump($remind_res);
-
-
-
-
-
-
-
-        exit;
+        $count = Db::name('remind')
+        ->alias('a')
+        ->where($map)
+        ->join([$wx_user_sql=> 'b'], 'a.wx_user_id = b.wx_user_id','RIGHT')
+        ->join('tb_customer_info c', 'b.customer_info_id = c.customer_info_id','LEFT')
+        ->count();
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
