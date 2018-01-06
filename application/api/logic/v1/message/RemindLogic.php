@@ -243,6 +243,9 @@ class RemindLogic extends Model {
         ->join('tb_customer_info c', 'b.customer_info_id = c.customer_info_id','LEFT')
         ->count();
 
+        $customer_operation = new CustomerOperationLogic();
+        $list = $customer_operation->getCustomerDetails($list);
+
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
