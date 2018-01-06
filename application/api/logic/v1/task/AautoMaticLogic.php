@@ -38,7 +38,12 @@ class AautoMaticLogic extends Model {
         if($token_info['meta']['code'] == 200){
             $refresh_token = $token_info['body']['refresh_token'];
         }else{
-            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>-1,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
+            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update([
+                'state'=>-1,
+                'speed_progress'=>100,
+                'handle_end_time'=>date('Y-m-d H:i:s'),
+                'fail_desc'=> $token_info['meta']['message']
+            ]);
             return;
         }
 
@@ -48,7 +53,12 @@ class AautoMaticLogic extends Model {
             $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
             $list = $userService->lists();
         }catch (\Exception $e) {
-            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>-1,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
+            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update([
+                'state'=>-1,
+                'speed_progress'=>100,
+                'handle_end_time'=>date('Y-m-d H:i:s'),
+                'fail_desc'=>$e->getMessage()
+            ]);
             return;
         } 
 
@@ -160,7 +170,12 @@ class AautoMaticLogic extends Model {
             $openPlatform = $app->open_platform;
             $userService  = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user;
         }catch (\Exception $e) {
-            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>-1,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
+            Db::name('task')->where(['task_id'=>$task_res['task_id']])->update([
+                'state'=>-1,
+                'speed_progress'=>100,
+                'handle_end_time'=>date('Y-m-d H:i:s'),
+                'fail_desc'=>$e->getMessage()
+            ]);
             return;
         } 
 
@@ -199,7 +214,12 @@ class AautoMaticLogic extends Model {
             try{
                 $users = $userService->batchGet($openid_list);
             }catch (\Exception $e) {
-                Db::name('task')->where(['task_id'=>$task_res['task_id']])->update(['state'=>-1,'speed_progress'=>100,'handle_end_time'=>date('Y-m-d H:i:s')]);
+                Db::name('task')->where(['task_id'=>$task_res['task_id']])->update([
+                    'state'=>-1,
+                    'speed_progress'=>100,
+                    'handle_end_time'=>date('Y-m-d H:i:s'),
+                    'fail_desc'=>$e->getMessage()
+                ]);
             }
 
             foreach($users['user_info_list'] as $value){
