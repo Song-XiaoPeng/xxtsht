@@ -594,6 +594,7 @@ class WxOperationLogic extends Model {
     /**
      * 获取微信粉丝用户列表
      * @param page 分页参数默认1
+     * @param appid 公众号appid
      * @param nickname 搜索微信昵称 (选传)
      * @param real_name 微信用户真实姓名 (选传)
      * @param real_phone 微信用户真实联系电话 (选传)
