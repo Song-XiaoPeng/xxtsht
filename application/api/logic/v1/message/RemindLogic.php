@@ -3,6 +3,7 @@ namespace app\api\logic\v1\message;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
+use app\api\logic\v1\customer\CustomerOperationLogic;
 
 class RemindLogic extends Model {
     /**
@@ -17,10 +18,6 @@ class RemindLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function addRemind($data){
-
-
-        dump($_SERVER['HTTP_HOST']);
-        exit;
         $remind_content = $data['remind_content'];
         $wx_user_id = $data['wx_user_id'];
         $remind_time = $data['remind_time'];
@@ -70,69 +67,44 @@ class RemindLogic extends Model {
      * @param wx_user_id 客户基础信息id
 	 * @param uid 账号uid
 	 * @param company_id 商户company_id
+	 * @param is_remind 是否已提醒 -1否 1是
 	 * @return code 200->成功
 	 */
     public function getRemindList($data){
         $company_id = $data['company_id'];
-        $wx_user_id = empty($data['wx_user_id']) == true ? '' : $data['wx_user_id'];
+        $page = $data['page'];
         $uid = $data['uid'];
-        $token = $data['token'];
-        $page = empty($data['page']) == true ? '' : $data['page'];
-
-        if($wx_user_id){
-            $map['wx_user_id'] = $wx_user_id;
-        }
-        $map['company_id'] = $company_id;
-        $map['uid'] = $uid;
+        $wx_user_id = $data['wx_user_id'];
+        $is_remind = empty($data['is_remind']) == true ? -1 : $data['is_remind'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('remind')->where($map)->limit($show_page,$page_count)->select();
-        $count = Db::name('remind')->where($map)->count();
+        $map['company_id'] = $company_id;
+        $map['wx_user_id'] = $wx_user_id;
 
-        foreach($list as $k=>$v){
-            $customer_info_res = Db::name('customer_info')
-            ->where(['customer_info_id'=>$v['customer_info_id']])
-            ->cache(true,10)
-            ->find();
-            if(!$customer_info_res){
-                $list[$k]['wx_user_info'] = null;
-                $list[$k]['customer_info'] = null;
-                continue;
-            }
+        $wx_user_sql = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where($map)
+        ->order('subscribe_time desc')
+        ->buildSql();
 
-            if($customer_info_res['wx_company_id']){
-                $customer_info_res['wx_comapny_name'] = Db::name('wx_user_company')->where(['wx_company_id'=>$customer_info_res['wx_company_id']])->cache(true,10)->value('wx_comapny_name');
-            }else{
-                $customer_info_res['wx_comapny_name'] = null;
-            }
+        $wx_user_list = Db::table('tb_customer_info')
+        ->alias('a')
+        ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+        ->limit($show_page,$page_count)
+        ->select();
 
-            if($customer_info_res['wx_user_group_id']){
-                $customer_info_res['wx_user_group_name'] = Db::name('wx_user_group')->where(['wx_user_group_id'=>$customer_info_res['wx_user_group_id']])->cache(true,10)->value('group_name');
-            }else{
-                $customer_info_res['wx_user_group_name'] = null;
-            }
+        $count = Db::table('tb_customer_info')
+        ->alias('a')
+        ->join([$wx_user_sql=> 'w'], 'a.customer_info_id = w.customer_info_id','RIGHT')
+        ->count();
 
-            if($customer_info_res['wx_user_group_id']){
-                $customer_info_res['product_name'] = Db::name('product')->where(['product_id'=>$customer_info_res['product_id']])->cache(true,10)->value('product_name');
-            }else{
-                $customer_info_res['product_name'] = null;
-            }
+        $customer_operation = new CustomerOperationLogic();
+        $wx_user_list = $customer_operation->getCustomerDetails($wx_user_list);
 
-            $user_name = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$v['uid']])->value('user_name');
-
-            $list[$k]['create_user_name'] = $user_name;
-
-            $customer_service_name = Db::name('customer_service')->where(['uid'=>$v['remind_uid'],'company_id'=>$company_id])->cache(true,30)->value('name');
-
-            $list[$k]['customer_service_name'] = empty($customer_service_name) == true ? '客服已删除' : $customer_service_name;
-
-            $list[$k]['customer_info'] = $customer_info_res;
-        }
-
-        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;

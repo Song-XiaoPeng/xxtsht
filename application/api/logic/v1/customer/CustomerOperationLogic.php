@@ -348,6 +348,43 @@ class CustomerOperationLogic extends Model {
         return msg(200,'success',$res);
     }
 
+    //获取客户详情数据
+    public function getCustomerDetails($wx_user_list){
+        foreach($wx_user_list as $k=>$v){
+            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+
+            if($v['qrcode_id']){
+                $wx_user_list[$k]['source_qrcode_name'] = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
+            }else{
+                $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
+            }
+
+            if(!empty($v['product_id'])){
+                $product_list = json_decode($v['product_id']);
+
+                $wx_user_list[$k]['product_list'] = Db::name('product')->where(['product_id'=>array('in',$product_list)])->cache(true,60)->field('product_id,product_name')->select();
+            }else{
+                $wx_user_list[$k]['product_list'] = [];
+            }
+
+            if($v['customer_service_uid']){
+                $wx_user_list[$k]['customer_service_name'] = Db::name('user')->where(['uid'=>$v['customer_service_uid']])->cache(true,60)->value('user_name');
+            }else{
+                $wx_user_list[$k]['customer_service_name'] = null;
+            }
+
+            if($v['wx_company_id']){
+                $wx_user_list[$k]['wx_comapny_name'] = Db::name('wx_user_company')->where(['wx_company_id'=>$v['wx_company_id']])->cache(true,60)->value('wx_comapny_name');
+            }else{
+                $wx_user_list[$k]['wx_comapny_name'] = null;
+            }
+
+            $wx_user_list[$k]['tagid_list'] = json_decode($v['tagid_list']);
+        }
+
+        return $wx_user_list;
+    }
+
     /**
      * 获取线索客户列表
      * @param company_id 商户company_id
@@ -465,35 +502,7 @@ class CustomerOperationLogic extends Model {
             ->count();
         }
 
-        foreach($wx_user_list as $k=>$v){
-            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
-
-            if($v['qrcode_id']){
-                $wx_user_list[$k]['source_qrcode_name'] = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
-            }else{
-                $wx_user_list[$k]['source_qrcode_name'] = '暂无来源二维码';
-            }
-
-            if(!empty($v['product_id'])){
-                $product_list = json_decode($v['product_id']);
-
-                $wx_user_list[$k]['product_list'] = Db::name('product')->where(['product_id'=>array('in',$product_list)])->cache(true,60)->field('product_id,product_name')->select();
-            }else{
-                $wx_user_list[$k]['product_list'] = [];
-            }
-
-            if($v['customer_service_uid']){
-                $wx_user_list[$k]['customer_service_name'] = Db::name('user')->where(['uid'=>$v['customer_service_uid']])->cache(true,60)->value('user_name');
-            }else{
-                $wx_user_list[$k]['customer_service_name'] = null;
-            }
-
-            if($v['wx_company_id']){
-                $wx_user_list[$k]['wx_comapny_name'] = Db::name('wx_user_company')->where(['wx_company_id'=>$v['wx_company_id']])->cache(true,60)->value('wx_comapny_name');
-            }else{
-                $wx_user_list[$k]['wx_comapny_name'] = null;
-            }
-        }
+        $wx_user_list = $this->getCustomerDetails($wx_user_list);
 
         $res['data_list'] = count($wx_user_list) == 0 ? array() : $wx_user_list;
         $res['page_data']['count'] = $count;
