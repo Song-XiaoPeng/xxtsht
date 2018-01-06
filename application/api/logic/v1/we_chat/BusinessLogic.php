@@ -94,6 +94,17 @@ class BusinessLogic extends Model {
 
     //授权成功跳转页面
     public function authCallbackPage($data){
+        //判断是否达到最大授权数量
+        $max_auth_wx_num = Db::name('company')->where(['company_id'=>$data['company_id']])->value('max_auth_wx_num');
+        if(empty($max_auth_wx_num)){
+            return msg(3003,'商户未在系统注册拒绝接入！');
+        }
+
+        $count = Db::name('openweixin_authinfo')->where(['company_id'=>$data['company_id']])->count();
+        if($count > $max_auth_wx_num){
+            return msg(3004,'账号已达到最大接入数量');
+        }
+
         $app = new Application(wxOptions());
 
         $openPlatform = $app->open_platform;
