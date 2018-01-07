@@ -192,7 +192,7 @@ class CommonLogic extends Model {
         }
 
         $BusinessLogic = new BusinessLogic();
-        $createSession = $BusinessLogic->createSession($appid,$openid,'user',$uid,true);
+        $createSession = $BusinessLogic->createSession($appid,$openid,'user',$uid,true,false);
         if($createSession['meta']['code'] == 200){
             Db::name('wx_user')
             ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
