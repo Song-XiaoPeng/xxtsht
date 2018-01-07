@@ -202,7 +202,7 @@ class CommonLogic extends Model {
             Db::name('wx_user')
             ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['wx_user_id'=>$wx_user_res['wx_user_id'],'company_id'=>$company_id])
-            ->update(['active_time'=>date('Y-m-d H:i:s')]);
+            ->update(['active_time'=>date('Y-m-d H:i:s'),'customer_service_uid'=>$uid]);
 
             return msg(200,'success',['session_id'=>$createSession['body']['session_id'],'insert_data'=>$createSession['body']['insert_data']]);
         }else{
