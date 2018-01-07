@@ -245,6 +245,9 @@ return [
         'list_rows' => 15,
     ],
 
+    //腾讯地图WebServiceAPI密匙
+    'web_service_api' => 'EO5BZ-SRS6R-DEGW5-W6MV4-SRBMT-R5BKP',
+
     //账号授权服务器api域名地址
     'auth_server_url' => 'http://wxyx.lyfz.net',
 
