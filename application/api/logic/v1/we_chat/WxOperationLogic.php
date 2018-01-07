@@ -1572,6 +1572,10 @@ class WxOperationLogic extends Model {
 
             switch($type){
                 case 1:
+                    if(empty($content)){
+                        return msg(3012,'请输入内容');
+                    }
+
                     $message = new Text(['content' => $content]);
                     $data_obj = ['text'=>$content];
                     break;
