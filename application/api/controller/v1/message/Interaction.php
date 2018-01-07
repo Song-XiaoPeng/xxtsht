@@ -12,6 +12,7 @@ class Interaction extends Auth{
 	 * API_URL_本地: http://localhost:91/api/v1/message/Interaction/getHistorySession
 	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Interaction/getHistorySession
      * @param page 分页参数默认1
+     * @param type 返回数据长度类型 1返回最近100条 2分页参数
 	 * @return code 200->成功
 	 */
 	public function getHistorySession(){

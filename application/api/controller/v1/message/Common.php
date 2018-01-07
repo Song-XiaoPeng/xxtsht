@@ -129,5 +129,5 @@ class Common extends Auth{
         $data['uid'] = $this->uid;
         
         return \think\Loader::model('CommonLogic','logic\v1\message')->createWxUserSession($data);
-	}
+    }
 }

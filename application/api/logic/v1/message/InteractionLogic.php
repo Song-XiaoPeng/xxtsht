@@ -10,38 +10,60 @@ class InteractionLogic extends Model {
      * @param page 分页参数
 	 * @param company_id 商户company_id
 	 * @param uid 客服账号uid
+	 * @param type 返回数据长度类型 1返回最近100条 2分页参数
 	 * @return code 200->成功
 	 */
     public function getHistorySession($data){
         $page = $data['page'];
         $uid = $data['uid'];
+        $type = empty($data['type']) == true ? 2 : $data['type'];
         $company_id = $data['company_id'];
 
-        //分页
-        $page_count = 16;
-        $show_page = ($page - 1) * $page_count;
+        if($data['type'] == 1){
+            $session_res = Db::name('message_session')
+            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->where([
+                'uid' => $uid,
+                'company_id' => $company_id,
+                'state' => ['in',[-2,-1]],
+            ])
+            ->group('customer_wx_openid')
+            ->field('customer_wx_openid,state,uid,appid,previous_customer_service_id,customer_wx_nickname,customer_wx_portrait')
+            ->limit(100)
+            ->select();
 
-        $session_res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where([
-            'uid' => $uid,
-            'company_id' => $company_id,
-            'state' => ['in',[-2,-1]],
-        ])
-        ->group('customer_wx_openid')
-        ->field('customer_wx_openid,state,uid,appid,previous_customer_service_id,customer_wx_nickname,customer_wx_portrait')
-        ->limit($show_page,$page_count)
-        ->select();
+            $count = 100;
+            $page_count = 100;
+            $page = 1;
+        }else if($data['type'] == 2){
+            //分页
+            $page_count = 16;
+            $show_page = ($page - 1) * $page_count;
 
-        $count = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where([
-            'uid' => $uid,
-            'company_id' => $company_id,
-            'state' => ['in',[-2,-1]],
-        ])
-        ->group('customer_wx_openid')
-        ->count();
+            $session_res = Db::name('message_session')
+            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->where([
+                'uid' => $uid,
+                'company_id' => $company_id,
+                'state' => ['in',[-2,-1]],
+            ])
+            ->group('customer_wx_openid')
+            ->field('customer_wx_openid,state,uid,appid,previous_customer_service_id,customer_wx_nickname,customer_wx_portrait')
+            ->limit($show_page,$page_count)
+            ->select();
+            
+            $count = Db::name('message_session')
+            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+            ->where([
+                'uid' => $uid,
+                'company_id' => $company_id,
+                'state' => ['in',[-2,-1]],
+            ])
+            ->group('customer_wx_openid')
+            ->count();
+        }else{
+            return msg(3003,'type参数错误');
+        }
 
         foreach($session_res as $k=>$v){
             $session_res[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,360)->value('nick_name');
