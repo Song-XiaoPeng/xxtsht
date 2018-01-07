@@ -216,11 +216,11 @@ class FrameworkLogic extends Model {
                 $user_num = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$uid])->group('uid')->count();
                 
                 if($num >= $max_customer_service && $user_num == 0){
-                    return msg(3009,'到达最大可设置的客服数量');
+                    return msg(3009,'达到最大可设置的客服数量');
                 }
             }else{
                 if($num >= $max_customer_service){
-                    return msg(3010,'到达最大可设置的客服数量');
+                    return msg(3010,'达到最大可设置的客服数量');
                 }
             }
         }
