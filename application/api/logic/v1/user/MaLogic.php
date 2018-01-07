@@ -33,7 +33,7 @@ class MaLogic extends Model {
         $model_list = $data['model_list'];
 
         if(count($model_list) == 0){
-            return msg(3001,'model_list参数错误');
+            $model_list = [];
         }
 
         foreach($model_list as $v){
