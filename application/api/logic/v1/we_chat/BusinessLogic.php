@@ -957,7 +957,7 @@ class BusinessLogic extends Model {
             $wx_info['groupid'] = 0;
             $wx_info['remark'] = '';
             $wx_info['tagid_list'] = [];
-            $wx_info['unionid'] = '';
+            $wx_info['unionid'] = null;
             $wx_info['subscribe_time'] = time();
             $wx_info['subscribe'] = 1;
         }
