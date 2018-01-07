@@ -268,8 +268,10 @@ class InteractionLogic extends Model {
                 $list[$i]['file_url'] = getWximg($c['file_url']);
             }
 
-            if($c['message_type'] == 3 || $c['message_type'] == 4 && $c['opercode'] == 1){
-                $list[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
+            if($c['message_type'] == 3 || $c['message_type'] == 4){
+                if($c['opercode'] == 1 || $c['opercode'] ==3){
+                    $list[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getFile?resources_id='.$c['resources_id'];
+                }
             }
         }
 
