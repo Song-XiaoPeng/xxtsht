@@ -698,7 +698,7 @@ class BusinessLogic extends Model {
      * @param is_code 是否返回code码
 	 * @return code 200->成功
 	 */
-    public function createSession($appid, $openid, $type, $id = '', $is_code = false){
+    public function createSession($appid, $openid, $type, $id = '', $is_code = false, $is_push = true){
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,120)->value('company_id');
         if(empty($company_id)){
             return '公众号未绑定第三方平台';
@@ -886,7 +886,7 @@ class BusinessLogic extends Model {
 
             $redis = Common::createRedis();
 
-            if($customer_service_uid){
+            if(empty($customer_service_uid) == false && $is_push == true){
                 $redis->select(0);
                 $redis->sAdd($customer_service_uid, json_encode($insert_data));
             }else{
@@ -896,7 +896,7 @@ class BusinessLogic extends Model {
 
             if($add_res){
                 if($is_code){
-                    return msg(200,'success',['session_id'=>$session_id]);
+                    return msg(200,'success',['session_id'=>$session_id,'insert_data'=>$insert_data]);
                 }else{
                     return '正在为您接入客服'.$customer_service_name.'请稍等！';
                 }

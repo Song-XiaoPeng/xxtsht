@@ -204,7 +204,7 @@ class CommonLogic extends Model {
             ->where(['wx_user_id'=>$wx_user_res['wx_user_id'],'company_id'=>$company_id])
             ->update(['active_time'=>date('Y-m-d H:i:s')]);
 
-            return msg(200,'success',['session_id'=>$createSession['body']['session_id']]);
+            return msg(200,'success',['session_id'=>$createSession['body']['session_id'],'insert_data'=>$createSession['body']['insert_data']]);
         }else{
             return $createSession;
         }
