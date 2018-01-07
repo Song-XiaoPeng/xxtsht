@@ -763,7 +763,11 @@ class BusinessLogic extends Model {
                     }
                 }
 
-                $session_state = 0;
+                if($is_push){
+                    $session_state = 0;
+                }else{
+                    $session_state = 1;
+                }
                 break;
 
             case 'group':
@@ -890,8 +894,10 @@ class BusinessLogic extends Model {
                 $redis->select(0);
                 $redis->sAdd($customer_service_uid, json_encode($insert_data));
             }else{
-                $redis->select(2);
-                $redis->sAdd($company_id, json_encode($insert_data));
+                if($is_push == true){
+                    $redis->select(2);
+                    $redis->sAdd($company_id, json_encode($insert_data));
+                }
             }
 
             if($add_res){
