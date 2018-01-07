@@ -109,20 +109,22 @@ class Common {
 
         $add_data = array_merge($arr,$insert_arr);
 
-        if($opercode == 1 || $opercode == 3){
-            $insert_res = Db::name('message_data')
-            ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>10])
-            ->insert($add_data);
+        $insert_res = Db::name('message_data')
+        ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>config('separate')['message_data']])
+        ->insert($add_data);
 
+        if($opercode == 1 || $opercode == 3){
             Db::name('message_session')
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->where(['session_id'=>$session_id])
             ->update(['send_time'=>$time]);
-        }else if($opercode == 2){
-            $insert_res = Db::name('message_data')
-            ->partition(['customer_wx_openid'=>$openid], "customer_wx_openid", ['type'=>'md5','num'=>config('separate')['message_data']])
-            ->insert($add_data);
 
+            if($opercode == 3){
+                $redis = self::createRedis();
+                $redis->select(1);
+                $redis->zAdd($uid,time(),json_encode($add_data));
+            }
+        }else if($opercode == 2){
             Db::name('message_session')
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->where(['session_id'=>$session_id])
