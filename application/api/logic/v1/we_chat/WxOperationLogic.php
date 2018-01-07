@@ -641,11 +641,13 @@ class WxOperationLogic extends Model {
         ->where($map)
         ->limit($show_page,$page_count)
         ->order('subscribe_time desc')
+        ->cache(true,60)
         ->select();
 
         $count = Db::name('wx_user')
         ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
         ->where($map)
+        ->cache(true,60)
         ->count();
 
         foreach($wx_user_list as $k=>$v){
