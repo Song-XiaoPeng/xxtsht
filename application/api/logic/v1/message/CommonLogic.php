@@ -97,9 +97,22 @@ class CommonLogic extends Model {
             $val = json_decode($v,true);
         
             if($val['session_id'] == $session_id){
-                $customer_service_id = Db::name('customer_service')->where(['appid'=>$val['appid'],'uid'=>$uid])->cache(true,60)->value('customer_service_id');
-                if(!$customer_service_id){
-                    return msg(3003,'未获取到客服基础信息');
+                //判断会话是否来自小程序
+                $auth_info = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id,'appid'=>$val['appid']])->cache(true,60)->find();
+                if(!$auth_info){
+                    return msg(3004,'公众号或小程序已解绑会话无法接入');
+                }
+
+                if($auth_info['type'] == 1){
+                    $customer_service_id = Db::name('customer_service')->where(['appid'=>$val['appid'],'uid'=>$uid])->cache(true,60)->value('customer_service_id');
+                    if(!$customer_service_id){
+                        return msg(3005,'未获取到客服基础信息');
+                    }
+                }else{
+                    $customer_service_id = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$uid])->cache(true,60)->value('customer_service_id');
+                    if(!$customer_service_id){
+                        return msg(3006,'未获取到客服基础信息');
+                    }
                 }
 
                 $update_res = Db::name('message_session')
@@ -114,7 +127,7 @@ class CommonLogic extends Model {
                 Db::name('wx_user')
                 ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
                 ->where(['appid'=>$val['appid'],'openid'=>$val['customer_wx_openid']])
-                ->update(['customer_service_uid'=>$uid]);
+                ->update(['customer_service_uid'=>$uid,'is_clue'=>1]);
 
                 if($update_res){
                     $redis->SREM($company_id, $v);

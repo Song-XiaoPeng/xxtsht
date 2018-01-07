@@ -1671,9 +1671,22 @@ class WxOperationLogic extends Model {
             return msg(3001,'会话不可接入');
         }
 
-        $customer_service_res = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->find();
-        if(!$customer_service_res){
-            return msg(3003,'客服账号不存在');
+        //判断会话是否来自小程序
+        $auth_info = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id,'appid'=>$session_res['appid']])->cache(true,60)->find();
+        if(!$auth_info){
+            return msg(3003,'公众号或小程序已解绑会话无法接入');
+        }
+
+        if($auth_info['type'] == 1){
+            $customer_service_res = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->cache(true,60)->find();
+            if(!$customer_service_res){
+                return msg(3003,'未获取到客服基础信息');
+            }
+        }else{
+            $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$session_res['uid']])->cache(true,60)->find();
+            if(!$customer_service_res){
+                return msg(3004,'未获取到客服基础信息');
+            }
         }
 
         $token_info = Common::getRefreshToken($session_res['appid'],$company_id);
@@ -1689,7 +1702,12 @@ class WxOperationLogic extends Model {
             $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
 
             $message = new Text(['content' => '您好，我是客服'.$customer_service_res['name'].'请问有什么需要帮助吗？']);
-            $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();            
+
+            if($auth_info['type'] == 1){
+                $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();   
+            }else{
+                $staff->message($message)->to($session_res['customer_wx_openid'])->send();
+            }      
         }catch (\Exception $e) {
             if($e->getCode() != 45015){
                 return msg(3002,$e->getMessage());
