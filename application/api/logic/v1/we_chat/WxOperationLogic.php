@@ -950,7 +950,7 @@ class WxOperationLogic extends Model {
 
             $res = $group->lists();
         }catch (\Exception $e) {
-            return msg(3002,$e->getMessage());
+            return msg(200,'success',[]);
         }
 
         return msg(200,'success',$res['groups']);
