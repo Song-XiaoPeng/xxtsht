@@ -72,6 +72,7 @@
           var share_cover = "{$share_cover}";
           var share_url = "{$share_url}";
           var activity_id = "{$activity_id}";
+          var red_envelopes_id = "{$red_envelopes_id}";
           var wx_obj;
           var is_loding = false;
 
@@ -86,6 +87,10 @@
             wx.config(wx_obj);
 
             wx.ready(function () {
+                wx.hideMenuItems({
+                    menuList: ['menuItem:share:appMessage']
+                });
+
               //分享到朋友圈
               wx.onMenuShareTimeline({
                 title: share_title,
@@ -94,7 +99,7 @@
                 success: function () {
                   alert("分享成功");
 
-                  $.post('/home/Redenvelopes/setShare', {appid: appid, activity_id: activity_id}, function(result){
+                  $.post('/home/Redenvelopes/setShare', {appid: appid, activity_id: activity_id, red_envelopes_id: red_envelopes_id}, function(result){
                   });
                 },
                 cancel: function () {

@@ -47,7 +47,6 @@ class Redenvelopes{
             }
         }
 
-
         return view(
             'index', 
             [
@@ -55,6 +54,7 @@ class Redenvelopes{
                 'code' => $code,
                 'background' => $img_list,
                 'appid' => $arr['appid'],
+                'red_envelopes_id' => $data['red_envelopes_id'],
                 'company_id' => $arr['company_id'],
                 'share_title' => $arr['share_title'],
                 'share_cover' => 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$arr['share_cover'],
@@ -131,7 +131,7 @@ class Redenvelopes{
 
         //判断是否分享
         if ($arr['is_share'] == 1) {
-            $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid'],'activity_id'=>$data['activity_id']])->find();
+            $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid'],'activity_id'=>$data['activity_id'],'red_envelopes_id'=>$data['red_envelopes_id']])->find();
             if(!$is_share){
                 return msg(3002, '请先点击右上角分享朋友圈');
             }
@@ -237,6 +237,7 @@ class Redenvelopes{
             'appid' => $data['appid'],
             'openid' => $wx_user_info['original']['openid'],
             'activity_id' => $data['activity_id'],
+            'red_envelopes_id' => $data['red_envelopes_id'],
             'add_time' => date('Y-m-d H:i:s')
         ]);
     }
@@ -272,7 +273,7 @@ class Redenvelopes{
                 $js->setUrl($data['url']);
             }
 
-            return msg(200,'success', json_decode($js->config(array('checkJsApi', 'openLocation', 'getLocation', 'onMenuShareTimeline', 'onMenuShareAppMessage'), false)));
+            return msg(200,'success', json_decode($js->config(array('checkJsApi', 'openLocation', 'getLocation', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'hideMenuItems'), false)));
         } catch (\Exception $e) {
             return msg(3001,$e->getMessage());
         }
