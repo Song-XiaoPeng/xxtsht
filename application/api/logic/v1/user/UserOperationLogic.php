@@ -334,6 +334,18 @@ class UserOperationLogic extends Model {
         $openPlatform = $app->open_platform;
 
         foreach($openweixin_authinfo_res as $value){
+            if($value['type'] == 2){
+                Db::name('customer_service')->insert([
+                    'name' => $user_name,
+                    'wx_sign' => "lyfzkf@$uid",
+                    'appid' => $value['appid'],
+                    'uid' => $uid,
+                    'company_id' => $company_id,
+                    'user_group_id' => $user_info['user_group_id']
+                ]);
+                continue;
+            }
+
             $token_info = Common::getRefreshToken($value['appid'],$company_id);
             if($token_info['meta']['code'] == 200){
                 $refresh_token = $token_info['body']['refresh_token'];
