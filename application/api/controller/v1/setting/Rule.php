@@ -271,6 +271,41 @@ class Rule extends Auth{
 	}
 
 	/**
+     * 添加编辑企业快捷回复分组
+     * 请求类型 post
+	 * 传入JSON格式: {"reply_group_id":"12","group_name":"测试"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/addCommonQuickReplyGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/addCommonQuickReplyGroup
+     * @param reply_group_id 分组id (更新时传入)
+     * @param group_name 分组名称
+	 * @return code 200->成功
+	 */
+	public function addCommonQuickReplyGroup(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->addCommonQuickReplyGroup($data);
+	}
+
+	/**
+     * 获取企业快捷回复分组
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/getCommonQuickReplyGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/getCommonQuickReplyGroup
+	 * @return code 200->成功
+	 */
+	public function getCommonQuickReplyGroup(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->getCommonQuickReplyGroup($data);
+	}
+
+	/**
      * 删除标签
      * 请求类型 post
 	 * 传入JSON格式: {"label_id":"12"}

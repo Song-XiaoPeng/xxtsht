@@ -342,13 +342,71 @@ class RuleLogic extends Model {
 
         $del_res = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'uid'=>$uid,'reply_group_id'=>$reply_group_id])->delete();
 
-        Db:::name('quick_reply')->where(['company_id'=>$company_id,'reply_group_id'=>$reply_group_id])->update(['reply_group_id'=>-1]);
+        Db::name('quick_reply')->where(['company_id'=>$company_id,'reply_group_id'=>$reply_group_id])->update(['reply_group_id'=>-1]);
 
         if($del_res){
             return msg(200,'success');
         }else{
             return msg(3001,'删除失败');
         }
+    }
+
+    /**
+     * 添加编辑企业快捷回复分组
+     * @param company_id 商户company_id
+     * @param reply_group_id 分组id (更新时传入)
+     * @param group_name 分组名称
+	 * @param uid 所属账号uid
+	 * @return code 200->成功
+	 */
+    public function addCommonQuickReplyGroup($data){
+        $company_id = $data['company_id'];
+        $reply_group_id = empty($data['reply_group_id']) == true ? '' : $data['reply_group_id'];
+        $group_name = $data['group_name'];
+        $uid = $data['uid'];
+
+        if($reply_group_id){
+            $update_res = Db::name('quick_reply_group')
+            ->where(['company_id'=>$company_id,'reply_group_id'=>$reply_group_id,'uid'=>$uid,'group_type'=>2])
+            ->update([
+                'group_name' => $group_name
+            ]);
+
+            if($update_res !== false){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'更新数据失败');
+            }
+        }else{
+            $add_res = Db::name('quick_reply_group')
+            ->insert([
+                'company_id' => $company_id,
+                'group_name' => $group_name,
+                'group_type' => 2,
+                'uid' => $uid
+            ]);
+
+            if($add_res){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'插入数据失败');
+            }
+        }
+    }
+
+    /**
+     * 获取企业快捷回复分组
+     * @param company_id 商户company_id
+	 * @param uid 所属账号uid
+	 * @return code 200->成功
+	 */
+    public function getCommonQuickReplyGroup($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+
+        $list = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'uid'=>$uid,'group_type'=>2])->select();
+
+        return msg(200,'success',$list);
     }
 
     /**
