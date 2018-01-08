@@ -193,7 +193,7 @@ return [
 
     'cache'                  => [
         // 驱动方式
-        'type'   => 'redis',
+        'type'   => $_SERVER['HTTP_HOST'] == 'localhost:91' ? 'file' : 'redis',
         // 缓存保存目录
         'path'   => CACHE_PATH,
         // 缓存前缀
