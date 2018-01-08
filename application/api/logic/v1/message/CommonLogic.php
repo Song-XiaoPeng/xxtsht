@@ -242,9 +242,9 @@ class CommonLogic extends Model {
         $tagid_list = json_decode($user_info['tagid_list'],true);
         if(!empty($tagid_list)){
             foreach($tagid_list as $v){
-                $label_id = Db::name('label_tag')->where(['tag_id'=>$v])->cache(true,60)->value('label_id');
+                $label_id = Db::name('label_tag')->where(['tag_id'=>$v,'company_id'=>$company_id])->cache(true,60)->value('label_id');
                 if($label_id){
-                    $label_res = Db::name('label')->where(['label_id'=>$label_id])->cache(true,60)->find();
+                    $label_res = Db::name('label')->where(['label_id'=>$label_id,'company_id'=>$company_id])->cache(true,60)->find();
     
                     array_push($label_arr,$label_res);
                 }
