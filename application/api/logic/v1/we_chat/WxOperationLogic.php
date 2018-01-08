@@ -39,7 +39,7 @@ class WxOperationLogic extends Model {
 
             $menu_data = $menu->all()['menu']['button'];
         }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+            return msg(200,'success',[]);
         }
 
         return msg(200,'success',$menu_data);
