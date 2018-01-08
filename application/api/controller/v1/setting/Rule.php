@@ -217,6 +217,58 @@ class Rule extends Auth{
 		return \think\Loader::model('RuleLogic','logic\v1\setting')->getLabelList($data);
 	}
 
+	/**
+     * 个人添加编辑快捷回复分组
+     * 请求类型 post
+	 * 传入JSON格式: {"reply_group_id":"12","group_name":"测试"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/addUserQuickReplyGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/addUserQuickReplyGroup
+     * @param reply_group_id 分组id (更新时传入)
+     * @param group_name 分组名称
+	 * @return code 200->成功
+	 */
+	public function addUserQuickReplyGroup(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->addUserQuickReplyGroup($data);
+	}
+
+	/**
+     * 获取个人快捷回复分组
+     * 请求类型 get
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/getUserQuickReplyGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/getUserQuickReplyGroup
+	 * @return code 200->成功
+	 */
+	public function getUserQuickReplyGroup(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->getUserQuickReplyGroup($data);
+	}
+
+	/**
+     * 删除个人快捷回复分组
+     * 请求类型 post
+	 * 传入JSON格式: {"reply_group_id":"12"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/setting/Rule/delUserQuickReplyGroup
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/setting/Rule/delUserQuickReplyGroup
+	 * @param reply_group_id 删除的分组id
+	 * @return code 200->成功
+	 */
+	public function delUserQuickReplyGroup(){
+		$data = input('put.');
+		$data['company_id'] = $this->company_id;
+		$data['uid'] = $this->uid;
+
+		return \think\Loader::model('RuleLogic','logic\v1\setting')->delUserQuickReplyGroup($data);
+	}
 
 	/**
      * 删除标签

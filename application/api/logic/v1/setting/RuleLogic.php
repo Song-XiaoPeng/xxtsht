@@ -271,6 +271,87 @@ class RuleLogic extends Model {
     }
 
     /**
+     * 个人添加编辑快捷回复分组
+     * @param company_id 商户company_id
+     * @param reply_group_id 分组id (更新时传入)
+     * @param group_name 分组名称
+	 * @param uid 所属账号uid
+	 * @return code 200->成功
+	 */
+    public function addUserQuickReplyGroup($data){
+        $company_id = $data['company_id'];
+        $reply_group_id = empty($data['reply_group_id']) == true ? '' : $data['reply_group_id'];
+        $group_name = $data['group_name'];
+        $uid = $data['uid'];
+
+        if($reply_group_id){
+            $update_res = Db::name('quick_reply_group')
+            ->where(['company_id'=>$company_id,'reply_group_id'=>$reply_group_id,'uid'=>$uid,'group_type'=>1])
+            ->update([
+                'group_name' => $group_name
+            ]);
+
+            if($update_res !== false){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'更新数据失败');
+            }
+        }else{
+            $add_res = Db::name('quick_reply_group')
+            ->insert([
+                'company_id' => $company_id,
+                'group_name' => $group_name,
+                'group_type' => 1,
+                'uid' => $uid
+            ]);
+
+            if($add_res){
+                return msg(200,'success');
+            }else{
+                return msg(3001,'插入数据失败');
+            }
+        }
+    }
+
+    /**
+     * 获取个人快捷回复分组
+     * @param company_id 商户company_id
+	 * @param uid 所属账号uid
+	 * @return code 200->成功
+	 */
+    public function getUserQuickReplyGroup($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+
+        $list = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'uid'=>$uid,'group_type'=>1])->select();
+
+        return msg(200,'success',$list);
+    }
+
+    /**
+     * 删除个人快捷回复分组
+     * @param company_id 商户company_id
+	 * @param uid 所属账号uid
+	 * @param reply_group_id 删除的分组id
+	 * @return code 200->成功
+	 */
+    public function delUserQuickReplyGroup($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $reply_group_id = $data['reply_group_id'];
+
+        $del_res = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'uid'=>$uid,'reply_group_id'=>$reply_group_id])->delete();
+
+        Db:::name('quick_reply')->where(['company_id'=>$company_id,'reply_group_id'=>$reply_group_id])->update(['reply_group_id'=>-1]);
+
+        if($del_res){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
+        }
+    }
+
+    /**
      * 修改标签
      * @param company_id 商户company_id
      * @param label_id 标签id
