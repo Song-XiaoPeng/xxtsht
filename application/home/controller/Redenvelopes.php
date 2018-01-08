@@ -88,6 +88,8 @@ class Redenvelopes{
         if($arr['is_open'] == -1){
             return msg(3002, '活动未开放');
         }
+        // dump($arr);
+        // exit;
 
         if(strtotime($time) < strtotime($arr['start_time'])){
             return msg(3003, '活动未开放');
@@ -181,12 +183,12 @@ class Redenvelopes{
 
             $luckyMoneyData = [
                 'mch_billno'       => short_md5($data['activity_id'].$data['red_envelopes_id']),
-                'send_name'        => $arr['activity_name'],
+                'send_name'        => '红包',
                 're_openid'        => $wx_user_info['original']['openid'],
                 'total_amount'     => floatval($receive_amount) * 100,
-                'wishing'          => '祝福语',
-                'act_name'         => $arr['activity_name'],
-                'remark'           => '测试备注'
+                'wishing'          => '谢谢领取',
+                'act_name'         => '红包领取',
+                'remark'           => '红包'
             ];
             
             $result = $lucky_money->sendNormal($luckyMoneyData)->toArray();
