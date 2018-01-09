@@ -93,12 +93,14 @@ class RuleLogic extends Model {
         $quick_reply_id = empty($data['quick_reply_id']) == true ? false : $data['quick_reply_id'];
         $text = $data['text'];
         $company_id = $data['company_id'];
+        $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
 
         if($quick_reply_id){
             $update_res = Db::name('quick_reply')
             ->where([
                 'quick_reply_id' => $quick_reply_id,
                 'company_id' => $company_id,
+                'reply_group_id' => $reply_group_id,
                 'type' => 2
             ])
             ->update([
@@ -116,6 +118,7 @@ class RuleLogic extends Model {
         ->insertGetId([
             'quick_reply_text' => $text,
             'company_id' => $company_id,
+            'reply_group_id' => $reply_group_id,
             'type' => 2
         ]);
 
@@ -154,13 +157,22 @@ class RuleLogic extends Model {
     public function getEnterpriseSentence($data){
         $company_id = $data['company_id'];
         $page = $data['page'];
+        $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('quick_reply')->where(['company_id'=>$company_id, 'type'=>2])->limit($show_page,$page_count)->select();
-        $count = Db::name('quick_reply')->where(['company_id'=>$company_id, 'type'=>2])->limit($show_page,$page_count)->count();
+        $list = Db::name('quick_reply')->where(['company_id'=>$company_id, 'type'=>2,'reply_group_id'=>$reply_group_id])->limit($show_page,$page_count)->select();
+        $count = Db::name('quick_reply')->where(['company_id'=>$company_id, 'type'=>2,'reply_group_id'=>$reply_group_id])->limit($show_page,$page_count)->count();
+
+        foreach($list as $k=>$v){
+            if($v['reply_group_id'] != -1){
+                $list[$k]['group_name'] = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'reply_group_id'=>$v['reply_group_id']])->value('group_name');
+            }else{
+                $list[$k]['group_name'] = null;
+            }
+        }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
