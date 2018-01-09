@@ -135,7 +135,7 @@ class SurveyLogic extends Model {
                 $list[$k] = array_merge($statistical_data,$v);
             }
 
-            cache($cache_key, $list, 3600);
+            cache($cache_key, $list, 21600);
         }else{
             $list = cache($cache_key);
         }
