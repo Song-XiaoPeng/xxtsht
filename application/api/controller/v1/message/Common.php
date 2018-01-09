@@ -33,7 +33,7 @@ class Common extends Auth{
 	 * @return code 200->成功
 	 */
 	public function getQuickReplyList(){
-        $data['type'] = input('get.type',1);
+        $data = input('get.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 
@@ -53,7 +53,7 @@ class Common extends Auth{
 	public function delQuickReply(){
         $data = input('put.');
 
-        return \think\Loader::model('CommonLogic','logic\v1\message')->getQuickReplyList($this->company_id,$this->uid,$data['quick_reply_id']);
+        return \think\Loader::model('CommonLogic','logic\v1\message')->delQuickReply($this->company_id,$this->uid,$data['quick_reply_id']);
 	}
 
     /**
