@@ -15,6 +15,7 @@ class CommonLogic extends Model {
 	 */
     public function setQuickReplyText($data){
         $quick_reply_id = empty($data['quick_reply_id']) == true ? false : $data['quick_reply_id'];
+        $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
         $text = $data['text'];
         $uid = $data['uid'];
         $company_id = $data['company_id'];
@@ -28,7 +29,8 @@ class CommonLogic extends Model {
                 'type' => 1,
             ])
             ->update([
-                'quick_reply_text' => $text
+                'quick_reply_text' => $text,
+                'reply_group_id' => $reply_group_id
             ]);
 
             if($update_res !== false){
@@ -42,6 +44,7 @@ class CommonLogic extends Model {
         ->insert([
             'quick_reply_text' => $text,
             'company_id' => $company_id,
+            'reply_group_id' => $reply_group_id,
             'uid' => $uid,
             'type' => 1,
         ]);
@@ -67,6 +70,10 @@ class CommonLogic extends Model {
 
         $list = Db::name('quick_reply')->where(['company_id'=>$company_id,'uid'=>$uid,'type'=>$type,'reply_group_id'=>$reply_group_id])->select();
     
+        foreach($list as $k=>$v){
+            $list[$k]['group_name'] = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'reply_group_id'=>$v['reply_group_id']])->value('group_name');
+        }
+
         return msg(200,'success',$list);
     }
 
