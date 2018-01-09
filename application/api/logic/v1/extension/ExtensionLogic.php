@@ -493,7 +493,7 @@ class ExtensionLogic extends Model {
                 return msg(3008,'红包数量不能为空');
             }    
 
-            if($number > 10000){
+            if($number > 100000){
                 return msg(3009,'每活动不得超过10000个红包');
             }
 
@@ -681,5 +681,25 @@ class ExtensionLogic extends Model {
         Db::name('qrcode_del_list')->insert(['path'=>$save_catalog]);
 
         return response($picture_data)->contentType('application/x-zip-compressed');
+    }
+
+    /**
+     * 批量生成二维码文本内容
+	 * @param activity_id 活动id
+	 * @param company_id 商户id
+	 * @return code 200->成功
+	 */
+    public function generateRedEnvelopes($company_id, $activity_id){
+        $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id])->select();
+
+        $arr = [];
+
+        foreach($list as $k=>$v){
+            $code = base64_encode(json_encode(['red_envelopes_id'=>$v['red_envelopes_id'],'activity_id'=>$activity_id]));
+
+            $arr[$k]['url'] = 'http://'.$_SERVER['HTTP_HOST'].'/home/Redenvelopes?code='.$code;
+        }
+
+        exportCsv($arr,[],date('YmdHis').'.csv');
     }
 }
