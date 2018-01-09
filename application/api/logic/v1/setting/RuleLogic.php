@@ -352,6 +352,29 @@ class RuleLogic extends Model {
     }
 
     /**
+     * 删除企业快捷回复分组
+     * @param company_id 商户company_id
+	 * @param uid 所属账号uid
+	 * @param reply_group_id 删除的分组id
+	 * @return code 200->成功
+	 */
+    public function delCommonQuickReplyGroup($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $reply_group_id = $data['reply_group_id'];
+
+        $del_res = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'reply_group_id'=>$reply_group_id,'group_type'=>2])->delete();
+
+        if($del_res){
+            Db::name('quick_reply')->where(['company_id'=>$company_id,'reply_group_id'=>$reply_group_id])->update(['reply_group_id'=>-1]);
+
+            return msg(200,'success');
+        }else{
+            return msg(3001,'删除失败');
+        }
+    }
+
+    /**
      * 添加编辑企业快捷回复分组
      * @param company_id 商户company_id
      * @param reply_group_id 分组id (更新时传入)
