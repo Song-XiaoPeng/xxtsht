@@ -418,15 +418,15 @@ class ExtensionLogic extends Model {
             return msg(3015,'红包活动名称不能为空');
         }
 
-        if(empty($amount)){
-            return msg(3006,'红包金额不能为空');
-        }
-
         if(empty($amount_upper_limit)){
             return msg(3007,'金额上限不能为空');
         }
 
         if($amount_type == 1){
+            if(empty($amount)){
+                return msg(3006,'红包金额不能为空');
+            }
+
             if($amount < 1){
                 return msg(3008,'最小金额不能小于1元');
             }
