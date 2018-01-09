@@ -399,7 +399,7 @@ class ExtensionLogic extends Model {
         $number = $data['number'];
         $share_title = empty($data['share_title']) == true ? '' : $data['share_title'];
         $amount = empty($data['amount']) == true ? 0 : $data['amount'];
-        $amount_start = empty($data['amount_start']) == true ? 0 : $data['amount_end'];
+        $amount_start = empty($data['amount_start']) == true ? 0 : $data['amount_start'];
         $amount_end = empty($data['amount_end']) == true ? 0 : $data['amount_end'];
         $amount_type = $data['amount_type'];
         $start_time = $data['start_time'];
