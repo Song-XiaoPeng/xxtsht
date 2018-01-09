@@ -493,8 +493,8 @@ class ExtensionLogic extends Model {
                 return msg(3008,'红包数量不能为空');
             }    
 
-            if($number > 2000){
-                return msg(3009,'每活动不得超过2000个红包');
+            if($number > 10000){
+                return msg(3009,'每活动不得超过10000个红包');
             }
 
             $activity_id = md5(uniqid());
