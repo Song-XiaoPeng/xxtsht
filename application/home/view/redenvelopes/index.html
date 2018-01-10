@@ -415,7 +415,10 @@
                 });
             });
 
-            $(".receive").click(function(){
+            $(".flotage").click(function(){
+            });
+
+            function receiveRedEnvelopes(){
                 if(is_loding){
                     return;
                 }
@@ -425,16 +428,16 @@
                 $(this).text('正在领取中...');
 
                 $.post('/home/Redenvelopes/receive', {code: GetQueryString('code')}, function(result){
-                if(result.meta.code == 3001){
-                    window.location.href = result.body.jump_url;
-                }
+                    if(result.meta.code == 3001){
+                        window.location.href = result.body.jump_url;
+                    }
 
-                is_loding = false;
-                $(".receive").text('领取红包');
+                    is_loding = false;
+                    $(".receive").text('领取红包');
 
-                alert(result.meta.message);
+                    alert(result.meta.message);
                 });
-            });
+            }
         </script>
     </body>
 </html>
