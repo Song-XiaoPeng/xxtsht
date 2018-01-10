@@ -42,13 +42,18 @@ class Redenvelopes{
             }
         }
 
+        //计算已领取红包人数
+        $number_recipient = Db::name('red_envelopes_id')->where(['activity_id'=>$data['activity_id'],'is_receive'=>1])->cache(true,60)->count();
+
         return view(
             'index', 
             [
                 'title' => $arr['activity_name'],
                 'code' => $code,
                 'background' => $img_list,
+                'qrcode' => 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$arr['qrcode'],
                 'appid' => $arr['appid'],
+                'number_recipient' => $number_recipient,
                 'red_envelopes_id' => $data['red_envelopes_id'],
                 'company_id' => $arr['company_id'],
                 'share_title' => $arr['share_title'],
@@ -118,7 +123,7 @@ class Redenvelopes{
             ->where(['openid'=>$wx_user_info['original']['openid'], 'appid'=>$arr['appid'], 'subscribe'=>1])
             ->find();
             if(!$wx_user_res){
-                return msg(3001, '请先关注公众号', ['jump_url'=>'http://'.$_SERVER['HTTP_HOST'].'/home/Redenvelopes/qrcode?appid='.$arr['appid']]);
+                return msg(3051, '请先关注公众号', ['jump_url'=>'http://'.$_SERVER['HTTP_HOST'].'/home/Redenvelopes/qrcode?appid='.$arr['appid']]);
             }    
         } 
 
@@ -126,7 +131,7 @@ class Redenvelopes{
         if ($arr['is_share'] == 1) {
             $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid'],'activity_id'=>$data['activity_id'],'red_envelopes_id'=>$data['red_envelopes_id']])->find();
             if(!$is_share){
-                return msg(3002, '请先点击右上角分享朋友圈');
+                return msg(3052, '请先点击右上角分享朋友圈');
             }
         }
 
@@ -217,7 +222,7 @@ class Redenvelopes{
         ->where(['activity_id'=>$data['activity_id']])
         ->update(['already_amount'=>$already_amount]);
 
-        return msg(200, '领取成功返回消息列表查看');
+        return msg(200, '领取成功返回消息列表查看', ['amount'=>$receive_amount]);
     }
 
     // 设为已分享
