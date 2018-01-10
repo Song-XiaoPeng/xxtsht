@@ -132,10 +132,10 @@ class Redenvelopes{
             ->where(['openid'=>$wx_user_info['original']['openid'], 'appid'=>$arr['appid'], 'subscribe'=>1])
             ->find();
             if(!$wx_user_res){
-                $cache_key = 'RedEnvelopes'.'_'.$arr['appid'].'_'.$wx_user_info['original']['openid'].'_'.$data['activity_id'].'_'.$data['red_envelopes_id'];
+                $cache_key = 'RedEnvelopes'.'_'.$arr['appid'].'_'.$wx_user_info['original']['openid'];
 
                 if(empty(cache($cache_key))){
-                    cache($cache_key, ['receive_amount'=>$receive_amount], 3600);
+                    cache($cache_key, ['receive_amount'=>$receive_amount,'activity_id'=>$data['activity_id'],'red_envelopes_id'=>$data['red_envelopes_id']], 3600);
                 }else{
                     $receive_amount = cache($cache_key)['receive_amount'];
                 }

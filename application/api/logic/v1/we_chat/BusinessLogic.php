@@ -579,6 +579,95 @@ class BusinessLogic extends Model {
     }
 
     /**
+     * 派送红包处理
+	 */
+    private function receiveRedEnvelopes($data){
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+        $activity_id = $data['activity_id'];
+        $red_envelopes_id = $data['red_envelopes_id'];
+        $receive_amount = $data['receive_amount'];
+
+        //判断是否已领取
+        $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->value('is_receive');
+        if($is_receive == 1 || $is_receive == 2){
+            return msg(3003, '红包已被领取');
+        }
+
+        // 锁定操作
+        Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>2]);
+
+        $wx_auth_info = wxOptions();
+        $pay_auth_info = [
+            'payment' => [
+                'merchant_id'        => $auth_info_res['merchant_id'],
+                'key'                => $auth_info_res['pay_key'],
+                'cert_path'          => '..'.$cert_path,
+                'key_path'           => '..'.$key_path,
+            ],
+            'app_id' => $arr['appid']
+        ];
+
+        $wxauth = array_merge($wx_auth_info,$pay_auth_info);
+
+        // 调用微信api派送金额
+        try {
+            $token_info = Common::getRefreshToken($arr['appid'], $arr['company_id']);
+            if ($token_info['meta']['code'] == 200) {
+                $refresh_token = $token_info['body']['refresh_token'];
+            } else {
+                return $token_info;
+            }
+
+            $app = new Application($wxauth);
+            $openPlatform = $app->open_platform;
+            $lucky_money = $openPlatform->createAuthorizerApplication($arr['appid'], $refresh_token)->lucky_money;
+
+            $luckyMoneyData = [
+                'mch_billno'       => short_md5($data['activity_id'].$data['red_envelopes_id']),
+                'send_name'        => '红包',
+                're_openid'        => $wx_user_info['original']['openid'],
+                'total_amount'     => floatval($receive_amount) * 100,
+                'wishing'          => '谢谢领取',
+                'act_name'         => '红包领取',
+                'remark'           => '红包'
+            ];
+            
+            $result = $lucky_money->sendNormal($luckyMoneyData)->toArray();
+        } catch (\Exception $e) {
+            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>-1]);
+
+            return msg(3001, $e->getMessage());
+        }
+
+        if($result['result_code'] != 'SUCCESS'){
+            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>-1]);
+            return msg(3002, $result['return_msg']);
+        }
+
+        Db::name('red_envelopes_id')
+        ->where(['red_envelopes_id'=>$data['red_envelopes_id']])
+        ->update([
+            'is_receive' => 1,
+            'wx_nickname' => $wx_user_info['original']['nickname'],
+            'wx_portrait' => $wx_user_info['avatar'],
+            'receive_time' => date('Y-m-d H:i:s'),
+            'receive_amount' => $receive_amount,
+            'openid' => $wx_user_info['original']['openid']
+        ]);
+
+        $already_amount = Db::name('red_envelopes')
+        ->where(['activity_id'=>$data['activity_id']])
+        ->value('already_amount');
+
+        $already_amount = $already_amount + $receive_amount;
+
+        Db::name('red_envelopes')
+        ->where(['activity_id'=>$data['activity_id']])
+        ->update(['already_amount'=>$already_amount]);
+    }
+
+    /**
      * 取消订阅事件处理
      * @param appid 公众号或小程序appid
      * @param openid 用户微信openid
