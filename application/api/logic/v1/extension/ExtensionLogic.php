@@ -579,6 +579,12 @@ class ExtensionLogic extends Model {
                 $list[$k]['share_cover_url'] = null;
             }
 
+            if($v['qrcode']){
+                $list[$k]['share_cover_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['qrcode'];
+            }else{
+                $list[$k]['qrcode_url'] = null;
+            }
+
             if($v['is_open'] == 1){
                 $list[$k]['state'] = '开启';
             }else{
