@@ -224,6 +224,12 @@ class Handle extends Auth{
         return \think\Loader::model('ExtensionLogic','logic\v1\extension')->createQrcodeZip($this->company_id,$data['activity_id'],$this->token);
     }
 
+    public function generateRedEnvelopes(){
+        $data = input('get.');
+        
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->generateRedEnvelopes($this->company_id,$data['activity_id']);
+    }
+
     /**
      * 获取红包list
      * 请求类型 post
