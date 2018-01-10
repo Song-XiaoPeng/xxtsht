@@ -407,6 +407,9 @@ class ExtensionLogic extends Model {
         $create_time = date('Y-m-d H:i:s');
         $is_follow = $data['is_follow'];
         $appid = $data['appid'];
+        $payment = empty($data['payment']) == true ? 3 : $data['payment'];
+        $receive_count = empty($data['receive_count']) == true ? 1 : $data['receive_count'];
+        $qrcode = empty($data['qrcode']) == true ? '' : $data['qrcode'];
         $is_share = $data['is_share'];
         $share_url = empty($data['share_url']) == true ? '' : $data['share_url'];
         $share_cover = empty($data['share_cover']) == true ? '' : $data['share_cover'];
@@ -476,6 +479,9 @@ class ExtensionLogic extends Model {
                 'end_time' => $end_time,
                 'amount_start' => $amount_start,
                 'amount_end' => $amount_end,
+                'payment' => $payment,
+                'receive_count' => $receive_count,
+                'qrcode' => $qrcode,
                 'share_cover' => $share_cover,
                 'amount_upper_limit' => $amount_upper_limit,
                 'details_list' => json_encode($details_list),
