@@ -116,6 +116,15 @@ class Redenvelopes{
             return msg(3003,'支付证书不全');
         }
 
+        // 判断是随机金额或者固定金额
+        if ($arr['amount_type'] == 1) {
+            // 派发固定金额操作
+            $receive_amount = $arr['amount'];
+        } else if ($arr['amount_type'] == 2) {
+            // 派发随机金额操作
+            $receive_amount = randFloat($arr['amount_start'], $arr['amount_end']);
+        }
+
         //判断是否关注
         if ($arr['is_follow'] == 1) {
             $wx_user_res = Db::name('wx_user')
@@ -123,7 +132,15 @@ class Redenvelopes{
             ->where(['openid'=>$wx_user_info['original']['openid'], 'appid'=>$arr['appid'], 'subscribe'=>1])
             ->find();
             if(!$wx_user_res){
-                return msg(3051, '请先关注公众号', ['jump_url'=>'http://'.$_SERVER['HTTP_HOST'].'/home/Redenvelopes/qrcode?appid='.$arr['appid']]);
+                $cache_key = 'RedEnvelopes'.'_'.$arr['appid'].'_'.$wx_user_info['original']['openid'].'_'.$data['activity_id'].'_'.$data['red_envelopes_id'];
+
+                if(empty(cache($cache_key))){
+                    cache($cache_key, ['receive_amount'=>$receive_amount], 3600);
+                }else{
+                    $receive_amount = cache($cache_key)['receive_amount'];
+                }
+
+                return msg(3051, '请先关注公众号', ['amount'=>$receive_amount]);
             }    
         } 
 
@@ -143,15 +160,6 @@ class Redenvelopes{
 
         // 锁定操作
         Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>2]);
-
-        // 判断是随机金额或者固定金额
-        if ($arr['amount_type'] == 1) {
-            // 派发固定金额操作
-            $receive_amount = $arr['amount'];
-        } else if ($arr['amount_type'] == 2) {
-            // 派发随机金额操作
-            $receive_amount = randFloat($arr['amount_start'], $arr['amount_end']);
-        }
 
         $wx_auth_info = wxOptions();
         $pay_auth_info = [

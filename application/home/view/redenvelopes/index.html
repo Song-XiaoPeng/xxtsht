@@ -361,7 +361,7 @@
             <div class="popup1-box" style="display: none">
                 <div class="bg">
                     <div class="content">
-                        <div class="price">1.1</div>
+                        <div class="price" id="price1">???</div>
                         <div class="txt">恭喜恭喜，红包打开啦</div>
                         <!-- <div class="content-btn">
                             <div>查看领取记录</div>
@@ -527,6 +527,7 @@
                             $("#price2").text(result.body.amount);
                             break;
                         case 3051:
+                            $("#price1").text(result.body.amount);
                             $(".popup1-box").show();
                             break;
                         case 3052:
