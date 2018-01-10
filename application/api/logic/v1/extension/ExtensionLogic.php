@@ -580,7 +580,7 @@ class ExtensionLogic extends Model {
             }
 
             if($v['qrcode']){
-                $list[$k]['share_cover_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['qrcode'];
+                $list[$k]['qrcode_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['qrcode'];
             }else{
                 $list[$k]['qrcode_url'] = null;
             }
