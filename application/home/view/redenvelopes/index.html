@@ -42,17 +42,321 @@
                 font-size: 24px;
                 cursor: crosshair;
             }
+            .flotage{
+                position: fixed;
+                height: 129px;
+                width: 100px;
+                right: 10px;
+                bottom: 200px;
+                animation: myfirst 2s infinite;
+            }
+            .flotage .birdie{
+                background: url("/static/images/birdie.png");
+                width: 100%;
+                background-size: 100% 100%;
+                height: 78px;
+            }
+            .flotage .btn{
+                background: url("/static/images/redpacaet.png");
+                width: 100%;
+                background-size: 100% 100%;
+                height: 40px;
+                margin-top: 10px;
+            }
+            @keyframes myfirst
+            {
+                0%,50%  {bottom:200px;}
+                60%  {bottom:200px;}
+                70%  {bottom:220px;}
+                80%  {bottom:200px;}
+                90%  {bottom:220px;}
+                100% {bottom:200px;}
+            }
+
+
+            .popup1-box{
+                position: absolute;
+                top:0;
+                left: 0;
+                bottom: 0;
+                right:0;
+                background-color: rgba(0,0,0,.2);
+                z-index: 100;
+            }
+            .popup1-box .bg{
+                position: absolute;
+                left: 0px;
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+                background: url("/static/images/redbacket-bg1.png") no-repeat;
+                background-position: center center;
+                background-size: 100%;
+                overflow: hidden;
+            }
+            .popup1-box .bg .content{
+                height: 48%;
+                width: 80%;
+                margin-top: 72%;
+                margin-left: 10%;
+            }
+            .popup1-box .bg .content .price{
+                color: #fffc00;
+                height: 15%;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+                font-size: 40px;
+            }
+            .popup1-box .bg .content .txt{
+                color: #921503;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+                height: 8%;
+            }
+            .popup1-box .bg .content .content-btn{
+                height: 15%;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+            }
+            .popup1-box .bg .content .content-btn>div{
+                height: 75%;
+                width: 80%;
+                border-radius: 22px;
+                color: #fff;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+                background: linear-gradient(#ff8503, #fbbb76);
+            }
+            .popup1-box .bg .content .code-box{
+                height: 38%;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+            }
+            .popup1-box .bg .content .code-box .code{
+                width: 40%;
+                height: 90%;
+                background-color: #fff;
+                overflow: hidden;
+            }
+            .popup1-box .bg .content .code-box .code img{
+                height: 100%;
+                width: 100%;
+            }
+            .popup1-box .bg .content .txt1{
+                text-align: center;
+                color: #ffedeb;
+            }
+            .popup1-box .bg .content .txt1 p{
+                padding: 2px;
+            }
+
+
+
+
+
+            .popup2-box{
+                position: absolute;
+                top:0;
+                left: 0;
+                bottom: 0;
+                right:0;
+                background-color: rgba(0,0,0,.2);
+                z-index: 100;
+            }
+            .popup2-box .bg{
+                position: absolute;
+                left: 0px;
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+                background: url("/static/images/redbacket-2.png") no-repeat;
+                background-position: center center;
+                background-size: 100%;
+                overflow: hidden;
+            }
+            .popup2-box .bg .content{
+                height: 48%;
+                width: 80%;
+                margin-top: 65%;
+                margin-left: 10%;
+            }
+            .popup2-box .bg .content .price{
+                color: #fffc00;
+                height: 12%;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+                font-size: 40px;
+            }
+            .popup2-box .bg .content .txt{
+                color: #921503;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+                height: 8%;
+            }
+            .popup2-box .bg .content .content-btn{
+                height: 13%;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+            }
+            .popup2-box .bg .content .content-btn>div{
+                height: 75%;
+                width: 80%;
+                border-radius: 22px;
+                color: #fff;
+                display: -webkit-box;
+                -webkit-box-align: center;
+                text-align: -webkit-center;
+                background: linear-gradient(#ff8503, #fbbb76);
+            }
+            .popup2-box .bg .content .txt1{
+                color: #ffedeb;
+                box-sizing: border-box;
+                padding: 0 10px;
+            }
+            .popup2-box .bg .content .txt1 p{
+                padding: 1px;
+            }
+            .popup2-box .bg .content .txt2{
+                color: #fff;
+                text-align: center;
+                height: 7%;
+            }
+            .popup2-box .bg .content .txt2 .work{
+                padding: 1px;
+                display: inline-block;
+                width: 20%;
+                background-color: #fefefe;
+                position: relative;
+                top: -4px;
+            }
+            .popup2-box .bg .content .content-btn1{
+                text-align: center;
+            }
+            .popup2-box .bg .content .content-btn1 .rule{
+                border-radius: 10px;
+                display: inline-block;
+                background-color: #ff8400;
+                color: #fff;
+                width: 50%;
+                padding: 2px 0;
+            }
+            .new-txt{
+                position: fixed;
+                top:0;
+                left: 0;
+                right: 0;
+                height: 45px;
+                background-color: rgba(51,74,164,.5);
+            }
+            .new-txt .bg{
+                display: inline-block;
+                background-image: url("/static/images/laba.png");
+                background-repeat: no-repeat;
+                height: 45px;
+                width: 45px;
+                background-position: center center;
+            }
+            .new-txt .txt-box{
+                position: absolute;
+                top: 0;
+                left: 45px;
+                bottom: 0;
+                right: 0;
+            }
+            .new-txt .txt-box .txt{
+                height: 45px;
+                line-height: 45px;
+                overflow: hidden;
+                white-space: nowrap;
+                color: #fff;
+            }
         </style>
     </head>
     <body>
 
 
         <div style="overflow: auto;height: 100%;width: 100%;position: relative">
-            <h1 style="text-align:center; background: #ffc107; color: #f44336;">{$title}</h1>
+            <div class="new-txt">
+                <div class="bg">
+                </div>
+                <div class="txt-box">
+                    <marquee class="txt">{$title}</marquee>
+                </div>
+            </div>
             {foreach name="background" id="vo" }
                 <img src="{$vo}" alt="" style="vertical-align: top">
             {/foreach}
-            <div class="receive">领取红包</div>
+
+            <!-- 跳动动画 -->
+            <div class="flotage">
+                <div class="birdie"></div>
+                <div class="btn"></div>
+            </div>
+            <!-- end跳动动画 -->
+
+            <!-- 弹出层1 -->
+            <div class="popup1-box" style="display: none">
+                <div class="bg">
+                    <div class="content">
+                        <div class="price">1.1</div>
+                        <div class="txt">恭喜恭喜，红包打开啦</div>
+                        <div class="content-btn">
+                            <div>查看领取记录</div>
+                        </div>
+                        <div class="txt">已有9人领取</div>
+                        <div class="code-box">
+                            <div class="code">
+                                <img src="" alt="">
+                            </div>
+                        </div>
+                        <div class="txt1">
+                            <p>长按识别二维码</p>
+                            <p>进入公共平台&nbsp;&nbsp;领取红包</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end弹出层1 -->
+
+
+
+            <!-- 弹出层2 -->
+            <div class="popup2-box" style="display: none">
+                <div class="bg">
+                    <div class="content">
+                        <div class="txt2">
+                            <span class="work"></span>
+                            <span>恭喜</span>
+                            <span class="work"></span>
+                        </div>
+                        <div class="price">???</div>
+                        <div class="txt">恭喜发财，大吉大利</div>
+                        <div class="content-btn">
+                            <div>拆红包</div>
+                        </div>
+                        <div class="txt">已有9人领取</div>
+                        <div class="content-btn1">
+                            <div class="rule">活动规则</div>
+                        </div>
+                        <div class="txt1">
+                            <p>1.扫描红包二维码，进入红包活动页面</p>
+                            <p>2.转发分享文章内容至微信朋友圈</p>
+                            <p>3.转发完成返回活动链接识别二维码关注公众
+                                平台领取红包</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end弹出层2 -->
+
         </div>
 
 
