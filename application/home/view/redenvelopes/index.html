@@ -281,9 +281,7 @@
         </style>
     </head>
     <body>
-
-
-        <div style="overflow: auto;height: 100%;width: 100%;position: relative">
+        <div style="overflow: auto;height: 100%;width: 100%;position: relative;">
             <div class="new-txt">
                 <div class="bg">
                 </div>
@@ -326,8 +324,6 @@
             </div>
             <!-- end弹出层1 -->
 
-
-
             <!-- 弹出层2 -->
             <div class="popup2-box" style="display: none">
                 <div class="bg">
@@ -356,84 +352,89 @@
                 </div>
             </div>
             <!-- end弹出层2 -->
-
         </div>
-
-
-
-
-
-
-
 
         <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js" type="text/javascript" charset="utf-8"></script>
 
         <script type="text/javascript" charset="utf-8">
-          var appid = "{$appid}";
-          var company_id = "{$company_id}";
-          var share_title = "{$share_title}";
-          var share_cover = "{$share_cover}";
-          var share_url = "{$share_url}";
-          var activity_id = "{$activity_id}";
-          var red_envelopes_id = "{$red_envelopes_id}";
-          var wx_obj;
-          var is_loding = false;
+            var appid = "{$appid}";
+            var company_id = "{$company_id}";
+            var share_title = "{$share_title}";
+            var share_cover = "{$share_cover}";
+            var share_url = "{$share_url}";
+            var activity_id = "{$activity_id}";
+            var red_envelopes_id = "{$red_envelopes_id}";
+            var wx_obj;
+            var is_loding = false;
 
-          function GetQueryString(name){
-            var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
-            var r = window.location.search.substr(1).match(reg);
-            if(r!=null)return  unescape(r[2]); return null;
-          }
-
-          $.get('/home/Redenvelopes/getJsSdk', {appid:appid, company_id:company_id, url:window.location.href}, function(result){
-            wx_obj = result.body;
-            wx.config(wx_obj);
-
-            wx.ready(function () {
-                wx.hideMenuItems({
-                    menuList: ['menuItem:share:appMessage']
-                });
-
-              //分享到朋友圈
-              wx.onMenuShareTimeline({
-                title: share_title,
-                link: share_url,
-                imgUrl: share_cover,
-                success: function () {
-                  alert("分享成功");
-
-                  $.post('/home/Redenvelopes/setShare', {appid: appid, activity_id: activity_id, red_envelopes_id: red_envelopes_id}, function(result){
-                  });
-                },
-                cancel: function () {
-                  // alert("取消分享到朋友圈");
-                  // 用户取消分享后执行的回调函数
-                }
-              });
-            });
-          });
-
-          $(".receive").click(function(){
-            if(is_loding){
-                return;
+            function GetQueryString(name){
+                var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                if(r!=null)return  unescape(r[2]); return null;
             }
 
-            is_loding = true;
+            $.get('/home/Redenvelopes/getJsSdk', {appid:appid, company_id:company_id, url:window.location.href}, function(result){
+                wx_obj = result.body;
+                wx.config(wx_obj);
 
-            $(this).text('正在领取中...');
+                wx.ready(function () {
+                    wx.hideMenuItems({
+                        menuList: [
+                            'menuItem:share:appMessage',
+                            'menuItem:share:qq',
+                            'menuItem:share:QZone',
+                            'menuItem:copyUrl',
+                            'menuItem:originPage',
+                            'menuItem:openWithQQBrowser',
+                            'menuItem:openWithSafari',
+                            'menuItem:share:email',
+                            'menuItem:exposeArticle',
+                            'menuItem:favorite',
+                            'menuItem:setFont'
+                        ]
+                    });
 
-            $.post('/home/Redenvelopes/receive', {code: GetQueryString('code')}, function(result){
-              if(result.meta.code == 3001){
-                window.location.href = result.body.jump_url;
-              }
+                    //分享到朋友圈
+                    wx.onMenuShareTimeline({
+                        title: share_title,
+                        link: share_url,
+                        imgUrl: share_cover,
+                        success: function () {
+                            alert("分享成功");
 
-              is_loding = false;
-              $(".receive").text('领取红包');
-
-              alert(result.meta.message);
+                            $.post(
+                                '/home/Redenvelopes/setShare',
+                                {appid: appid, activity_id: activity_id, red_envelopes_id: red_envelopes_id},
+                                function(result){}
+                            );
+                        },
+                        cancel: function () {
+                        }
+                    });
+                });
             });
-          });
+
+            $(".receive").click(function(){
+                if(is_loding){
+                    return;
+                }
+
+                is_loding = true;
+
+                $(this).text('正在领取中...');
+
+                $.post('/home/Redenvelopes/receive', {code: GetQueryString('code')}, function(result){
+                if(result.meta.code == 3001){
+                    window.location.href = result.body.jump_url;
+                }
+
+                is_loding = false;
+                $(".receive").text('领取红包');
+
+                alert(result.meta.message);
+                });
+            });
         </script>
     </body>
 </html>

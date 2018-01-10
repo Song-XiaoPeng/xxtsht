@@ -34,11 +34,6 @@ class Redenvelopes{
             $response->send();
         }
 
-        $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->value('is_receive');
-        if($is_receive == 1 || $is_receive == 2){
-            return view('receive', ['title'=>$arr['activity_name']]);
-        }
-
         if(!empty($arr['details_list'])){
             $img_list = json_decode($arr['details_list'],true);
 
@@ -88,8 +83,6 @@ class Redenvelopes{
         if($arr['is_open'] == -1){
             return msg(3002, '活动未开放');
         }
-        // dump($arr);
-        // exit;
 
         if(strtotime($time) < strtotime($arr['start_time'])){
             return msg(3003, '活动未开放');
@@ -140,7 +133,7 @@ class Redenvelopes{
         //判断是否已领取
         $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->value('is_receive');
         if($is_receive == 1 || $is_receive == 2){
-            return msg(3003, '已领取红包');
+            return msg(3003, '红包已被领取');
         }
 
         // 锁定操作
