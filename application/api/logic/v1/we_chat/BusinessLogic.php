@@ -225,8 +225,8 @@ class BusinessLogic extends Model {
                 break;
         }
 
-        Log::record('收到微信数据');
-        Log::record(json_encode($message));
+        // Log::record('收到微信数据');
+        // Log::record(json_encode($message));
 
         $server->setMessageHandler(function ($message) use ($returnMessage) {
             return $returnMessage;
@@ -587,46 +587,53 @@ class BusinessLogic extends Model {
         $activity_id = $data['activity_id'];
         $red_envelopes_id = $data['red_envelopes_id'];
         $receive_amount = $data['receive_amount'];
+        $wx_nickname = $data['wx_nickname'];
+        $wx_portrait = $data['wx_portrait'];
+        $merchant_id = $data['merchant_id'];
+        $pay_key = $data['pay_key'];
+        $cert_path = $data['cert_path'];
+        $key_path = $data['key_path'];
+        $company_id = $data['company_id'];
 
         //判断是否已领取
-        $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->value('is_receive');
+        $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$red_envelopes_id])->value('is_receive');
         if($is_receive == 1 || $is_receive == 2){
-            return msg(3003, '红包已被领取');
+            return;
         }
 
         // 锁定操作
-        Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>2]);
+        Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$red_envelopes_id])->update(['is_receive'=>2]);
 
         $wx_auth_info = wxOptions();
         $pay_auth_info = [
             'payment' => [
-                'merchant_id'        => $auth_info_res['merchant_id'],
-                'key'                => $auth_info_res['pay_key'],
+                'merchant_id'        => $merchant_id,
+                'key'                => $pay_key,
                 'cert_path'          => '..'.$cert_path,
                 'key_path'           => '..'.$key_path,
             ],
-            'app_id' => $arr['appid']
+            'app_id' => $appid
         ];
 
         $wxauth = array_merge($wx_auth_info,$pay_auth_info);
 
         // 调用微信api派送金额
         try {
-            $token_info = Common::getRefreshToken($arr['appid'], $arr['company_id']);
+            $token_info = Common::getRefreshToken($appid, $company_id);
             if ($token_info['meta']['code'] == 200) {
                 $refresh_token = $token_info['body']['refresh_token'];
             } else {
-                return $token_info;
+                return;
             }
 
             $app = new Application($wxauth);
             $openPlatform = $app->open_platform;
-            $lucky_money = $openPlatform->createAuthorizerApplication($arr['appid'], $refresh_token)->lucky_money;
+            $lucky_money = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->lucky_money;
 
             $luckyMoneyData = [
-                'mch_billno'       => short_md5($data['activity_id'].$data['red_envelopes_id']),
+                'mch_billno'       => short_md5($activity_id.$red_envelopes_id),
                 'send_name'        => '红包',
-                're_openid'        => $wx_user_info['original']['openid'],
+                're_openid'        => $openid,
                 'total_amount'     => floatval($receive_amount) * 100,
                 'wishing'          => '谢谢领取',
                 'act_name'         => '红包领取',
@@ -635,35 +642,35 @@ class BusinessLogic extends Model {
             
             $result = $lucky_money->sendNormal($luckyMoneyData)->toArray();
         } catch (\Exception $e) {
-            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>-1]);
-
-            return msg(3001, $e->getMessage());
+            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$red_envelopes_id])->update(['is_receive'=>-1]);
+            Log::record($e->getMessage());
+            return;
         }
 
         if($result['result_code'] != 'SUCCESS'){
-            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>-1]);
-            return msg(3002, $result['return_msg']);
+            Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$red_envelopes_id])->update(['is_receive'=>-1]);
+            return;
         }
 
         Db::name('red_envelopes_id')
-        ->where(['red_envelopes_id'=>$data['red_envelopes_id']])
+        ->where(['red_envelopes_id'=>$red_envelopes_id])
         ->update([
             'is_receive' => 1,
-            'wx_nickname' => $wx_user_info['original']['nickname'],
-            'wx_portrait' => $wx_user_info['avatar'],
+            'wx_nickname' => $wx_nickname,
+            'wx_portrait' => $wx_portrait,
             'receive_time' => date('Y-m-d H:i:s'),
             'receive_amount' => $receive_amount,
-            'openid' => $wx_user_info['original']['openid']
+            'openid' => $openid
         ]);
 
         $already_amount = Db::name('red_envelopes')
-        ->where(['activity_id'=>$data['activity_id']])
+        ->where(['activity_id'=>$activity_id])
         ->value('already_amount');
 
         $already_amount = $already_amount + $receive_amount;
 
         Db::name('red_envelopes')
-        ->where(['activity_id'=>$data['activity_id']])
+        ->where(['activity_id'=>$activity_id])
         ->update(['already_amount'=>$already_amount]);
     }
 
@@ -702,6 +709,12 @@ class BusinessLogic extends Model {
         $info = $this->addWxUserInfo($appid,$openid,$qrcode_id);
         if(!$info['is_update']){
             Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id])->setInc('attention');
+        }
+
+        //判断是否可领取红包
+        $cache_key = 'RedEnvelopes'.'_'.$appid.'_'.$openid;
+        if(cache($cache_key)){
+            $this->receiveRedEnvelopes(cache($cache_key));
         }
 
         $qrcode_res = Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id,'is_del'=>-1])->cache(true,60)->find();

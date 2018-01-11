@@ -101,6 +101,12 @@ class Redenvelopes{
             return msg(3001, '已达到派发金额上限');
         }
 
+        //判断是否已领取
+        $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->value('is_receive');
+        if($is_receive == 1 || $is_receive == 2){
+            return msg(3003, '红包已被领取');
+        }
+
         $auth_info_res = Db::name('openweixin_authinfo')->where(['appid'=>$arr['appid'],'company_id'=>$arr['company_id']])->cache(true,30)->find();
         if(!$auth_info_res){
             return msg(3009,'无法获取公众号授权信息');
@@ -135,7 +141,24 @@ class Redenvelopes{
                 $cache_key = 'RedEnvelopes'.'_'.$arr['appid'].'_'.$wx_user_info['original']['openid'];
 
                 if(empty(cache($cache_key))){
-                    cache($cache_key, ['receive_amount'=>$receive_amount,'activity_id'=>$data['activity_id'],'red_envelopes_id'=>$data['red_envelopes_id']], 3600);
+                    cache(
+                        $cache_key,
+                        [
+                            'appid' => $arr['appid'],
+                            'openid' => $wx_user_info['original']['openid'],
+                            'receive_amount' => $receive_amount,
+                            'activity_id' => $data['activity_id'],
+                            'red_envelopes_id' => $data['red_envelopes_id'],
+                            'wx_nickname' => $wx_user_info['original']['nickname'],
+                            'wx_portrait' => $wx_user_info['avatar'],
+                            'merchant_id' => $auth_info_res['merchant_id'],
+                            'pay_key' => $auth_info_res['pay_key'],
+                            'cert_path' => $cert_path,
+                            'key_path' => $key_path,
+                            'company_id' => $arr['company_id'],
+                        ], 
+                        3600
+                    );
                 }else{
                     $receive_amount = cache($cache_key)['receive_amount'];
                 }
@@ -150,12 +173,6 @@ class Redenvelopes{
             if(!$is_share){
                 return msg(3052, '请先点击右上角分享朋友圈');
             }
-        }
-
-        //判断是否已领取
-        $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->value('is_receive');
-        if($is_receive == 1 || $is_receive == 2){
-            return msg(3003, '红包已被领取');
         }
 
         // 锁定操作
