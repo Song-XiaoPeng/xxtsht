@@ -164,6 +164,7 @@ class Redenvelopes{
                             'cert_path' => $cert_path,
                             'key_path' => $key_path,
                             'company_id' => $arr['company_id'],
+                            'cache_key' => $cache_key,
                         ], 
                         3600
                     );

@@ -594,6 +594,7 @@ class BusinessLogic extends Model {
         $cert_path = $data['cert_path'];
         $key_path = $data['key_path'];
         $company_id = $data['company_id'];
+        $cache_key = $data['cache_key'];
 
         //判断是否已领取
         $is_receive = Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$red_envelopes_id])->value('is_receive');
@@ -643,7 +644,6 @@ class BusinessLogic extends Model {
             $result = $lucky_money->sendNormal($luckyMoneyData)->toArray();
         } catch (\Exception $e) {
             Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$red_envelopes_id])->update(['is_receive'=>-1]);
-            Log::record($e->getMessage());
             return;
         }
 
@@ -672,6 +672,8 @@ class BusinessLogic extends Model {
         Db::name('red_envelopes')
         ->where(['activity_id'=>$activity_id])
         ->update(['already_amount'=>$already_amount]);
+
+        cache($cache_key, NULL);
     }
 
     /**
