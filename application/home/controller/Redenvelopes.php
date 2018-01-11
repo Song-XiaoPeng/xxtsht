@@ -38,7 +38,8 @@ class Redenvelopes{
             $img_list = json_decode($arr['details_list'],true);
 
             foreach($img_list as $k=>$v){
-                $img_list[$k] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v;
+                $resources_route = Db::name('resources')->where(['resources_id'=>$v])->cache(true,360)->value('resources_route');
+                $img_list[$k] = 'http://wxyx.oss.lyfz.net/kf'.substr($resources_route,8);
             }
         }
 
