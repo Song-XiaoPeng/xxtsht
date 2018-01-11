@@ -131,6 +131,14 @@ class Redenvelopes{
             $receive_amount = randFloat($arr['amount_start'], $arr['amount_end']);
         }
 
+        //判断是否分享
+        if ($arr['is_share'] == 1) {
+            $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid'],'activity_id'=>$data['activity_id'],'red_envelopes_id'=>$data['red_envelopes_id']])->find();
+            if(!$is_share){
+                return msg(3052, '请先点击右上角分享朋友圈');
+            }
+        }
+
         //判断是否关注
         if ($arr['is_follow'] == 1) {
             $wx_user_res = Db::name('wx_user')
@@ -166,14 +174,6 @@ class Redenvelopes{
                 return msg(3051, '请先关注公众号', ['amount'=>$receive_amount]);
             }    
         } 
-
-        //判断是否分享
-        if ($arr['is_share'] == 1) {
-            $is_share = Db::name('red_envelopes_share')->where(['openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid'],'activity_id'=>$data['activity_id'],'red_envelopes_id'=>$data['red_envelopes_id']])->find();
-            if(!$is_share){
-                return msg(3052, '请先点击右上角分享朋友圈');
-            }
-        }
 
         // 锁定操作
         Db::name('red_envelopes_id')->where(['red_envelopes_id'=>$data['red_envelopes_id']])->update(['is_receive'=>2]);
