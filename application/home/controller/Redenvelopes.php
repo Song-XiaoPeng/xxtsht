@@ -107,6 +107,29 @@ class Redenvelopes{
             return msg(3003, '红包已被领取');
         }
 
+        //判断是否达到单用户领取上限
+        switch($arr['payment']){
+            case 1:
+                $claim_number = Db::name('red_envelopes_id')->where(['activity_id'=>$data['activity_id'],'openid'=>$wx_user_info['original']['openid'],'appid'=>$arr['appid']])->count();
+                if($claim_number >= $arr['receive_count']){
+                    return msg(3005, '每人每活动只允许领取'.$arr['receive_count'].'次,您已领取'.$claim_number.'次');
+                }
+                break;
+            case 2:
+                $claim_number = Db::name('red_envelopes_id')
+                ->where([
+                    'activity_id'=>$data['activity_id'],
+                    'openid'=>$wx_user_info['original']['openid'],
+                    'appid'=>$arr['appid']
+                ])
+                ->whereTime('receive_time', 'today')
+                ->count();
+                if($claim_number >= $arr['receive_count']){
+                    return msg(3005, '每人每天只允许领取'.$arr['receive_count'].'次,您已领取'.$claim_number.'次');
+                }
+                break;
+        }
+
         $auth_info_res = Db::name('openweixin_authinfo')->where(['appid'=>$arr['appid'],'company_id'=>$arr['company_id']])->cache(true,30)->find();
         if(!$auth_info_res){
             return msg(3009,'无法获取公众号授权信息');
