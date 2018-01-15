@@ -524,7 +524,8 @@
 
                     switch(result.meta.code){
                         case 200:
-                            $("#price2").text(result.body.amount);
+                            $("#price1").text(result.body.amount);
+                            $(".popup1-box").show();
                             break;
                         case 3051:
                             $("#price1").text(result.body.amount);
