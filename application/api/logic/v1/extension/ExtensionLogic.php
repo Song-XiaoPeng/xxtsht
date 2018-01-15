@@ -629,7 +629,7 @@ class ExtensionLogic extends Model {
         $page_count = 6;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id,'is_receive'=>1])->limit($show_page,$page_count)->select();
+        $list = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id,'is_receive'=>1])->limit($show_page,$page_count)->order('receive_time desc')->select();
         $count = Db::name('red_envelopes_id')->where(['company_id'=>$company_id,'activity_id'=>$activity_id,'is_receive'=>1])->count();
 
         foreach($list as $k=>$v){
@@ -638,10 +638,6 @@ class ExtensionLogic extends Model {
             }else{
                 $list[$k]['is_receive'] = '否';
             }
-
-            $code = base64_encode(json_encode(['red_envelopes_id'=>$v['red_envelopes_id'],'activity_id'=>$activity_id]));
-
-            $list[$k]['qrcode_url'] = 'http://'.$_SERVER['HTTP_HOST']."/api/v1/common/QrCode/getQrCode?code=$code&token=$token";
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
