@@ -223,6 +223,21 @@ class CommonLogic extends Model {
     }
 
     /**
+     * 会话转接
+     * @param company_id 商户company_id
+     * @param session_id 会话id
+     * @param uid 登录账号uid
+	 * @return code 200->成功
+	 */
+    public function sessionTransfer($data){
+        $company_id = $data['company_id'];
+        $session_id = $data['session_id'];
+        $uid = $data['uid'];
+        $uransfer_uid = $data['uransfer_uid'];
+
+    }
+
+    /**
      * 获取会话微信用户基本信息
      * @param company_id 商户company_id
      * @param openid 客户微信openid
