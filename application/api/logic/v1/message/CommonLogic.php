@@ -405,8 +405,11 @@ class CommonLogic extends Model {
                 return msg(3006,'type参数错误');
         }
 
-        Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,1,$data_obj);
-
-        return msg(200,'success');
+        $send_res = Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,1,$data_obj);
+        if($send_res['meta']['code'] == 200){
+            return msg(200,'success',['message_id'=>$send_res['body']['message_id']]);
+        }else{
+            return $send_res;
+        }
     }
 }
