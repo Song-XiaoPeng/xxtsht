@@ -82,6 +82,25 @@ class Common extends Auth{
     }
 
     /**
+     * 会话转接
+	 * 请求类型：post
+	 * 传入JSON格式: {"session_id":"4f56b7fd6021401b5b476c4e4eab9200","uransfer_uid":"22"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Common/sessionTransfer
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Common/sessionTransfer
+     * @param session_id 会话id
+     * @param uransfer_uid 转接的客服uid
+	 * @return code 200->成功
+	 */
+	public function sessionTransfer(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('CommonLogic','logic\v1\message')->sessionTransfer($data);
+    }
+
+    /**
      * 接入排队中会话
      * 请求类型 post
      * 传入JSON格式: {"session_id":"f5013b20d77c15ab0ae9bb1c5a52370b"}

@@ -227,6 +227,7 @@ class CommonLogic extends Model {
      * @param company_id 商户company_id
      * @param session_id 会话id
      * @param uid 登录账号uid
+     * @param uransfer_uid 转接的客服uid
 	 * @return code 200->成功
 	 */
     public function sessionTransfer($data){
@@ -235,6 +236,35 @@ class CommonLogic extends Model {
         $uid = $data['uid'];
         $uransfer_uid = $data['uransfer_uid'];
 
+        //获取会话数据
+        $session_data = Db::name('message_session')->where(['company_id'=>$company_id,'session_id'=>$session_id])->find();
+        if(empty($session_data)){
+            return msg(3001,'会话不存在');
+        }
+
+        //判断客服账号是否存在
+        $user_res = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uransfer_uid])->find();
+        if(empty($user_res)){
+            return msg(3002,'用户不存在');
+        }
+        
+        //结束原会话
+        $session_res = Db::name('message_session')
+        ->where(['company_id'=>$company_id,'session_id'=>$session_id])
+        ->update([
+            'state' => -1,
+            'close_explain' => '会话转接'
+        ]);
+
+        //创建新会话
+        return \think\Loader::model('BusinessLogic','logic\v1\we_chat')
+        ->createSession(
+            $session_data['appid'],
+            $session_data['openid'],
+            'user',
+            $uransfer_uid,
+            true
+        );
     }
 
     /**
