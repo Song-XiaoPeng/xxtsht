@@ -237,7 +237,10 @@ class CommonLogic extends Model {
         $uransfer_uid = $data['uransfer_uid'];
 
         //获取会话数据
-        $session_data = Db::name('message_session')->where(['company_id'=>$company_id,'session_id'=>$session_id])->find();
+        $session_data = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['company_id'=>$company_id,'session_id'=>$session_id])
+        ->find();
         if(empty($session_data)){
             return msg(3001,'会话不存在');
         }
@@ -249,18 +252,27 @@ class CommonLogic extends Model {
         }
         
         //结束原会话
-        $session_res = Db::name('message_session')
+        Db::name('message_session')
+        ->partition(['session_id' => $session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['company_id'=>$company_id,'session_id'=>$session_id])
         ->update([
             'state' => -1,
             'close_explain' => '会话转接'
         ]);
 
+        //变更专属客服
+        Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['wx_user_id'=>$session_data['wx_user_id']])
+        ->update([
+            'customer_service_uid' => $uransfer_uid
+        ]);
+
         //创建新会话
         return \think\Loader::model('BusinessLogic','logic\v1\we_chat')
         ->createSession(
             $session_data['appid'],
-            $session_data['openid'],
+            $session_data['customer_wx_openid'],
             'user',
             $uransfer_uid,
             true
