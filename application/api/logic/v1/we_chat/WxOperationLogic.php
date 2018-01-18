@@ -1536,6 +1536,10 @@ class WxOperationLogic extends Model {
         $link_url = empty($data['link_url']) == true ? '' : $data['link_url'];
         $link_name = empty($data['link_name']) == true ? '' : $data['link_name'];
 
+        if($type == 1 && empty($content) == true){
+            return msg(3015,'消息内容不能为空');
+        }
+
         $session_res = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where([
@@ -1650,6 +1654,14 @@ class WxOperationLogic extends Model {
         }else{
             $opercode = 1;
         }
+
+        //记录交互时间
+        Db::name('wx_user')
+        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['wx_user_id'=>$session_res['wx_user_id']])
+        ->update([
+            'last_time' => date('Y-m-d H:i:s')
+        ]);
 
         $add_msg_res = Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,$opercode,$data_obj);
 

@@ -487,4 +487,8 @@ class AautoMaticLogic extends Model {
             Db::name('qrcode_del_list')->where(['qrcode_del_id'=>$val['qrcode_del_id']])->delete();
         }
     }
+
+    //回收线索客户
+
+    //回收意向客户
 }

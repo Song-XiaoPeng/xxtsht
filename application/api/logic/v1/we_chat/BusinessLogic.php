@@ -1095,7 +1095,6 @@ class BusinessLogic extends Model {
                 'is_sync' => 1,
                 'subscribe' => $wx_info['subscribe'],
                 'update_time' => $time,
-                'last_time' => $time,
                 'customer_service_uid' => empty($uid) == true ? -1 : $uid
             ];
 
@@ -1139,7 +1138,6 @@ class BusinessLogic extends Model {
             'is_sync' => 1,
             'subscribe' => $wx_info['subscribe'],
             'update_time' => $time,
-            'last_time' => $time,
             'qrcode_id' => $qrcode_id,
             'customer_service_uid' => empty($uid) == true ? -1 : $uid
         ]);
