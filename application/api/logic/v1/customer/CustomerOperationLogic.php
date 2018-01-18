@@ -393,6 +393,7 @@ class CustomerOperationLogic extends Model {
      * @param uid 登录账号uid
      * @param type 类型 1线索池客户 2线索客户 3意向池客户
      * @param ascription 客户线索归属 1我的 2下属 3全部
+     * @param search_type 搜索类型1客户姓名 2微信昵称
 	 * @return code 200->成功
 	 */
     public function getClueCustomer($data){
@@ -402,11 +403,16 @@ class CustomerOperationLogic extends Model {
         $ascription = empty($data['ascription']) == true ? 1 : $data['ascription'];
         $uid = $data['uid'];
         $user_type = $data['user_type'];
-        $type = empty($data['type']) == true ? 1:$data['type'];
+        $type = empty($data['type']) == true ? 1 : $data['type'];
+        $search_type = empty($data['search_type']) == true ? 1 : $data['search_type'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
+
+        if($search_type == 2){
+            $map['nickname'] = array('like',"%$real_name%");
+        }
 
         $map['company_id'] = $company_id;
         $map['is_clue'] = 1;
@@ -474,7 +480,9 @@ class CustomerOperationLogic extends Model {
             $customer_info_map['is_clue'] = -1;
         }
 
-        $customer_info_map['real_name'] = array('like',"%$real_name%");
+        if($search_type == 1){
+            $customer_info_map['real_name'] = array('like',"%$real_name%");
+        }
 
         if($real_name){
             $wx_user_list = Db::table('tb_customer_info')
@@ -530,10 +538,15 @@ class CustomerOperationLogic extends Model {
         $uid = $data['uid'];
         $user_type = $data['user_type'];
         $type = empty($data['type']) == true ? 1:$data['type'];
+        $search_type = empty($data['search_type']) == true ? 1 : $data['search_type'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
+
+        if($search_type == 2){
+            $map['nickname'] = array('like',"%$real_name%");
+        }
 
         $map['company_id'] = $company_id;
         $map['is_clue'] = 2;
@@ -601,7 +614,9 @@ class CustomerOperationLogic extends Model {
             $customer_info_map['is_clue'] = 3;
         }
 
-        $customer_info_map['real_name'] = array('like',"%$real_name%");
+        if($search_type == 1){
+            $customer_info_map['real_name'] = array('like',"%$real_name%");
+        }
 
         if($real_name){
             $wx_user_list = Db::table('tb_customer_info')
@@ -674,6 +689,7 @@ class CustomerOperationLogic extends Model {
      * @param page 分页参数 默认1
      * @param uid 登录账号uid
      * @param ascription 客户线索归属 1我的 2下属 3全部
+     * @param search_type 搜索类型1客户姓名 2微信昵称
 	 * @return code 200->成功
 	 */
     public function getOrderCustomer($data){
@@ -683,10 +699,15 @@ class CustomerOperationLogic extends Model {
         $ascription = empty($data['ascription']) == true ? 1 : $data['ascription'];
         $uid = $data['uid'];
         $user_type = $data['user_type'];
+        $search_type = empty($data['search_type']) == true ? 1 : $data['search_type'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
+
+        if($search_type == 2){
+            $map['nickname'] = array('like',"%$real_name%");
+        }
 
         $map['company_id'] = $company_id;
         $map['is_clue'] = 4;
@@ -739,7 +760,9 @@ class CustomerOperationLogic extends Model {
 
         $customer_info_map['is_clue'] = 4;
 
-        $customer_info_map['real_name'] = array('like',"%$real_name%");
+        if($search_type == 1){
+            $customer_info_map['real_name'] = array('like',"%$real_name%");
+        }
 
         if($real_name){
             $wx_user_list = Db::table('tb_customer_info')
@@ -821,10 +844,15 @@ class CustomerOperationLogic extends Model {
         $ascription = empty($data['ascription']) == true ? 1 : $data['ascription'];
         $uid = $data['uid'];
         $user_type = $data['user_type'];
+        $search_type = empty($data['search_type']) == true ? 1 : $data['search_type'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
+
+        if($search_type == 2){
+            $map['nickname'] = array('like',"%$real_name%");
+        }
 
         $map['company_id'] = $company_id;
         $map['is_clue'] = 5;
@@ -877,7 +905,9 @@ class CustomerOperationLogic extends Model {
 
         $customer_info_map['is_clue'] = 5;
 
-        $customer_info_map['real_name'] = array('like',"%$real_name%");
+        if($search_type == 1){
+            $customer_info_map['real_name'] = array('like',"%$real_name%");
+        }
 
         if($real_name){
             $wx_user_list = Db::table('tb_customer_info')
