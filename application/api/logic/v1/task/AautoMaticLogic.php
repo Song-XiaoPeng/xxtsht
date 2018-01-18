@@ -490,7 +490,7 @@ class AautoMaticLogic extends Model {
 
     //回收线索客户
     public function recoveryClueCustomer(){
-        = Db::name('wx_user')->select();
+        // = Db::name('wx_user')->select();
     }
 
     //回收意向客户
