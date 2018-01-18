@@ -236,6 +236,11 @@ class CommonLogic extends Model {
         $uid = $data['uid'];
         $uransfer_uid = $data['uransfer_uid'];
 
+        //判断是否转接给自身
+        if($uid == $uransfer_uid){
+            return msg(3006,'不允许转接到原账号');
+        }
+
         //获取会话数据
         $session_data = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
