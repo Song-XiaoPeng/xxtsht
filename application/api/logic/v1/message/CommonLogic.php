@@ -116,7 +116,7 @@ class CommonLogic extends Model {
                 }
 
                 if($auth_info['type'] == 1){
-                    $customer_service_id = Db::name('customer_service')->where(['appid'=>$val['appid']])->cache(true,60)->value('customer_service_id');
+                    $customer_service_id = Db::name('customer_service')->where(['appid'=>$val['appid'],'uid'=>$uid])->cache(true,60)->value('customer_service_id');
                     if(!$customer_service_id){
                         return msg(3005,'未获取到客服基础信息');
                     }
