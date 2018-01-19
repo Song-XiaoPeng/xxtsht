@@ -978,7 +978,7 @@ class BusinessLogic extends Model {
                 Db::name('wx_user')
                 ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
                 ->where(['appid'=>$appid,'openid'=>$openid])
-                ->update(['customer_service_uid'=>$customer_service_uid]);
+                ->update(['customer_service_uid'=>$customer_service_uid,'is_clue'=>-1,'last_time'=>$time]);
             }
 
             $insert_data['session_frequency'] = Db::name('message_session')

@@ -43,4 +43,9 @@ class AautoMatic {
     public function delQrCodeFile(){
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->delQrCodeFile();
     }
+
+    //回收线索客户 url: http://kf.lyfz.net/api/v1/task/AautoMatic/recoveryClueCustomer
+    public function recoveryClueCustomer(){
+        return \think\Loader::model('AautoMaticLogic','logic\v1\task')->recoveryClueCustomer();
+    }
 }

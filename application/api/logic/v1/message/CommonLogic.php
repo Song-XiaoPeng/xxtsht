@@ -103,6 +103,8 @@ class CommonLogic extends Model {
         $redis = Common::createRedis();
         $redis->select(2); 
 
+        $time = date('Y-m-d H:i:s');
+
         $session_list = $redis->sMembers($company_id);
 
         foreach($session_list as $v){
@@ -139,7 +141,7 @@ class CommonLogic extends Model {
                 Db::name('wx_user')
                 ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
                 ->where(['appid'=>$val['appid'],'openid'=>$val['customer_wx_openid']])
-                ->update(['customer_service_uid'=>$uid,'is_clue'=>-1]);
+                ->update(['customer_service_uid'=>$uid,'is_clue'=>-1,'last_time'=>$time]);
 
                 if($update_res){
                     $redis->SREM($company_id, $v);
