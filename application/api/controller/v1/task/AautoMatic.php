@@ -48,4 +48,9 @@ class AautoMatic {
     public function recoveryClueCustomer(){
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->recoveryClueCustomer();
     }
+
+    //回收意向客户 url: http://kf.lyfz.net/api/v1/task/AautoMatic/recoveryIntentionCustomer
+    public function recoveryIntentionCustomer(){
+        return \think\Loader::model('AautoMaticLogic','logic\v1\task')->recoveryIntentionCustomer();
+    }
 }

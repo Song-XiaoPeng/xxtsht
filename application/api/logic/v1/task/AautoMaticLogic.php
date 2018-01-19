@@ -538,4 +538,51 @@ class AautoMaticLogic extends Model {
     }
 
     //回收意向客户
+    public function recoveryIntentionCustomer(){
+        $time = date('Y-m-d H:i:s');
+
+        //匹配已设置回收规则商户
+        $company_list = Db::name('company_baseinfo')->where(['configure_value'=>['like',"%intention_recovery%"]])->group('company_id')->field('company_id,configure_value')->select();
+
+        $company_arr = array_column($company_list, 'company_id');
+
+        $wx_user_list = Db::name('wx_user')
+        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+        ->where(['is_clue'=>3,'company_id'=>['in',$company_arr]])
+        ->field('wx_user_id,last_time,is_clue,company_id')
+        ->select();
+
+        foreach($company_list as $k=>$v){
+            $company_config[$v['company_id']] = json_decode($v['configure_value'],true)['intention_recovery'];
+        }
+
+        $reset_list = [];
+            
+        foreach($wx_user_list as $k=>$v){
+            if($v['last_time'] == '0000-00-00 00:00:00'){
+                continue;
+            }
+
+            $time_res = timediff($v['last_time'], $time);
+
+            $day_config = $company_config[$v['company_id']];
+
+            if($time_res['day'] >= $day_config){
+                array_push($reset_list,['wx_user_id'=>$v['wx_user_id'],'company_id'=>$v['company_id']]);
+            }
+        }
+
+        $company_list = [];
+
+        foreach($reset_list as $k=>$v){
+            $company_list[$v['company_id']][] = $v['wx_user_id'];
+        }
+
+        foreach($company_list as $company_id=>$list){
+            Db::name('wx_user')
+            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['is_clue'=>3,'wx_user_id'=>['in',$list]])
+            ->update(['is_clue'=>2,'last_time'=>$time,'customer_service_uid'=>-1]);
+        }
+    }
 }
