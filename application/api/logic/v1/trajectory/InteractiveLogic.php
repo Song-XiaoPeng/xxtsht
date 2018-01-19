@@ -9,7 +9,7 @@ class InteractiveLogic extends Model {
      * 记录微信用户交互轨迹事件
      * @param appid 公众号或小程序appid
      * @param openid 用户微信openid
-     * @param event 事件类型 1点击公众号菜单
+     * @param event 事件类型数据
 	 * @return code 200->成功
 	 */
     public function recordInteractiveEvent($data){
@@ -21,7 +21,7 @@ class InteractiveLogic extends Model {
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->value('company_id');
 
         switch($event['type']){
-            //记录点击公众号用户轨迹事件
+            //记录点击公众号菜单轨迹事件
             case 1:
                 return $this->recordWxMenu([
                     'company_id' => $company_id,
