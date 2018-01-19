@@ -9,6 +9,7 @@ use app\api\common\Common;
 use EasyWeChat\Message\Image;
 use EasyWeChat\Message\Material;
 use EasyWeChat\Message\Text;
+use app\api\logic\v1\trajectory\InteractiveLogic;
 
 class BusinessLogic extends Model {
     private $default_message = '';
@@ -522,6 +523,16 @@ class BusinessLogic extends Model {
 	 * @return code 200->成功
 	 */
     private function clickEvent($appid,$openid,$message){
+        //记录用户操作轨迹数据
+        if(!empty($message['EventKey'])){
+            InteractiveLogic::recordInteractiveEvent([
+                'appid' => $appid,
+                'openid' => $openid,
+                'event_type' => $message['Event'],
+                'event_key' => $message['EventKey']
+            ]);
+        }
+
         if(!empty($message['EventKey'])){
             $event_arr = explode('_',$message['EventKey']);
             switch($event_arr[0]){

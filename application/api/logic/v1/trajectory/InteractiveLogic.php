@@ -1,36 +1,36 @@
 <?php
-namespace app\api\logic\v1\event;
+namespace app\api\logic\v1\trajectory;
 use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
+use think\Log;
 
 class InteractiveLogic extends Model {
     /**
      * 记录微信用户交互轨迹事件
      * @param appid 公众号或小程序appid
      * @param openid 用户微信openid
-     * @param event 事件类型数据
+     * @param event_type 事件类型数据
 	 * @return code 200->成功
 	 */
-    public function recordInteractiveEvent($data){
+    public static function recordInteractiveEvent($data){
         $appid = $data['appid'];
         $openid = $data['openid'];
-        $event = $data['event'];
+        $event_type = $data['event_type'];
+        $event_key = $data['event_key'];
 
         //获取商户company_id
         $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->value('company_id');
 
-        switch($event['type']){
-            //记录点击公众号菜单轨迹事件
-            case 1:
-                return $this->recordWxMenu([
-                    'company_id' => $company_id,
-                    'appid' => $appid,
-                    'openid' => $openid,
-                    'menu_type' => $event['menu_type'],
-                    'event_key' => $event['event_key']
-                ]);
-                break;
+        //记录点击公众号菜单轨迹事件
+        if($event_type == 'VIEW' || $event_type == 'CLICK'){
+            return self::recordWxMenu([
+                'company_id' => $company_id,
+                'appid' => $appid,
+                'openid' => $openid,
+                'menu_type' => $event_type,
+                'event_key' => $event_key
+            ]);
         }
     }
 
@@ -43,12 +43,17 @@ class InteractiveLogic extends Model {
      * @param event_key 菜单key
 	 * @return code 200->成功
 	 */
-    private function recordWxMenu($data){
+    private static function recordWxMenu($data){
         $appid = $data['appid'];
         $openid = $data['openid'];
         $menu_type = $data['menu_type'];
         $event_key = $data['event_key'];
         $company_id = $data['company_id'];
+
+        //判断是否支持的菜单时间类型
+        if($menu_type != 'VIEW' && $menu_type != 'CLICK'){
+            return msg(3009,'不支持记录的事件类型');
+        }
 
         $time = date('Y-m-d H:i:s');
 
@@ -94,12 +99,12 @@ class InteractiveLogic extends Model {
             switch($v['type']){
                 case 'view';
                     if($v['url'] == $event_key){
-                        $desc = '点击菜单'.$v['name'];
+                        $desc = '点击公众号菜单->'.$v['name'];
                     }
                     break;
                 case 'click';
                     if($v['key'] == $event_key){
-                        $desc = '点击菜单'.$v['name'];
+                        $desc = '点击公众号菜单->'.$v['name'];
                     }
                     break;
             }
