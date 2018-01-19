@@ -130,4 +130,39 @@ class InteractiveLogic extends Model {
             return msg(3001,'插入数据失败');
         }
     }
+
+    /**
+     * 获取用户事件轨迹
+     * @param company_id 所属商户company_id
+     * @param appid 公众号或小程序appid
+     * @param openid 用户微信openid
+     * @param page 分页参数
+	 * @return code 200->成功
+	 */
+    public function getEventTrajectory($data){
+        $company_id = $data['company_id'];
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+        $page = $data['page'];
+
+        //分页
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('wx_user_operation')
+        ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
+        ->limit($show_page,$page_count)
+        ->select();
+
+        $count = Db::name('wx_user_operation')
+        ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
+        ->count();
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
 }
