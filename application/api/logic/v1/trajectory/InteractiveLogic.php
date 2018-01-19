@@ -154,11 +154,20 @@ class InteractiveLogic extends Model {
         $list = Db::name('wx_user_operation')
         ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid,'event'=>$type])
         ->limit($show_page,$page_count)
+        ->order('create_time desc')
         ->select();
 
         $count = Db::name('wx_user_operation')
         ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
         ->count();
+
+        foreach($list as $k=>$v){
+            switch($v['event']){
+                case 1:
+                    $list[$k]['event'] = '公众号菜单';
+                    break;
+            }
+        }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
