@@ -137,6 +137,7 @@ class InteractiveLogic extends Model {
      * @param appid 公众号或小程序appid
      * @param openid 用户微信openid
      * @param page 分页参数
+     * @param type 事件类型 1点击公众号菜单
 	 * @return code 200->成功
 	 */
     public function getEventTrajectory($data){
@@ -144,13 +145,14 @@ class InteractiveLogic extends Model {
         $appid = $data['appid'];
         $openid = $data['openid'];
         $page = $data['page'];
+        $type = $data['type'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('wx_user_operation')
-        ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
+        ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid,'event'=>$type])
         ->limit($show_page,$page_count)
         ->select();
 
