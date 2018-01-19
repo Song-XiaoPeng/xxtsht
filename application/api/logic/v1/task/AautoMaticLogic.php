@@ -533,7 +533,7 @@ class AautoMaticLogic extends Model {
             Db::name('wx_user')
             ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['is_clue'=>-1,'wx_user_id'=>['in',$list]])
-            ->update(['is_clue'=>1,'last_time'=>$time]);
+            ->update(['is_clue'=>1,'last_time'=>$time,'customer_service_uid'=>-1]);
         }
     }
 
