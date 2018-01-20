@@ -32,6 +32,10 @@ class AuthLogic extends Model {
             return msg(3003,'账号或密码错误');
         }
 
+        if($user_info['user_state'] == 1){
+            return msg(3004,'账号已被停止使用');
+        }
+
         if($user_info['client_network_mac'] != $client_network_mac && $user_info['is_bind_hardware'] == 1 && $user_info['user_type'] != 3){
             return msg(3009,'不允许在未授权的设备登录');
         }
