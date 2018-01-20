@@ -178,7 +178,7 @@ class UserOperationLogic extends Model {
 	 */
     public function setUserState($data){
         $uid = $data['uid'];
-        $state = $data['state'] == 1 ? 1 : -1;
+        $state = $data['state'];
         $company_id = $data['company_id'];
 
         $update_res = Db::name('user')
