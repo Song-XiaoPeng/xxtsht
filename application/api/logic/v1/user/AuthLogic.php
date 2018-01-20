@@ -13,7 +13,8 @@ class AuthLogic extends Model {
     public function login ($data) {
         $phone_no = $data['phone_no'];
         $password = $data['password'];
-        $client_version = empty($data['version']) == true ? '' : $data['version'];
+        $client_version = $data['version'];
+        $client_type = $data['client'];
         $client_network_mac = empty($data['client_network_mac']) == true ? '' : $data['client_network_mac'];
         $time = date('Y-m-d H:i:s');
 
@@ -37,8 +38,16 @@ class AuthLogic extends Model {
 
         $token = md5(uniqid());
 
+        //保存登录token
+        if($client_type == 'ios' || $client_type == 'android'){
+            $c_version = 'mobile';
+        }else{
+            $c_version = $client_type;
+        }
+        $cache_key = $c_version.$user_info['uid'];
+        cache($cache_key, ['token'=>$token,'company_id'=>$user_info['company_id'],'user_type'=>$user_info['user_type']], 259200);
+
         Db::name('user')->where(['company_id'=>$user_info['company_id'],'uid'=>$user_info['uid']])->update([
-            'token' => $token,
             'client_network_mac' => $client_network_mac,
             'client_version' => $client_version,
             'login_time' => date('Y-m-d H:i:s')
@@ -117,13 +126,19 @@ class AuthLogic extends Model {
      * @param token 账号token
 	 * @return code 200->成功
 	 */
-    public function checkToken($uid,$token){
-        $check_res = Db::name('user')->where(['token'=>$token,'uid'=>$uid])->find();
-        if($check_res){
-            return msg(200,'success');
-        }else{
+    public function checkToken($uid,$token,$client){
+        $cache_key = $client.$uid;
+        if(empty(cache($cache_key))){
             return msg(3001,'校验失败');
         }
+        
+        if(cache($cache_key)['token'] != $token){
+            return msg(3001,'校验失败');
+        }
+
+        cache($cache_key, cache($cache_key), 259200);
+
+        return msg(200,'success');
     }
 
     /**

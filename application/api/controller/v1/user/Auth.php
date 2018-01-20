@@ -33,7 +33,7 @@ class Auth {
     public function checkToken () {
         $data = input('put.');
         
-        return \think\Loader::model('AuthLogic','logic\v1\user')->checkToken($data['uid'],$data['token']);
+        return \think\Loader::model('AuthLogic','logic\v1\user')->checkToken($data['uid'],$data['token'],$data['client']);
     }
 
     /**
