@@ -32,7 +32,7 @@ class AuthLogic extends Model {
             return msg(3003,'账号或密码错误');
         }
 
-        if($user_info['user_state'] == 1){
+        if($user_info['user_state'] == -1){
             return msg(3004,'账号已被停止使用');
         }
 
