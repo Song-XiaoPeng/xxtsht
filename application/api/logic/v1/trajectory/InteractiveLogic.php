@@ -4,6 +4,7 @@ use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
 use think\Log;
+use app\api\common\Common;
 
 class InteractiveLogic extends Model {
     /**
