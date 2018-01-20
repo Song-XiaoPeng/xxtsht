@@ -53,7 +53,7 @@ class Auth extends Controller{
 
         $user_type = cache($cache_key)['user_type'];
         
-        $company_info = Db::name('company')->where(['company_id'=>$company_id])->cache(true,120)->find();
+        $company_info = Db::name('company')->where(['company_id'=>$company_id])->cache(true,360)->find();
 
         if(strtotime(date('Y-m-d H:i:s')) > strtotime($company_info['expiration_date'])){
             $this->returnJson(6002,'账号已于'.$company_info['expiration_date'].'过期');
