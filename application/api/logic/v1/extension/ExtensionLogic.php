@@ -329,14 +329,14 @@ class ExtensionLogic extends Model {
             $list[$k]['intention_num'] = Db::name('wx_user')
             ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['company_id'=>$company_id,'qrcode_id'=>$v['qrcode_id'],'is_clue'=>array('in',[2,3])])
-            ->cache(true,360)
+            ->cache(true,3600)
             ->count();
 
             //产生订单客户数量
             $list[$k]['order_num'] = Db::name('wx_user')
             ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['company_id'=>$company_id,'qrcode_id'=>$v['qrcode_id'],'is_clue'=>4])
-            ->cache(true,360)
+            ->cache(true,3600)
             ->count();
         }
 
