@@ -32,7 +32,7 @@ class SurveyLogic extends Model {
         ];
 
         if(empty(cache($cache_key))){
-            cache($cache_key, $return_data, 360);
+            cache($cache_key, $return_data, 120);
         }
 
         return msg(200, 'success', $return_data);
@@ -44,9 +44,9 @@ class SurveyLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getCustomerServiceTotal($company_id){
-        $on_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>1])->group('uid')->cache(true,10)->count();
-        $off_line_total = Db::name('customer_service')->where(['company_id'=>$company_id,'state'=>-1])->group('uid')->cache(true,10)->count();
-        $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->cache(true,60)->count();
+        $on_line_total = Db::name('user')->where(['company_id'=>$company_id,'is_on_line'=>1])->count();
+        $off_line_total = Db::name('user')->where(['company_id'=>$company_id,'is_on_line'=>-1])->count();
+        $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->count();
 
         return msg(200,'success',[
             'on_line_total' => $on_line_total,
