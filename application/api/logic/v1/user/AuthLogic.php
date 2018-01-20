@@ -151,4 +151,20 @@ class AuthLogic extends Model {
         
         return msg(200,'success',['company_id'=>$company_id]);
     }
+
+    /**
+     * 标记账号在线或不在线
+     * @param uid 账号uid
+     * @param state 是否在线 1在线 -1离线
+	 * @return code 200->成功
+	 */
+    public function setUserOnlineState($uid,$state){
+        $update_res = Db::name('user')->where(['uid'=>$uid])->update(['is_on_line'=>$state]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
 }

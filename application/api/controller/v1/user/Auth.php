@@ -37,6 +37,22 @@ class Auth {
     }
 
     /**
+     * 标记账号在线或不在线
+	 * 传入JSON格式: {"uid":"6454","state":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[]}
+	 * API_URL_本地: http://localhost:91/api/v1/user/Auth/setUserOnlineState
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/Auth/setUserOnlineState
+     * @param uid 账号uid
+     * @param state 是否在线 1在线 -1离线
+	 * @return code 200->成功
+	 */
+    public function setUserOnlineState () {
+        $data = input('put.');
+        
+        return \think\Loader::model('AuthLogic','logic\v1\user')->setUserOnlineState($data['uid'],$data['token'],$data['client']);
+    }
+
+    /**
      * 获取商户所有客服uid
 	 * 传入JSON格式: {"company_id":"51454009d703c86c91353f61011ecf2f"}
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[]}
