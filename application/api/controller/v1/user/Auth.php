@@ -49,7 +49,7 @@ class Auth {
     public function setUserOnlineState () {
         $data = input('put.');
         
-        return \think\Loader::model('AuthLogic','logic\v1\user')->setUserOnlineState($data['uid'],$data['token'],$data['client']);
+        return \think\Loader::model('AuthLogic','logic\v1\user')->setUserOnlineState($data['uid'],$data['state']);
     }
 
     /**
