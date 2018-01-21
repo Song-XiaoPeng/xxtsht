@@ -490,7 +490,7 @@ class CommonLogic extends Model {
         $page = $data['page'];
         $openid_list = empty($data['openid_list']) == true ? [] : $data['openid_list'];
 
-        $page_count = 30;
+        $page_count = 12;
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('message_session')
@@ -521,10 +521,10 @@ class CommonLogic extends Model {
             $customer_service_uid = Db::name('wx_user')
             ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['openid'=>$v['customer_wx_openid']])
-            ->cache(true,3600)
+            ->cache(true,21600)
             ->value('customer_service_uid');
 
-            $user_name = Db::name('user')->where(['uid'=>$customer_service_uid])->value('user_name');
+            $user_name = Db::name('user')->where(['uid'=>$customer_service_uid])->cache(true,21600)->value('user_name');
 
             $list[$k]['user_name'] = empty($user_name) == true ? '暂无' : $user_name;
 
