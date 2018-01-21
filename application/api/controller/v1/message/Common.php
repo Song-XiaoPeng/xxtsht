@@ -101,6 +101,24 @@ class Common extends Auth{
     }
 
     /**
+     * 获取历史会话
+	 * 请求类型：post
+	 * 传入JSON格式: {"page":"1"}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/message/Common/getHistoricalConversation
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/message/Common/getHistoricalConversation
+     * @param page 分页参数
+	 * @return code 200->成功
+	 */
+	public function getHistoricalConversation(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('CommonLogic','logic\v1\message')->getHistoricalConversation($data);
+    }
+
+    /**
      * 接入排队中会话
      * 请求类型 post
      * 传入JSON格式: {"session_id":"f5013b20d77c15ab0ae9bb1c5a52370b"}

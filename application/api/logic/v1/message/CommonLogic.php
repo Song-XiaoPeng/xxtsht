@@ -476,4 +476,38 @@ class CommonLogic extends Model {
             return $send_res;
         }
     }
+
+    /**
+     * 获取历史会话
+     * @param company_id 商户company_id
+     * @param uid 账号uid
+     * @param page 分页参数
+	 * @return code 200->成功
+	 */
+    public function getHistoricalConversation($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $page = $data['page'];
+
+        $page_count = 60;
+        $show_page = ($page - 1) * $page_count;
+
+        $list = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>['in',[-1,-2,-3,-4]]])
+        ->limit($show_page,$page_count)
+        ->select();
+
+        $count = Db::name('message_session')
+        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
+        ->where(['company_id'=>$company_id,'uid'=>$uid])
+        ->count();
+
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+        
+        return msg(200,'success',$res);
+    }
 }
