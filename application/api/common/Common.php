@@ -90,7 +90,7 @@ class Common {
                 return false;
         }
 
-        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,60)->value('company_id');
+        $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,3600)->value('company_id');
 
         $message_id = md5(uniqid());
 
