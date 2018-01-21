@@ -497,6 +497,7 @@ class CommonLogic extends Model {
         ->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>['in',[-1,-2,-3,-4]]])
         ->limit($show_page,$page_count)
         ->group('customer_wx_openid')
+        ->order('add_time desc')
         ->select();
 
         $count = Db::name('message_session')
