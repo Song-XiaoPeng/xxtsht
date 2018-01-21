@@ -489,7 +489,7 @@ class CommonLogic extends Model {
         $uid = $data['uid'];
         $page = $data['page'];
 
-        $page_count = 60;
+        $page_count = 6;
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('message_session')
