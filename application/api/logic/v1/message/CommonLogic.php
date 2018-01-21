@@ -488,13 +488,19 @@ class CommonLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $page = $data['page'];
+        $openid_list = $data['openid_list'];
 
         $page_count = 6;
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>['in',[-1,-2,-3,-4]]])
+        ->where([
+            'company_id'=>$company_id,
+            'uid'=>$uid,
+            'state'=>['in',[-1,-2,-3,-4],
+            'customer_wx_openid'=>['not in',$openid_list]]
+        ])
         ->limit($show_page,$page_count)
         ->group('customer_wx_openid')
         ->order('add_time desc')
@@ -502,12 +508,18 @@ class CommonLogic extends Model {
 
         $count = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id,'uid'=>$uid])
+        ->where([
+            'company_id'=>$company_id,
+            'uid'=>$uid,
+            'state'=>['in',[-1,-2,-3,-4],
+            'customer_wx_openid'=>['not in',$openid_list]]
+        ])
         ->group('customer_wx_openid')
         ->count();
 
         foreach($list as $k=>$v){
            $list[$k]['user_name'] = Db::name('user')->where(['uid'=>$v['uid']])->cache(true,3600)->value('user_name');
+           $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,3600)->value('nick_name');
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
