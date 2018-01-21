@@ -496,11 +496,13 @@ class CommonLogic extends Model {
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['company_id'=>$company_id,'uid'=>$uid,'state'=>['in',[-1,-2,-3,-4]]])
         ->limit($show_page,$page_count)
+        ->group('customer_wx_openid')
         ->select();
 
         $count = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
         ->where(['company_id'=>$company_id,'uid'=>$uid])
+        ->group('customer_wx_openid')
         ->count();
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
