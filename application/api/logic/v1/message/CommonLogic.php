@@ -506,6 +506,10 @@ class CommonLogic extends Model {
         ->group('customer_wx_openid')
         ->count();
 
+        foreach($list as $k=>$v){
+           $list[$k]['user_name'] = Db::name('user')->where(['uid'=>$v['uid']])->cache(true,3600)->value('user_name');
+        }
+
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
