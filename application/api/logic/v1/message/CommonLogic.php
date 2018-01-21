@@ -488,7 +488,7 @@ class CommonLogic extends Model {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $page = $data['page'];
-        $openid_list = $data['openid_list'];
+        $openid_list = empty($data['openid_list']) == true ? [] : $data['openid_list'];
 
         $page_count = 6;
         $show_page = ($page - 1) * $page_count;
