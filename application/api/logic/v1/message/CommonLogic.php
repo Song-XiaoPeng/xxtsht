@@ -498,8 +498,8 @@ class CommonLogic extends Model {
         ->where([
             'company_id'=>$company_id,
             'uid'=>$uid,
-            'state'=>['in',[-1,-2,-3,-4],
-            'customer_wx_openid'=>['not in',$openid_list]]
+            'state'=>['in',[-1,-2,-3,-4]],
+            'customer_wx_openid'=>['not in',$openid_list]
         ])
         ->limit($show_page,$page_count)
         ->group('customer_wx_openid')
@@ -511,15 +511,24 @@ class CommonLogic extends Model {
         ->where([
             'company_id'=>$company_id,
             'uid'=>$uid,
-            'state'=>['in',[-1,-2,-3,-4],
-            'customer_wx_openid'=>['not in',$openid_list]]
+            'state'=>['in',[-1,-2,-3,-4]],
+            'customer_wx_openid'=>['not in',$openid_list]
         ])
         ->group('customer_wx_openid')
         ->count();
 
         foreach($list as $k=>$v){
-           $list[$k]['user_name'] = Db::name('user')->where(['uid'=>$v['uid']])->cache(true,3600)->value('user_name');
-           $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,3600)->value('nick_name');
+            $customer_service_uid = Db::name('wx_user')
+            ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
+            ->where(['openid'=>$v['customer_wx_openid']])
+            ->cache(true,3600)
+            ->value('customer_service_uid');
+
+            $user_name = Db::name('user')->where(['uid'=>$customer_service_uid])->value('user_name');
+
+            $list[$k]['user_name'] = empty($user_name) == true ? '暂无' : $user_name;
+
+            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,3600)->value('nick_name');
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
