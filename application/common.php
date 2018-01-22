@@ -301,6 +301,19 @@ function convertUrlQuery($query){
     return $params;
 }
 
+//匹配微信模板消息字段内容
+function extractWxTemplate($content = ''){
+    if (!preg_match_all('/{{([^<]*).DATA}}/isU', $content, $matches)) {
+        return [];
+    }
+    $input = array();
+    foreach ($matches[1] as $key => $value) {
+        $input[] = $value;
+    }
+
+    return $input;
+}
+
 /**
  * 导出CSV文件
  * @param array $data        数据

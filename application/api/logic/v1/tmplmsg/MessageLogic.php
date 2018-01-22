@@ -40,6 +40,11 @@ class MessageLogic extends Model {
             $template_list = [];
         }
 
+        //匹配模板变量
+        foreach($template_list as $k=>$v){
+            $template_list[$k]['field'] = extractWxTemplate($v['content']);
+        }
+
         return msg(200,'success',array_reverse($template_list));
     }
 
