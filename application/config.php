@@ -294,5 +294,5 @@ return [
     'message_password' => '2015lwth@1234',
 
     //短信网关请求url域名
-    'message_api_url' => 'http://liyafangzhou.eicp.net:8600/',
+    'message_api_url' => 'http://msg.lyfz.net:8600',
 ];
