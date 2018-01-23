@@ -16,6 +16,8 @@ class MessageLogic extends Model {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
 
+        $app_name = Db::name('openweixin_authinfo')->where(['appid'=>$appid,'company_id'=>$company_id])->cache(true,3600)->value('nick_name');
+
         try {
             $token_info = Common::getRefreshToken($appid,$company_id);
             if($token_info['meta']['code'] == 200){
@@ -43,6 +45,7 @@ class MessageLogic extends Model {
         //匹配模板变量
         foreach($template_list as $k=>$v){
             $template_list[$k]['appid'] = $appid;
+            $template_list[$k]['app_name'] = $app_name;
             $template_list[$k]['field'] = extractWxTemplate($v['content']);
         }
 
