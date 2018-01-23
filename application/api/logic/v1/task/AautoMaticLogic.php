@@ -593,6 +593,35 @@ class AautoMaticLogic extends Model {
 
         $list = $redis->keys('*');
 
-        dump($list);
+        foreach($list as $key){
+            $str = $redis->get($key);
+
+            $arr = json_decode($str, true);
+
+            try {
+                $token_info = Common::getRefreshToken($arr['appid'],$arr['company_id']);
+                if($token_info['meta']['code'] == 200){
+                    $refresh_token = $token_info['body']['refresh_token'];
+                }else{
+                    return $token_info;
+                }
+    
+                $app = new Application(wxOptions());
+                $openPlatform = $app->open_platform;
+    
+                $notice = $openPlatform->createAuthorizerApplication($arr['appid'],$refresh_token)->notice;
+    
+                $userId = $arr['openid'];
+                $templateId = $arr['template_id'];
+                $url = $arr['url'];
+                $data = $arr['data'];
+                
+                $result = $notice->uses($templateId)->withUrl($url)->andData($data)->andReceiver($userId)->send();
+            
+                $redis->del($key);
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
     }
 }
