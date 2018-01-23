@@ -585,4 +585,14 @@ class AautoMaticLogic extends Model {
             ->update(['is_clue'=>2,'last_time'=>$time,'customer_service_uid'=>-1]);
         }
     }
+
+    //群发模板消息
+    public function massTemplate(){
+        $redis = Common::createRedis();
+        $redis->select(3);
+
+        $list = $redis->keys('*');
+
+        dump($list);
+    }
 }
