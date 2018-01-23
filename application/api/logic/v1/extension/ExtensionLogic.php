@@ -283,16 +283,16 @@ class ExtensionLogic extends Model {
         ->count();
 
         foreach($list as $k=>$v){
-            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+            $nick_name = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,3600)->value('nick_name');
 
             $list[$k]['nick_name'] = empty($nick_name) == true ? '公众号或小程序已解绑' : $nick_name;
 
-            $list[$k]['qrcode_group_name'] = Db::name('extension_qrcode_group')->where(['qrcode_group_id'=>$v['qrcode_group_id']])->cache(true,60)->value('qrcode_group_name');
+            $list[$k]['qrcode_group_name'] = Db::name('extension_qrcode_group')->where(['qrcode_group_id'=>$v['qrcode_group_id']])->cache(true,3600)->value('qrcode_group_name');
 
             $list[$k]['attention_num'] = Db::name('wx_user')
             ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['company_id'=>$company_id,'qrcode_id'=>$v['qrcode_id']])
-            ->cache(true,360)
+            ->cache(true,3600)
             ->count();
 
             $label = json_decode($v['label'],true);
@@ -309,9 +309,9 @@ class ExtensionLogic extends Model {
 
             $list[$k]['label'] = $label_arr;
 
-            $user_info = Db::name('user')->where(['uid'=>$v['create_uid'],'company_id'=>$company_id])->cache(true,60)->find();
+            $user_info = Db::name('user')->where(['uid'=>$v['create_uid'],'company_id'=>$company_id])->cache(true,3600)->field('user_group_id,user_name')->find();
     
-            $user_group_name = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_info['user_group_id']])->cache(true,60)->value('user_group_name');
+            $user_group_name = Db::name('user_group')->where(['company_id'=>$company_id,'user_group_id'=>$user_info['user_group_id']])->cache(true,3600)->value('user_group_name');
 
             if($v['reply_type'] = 2 && empty($v['resources_id']) == false){
                 $list[$k]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$v['resources_id'];
