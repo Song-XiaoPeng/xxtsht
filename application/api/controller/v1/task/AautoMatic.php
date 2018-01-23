@@ -53,4 +53,10 @@ class AautoMatic {
     public function recoveryIntentionCustomer(){
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->recoveryIntentionCustomer();
     }
+
+    //发送手机验证码
+    public function sendShortMessage()
+    {
+        return \think\Loader::model('ShortMessageLogic','logic\v1\short_message')->sendShortMessage();
+    }
 }
