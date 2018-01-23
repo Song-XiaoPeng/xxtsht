@@ -42,6 +42,7 @@ class MessageLogic extends Model {
 
         //匹配模板变量
         foreach($template_list as $k=>$v){
+            $template_list[$k]['appid'] = $appid;
             $template_list[$k]['field'] = extractWxTemplate($v['content']);
         }
 
