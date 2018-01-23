@@ -46,6 +46,12 @@ class MessageLogic extends Model {
         foreach($template_list as $k=>$v){
             $template_list[$k]['appid'] = $appid;
             $template_list[$k]['app_name'] = $app_name;
+
+            $field_data = extractWxTemplate($v['content']);
+            foreach($field_data as $c=>$t){
+                $template_list[$k]['field_data'][$t] = '';
+            }
+
             $template_list[$k]['field'] = extractWxTemplate($v['content']);
         }
 
