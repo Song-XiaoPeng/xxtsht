@@ -285,5 +285,14 @@ return [
         'message_data' => 10,
         'message_session' => 8,
         'wx_user' => 5,
-    ]
+    ],
+
+    //短信网关账户账号
+    'message_account' => '681990',
+
+    //短信网关账户密码
+    'message_password' => '2015lwth@1234',
+
+    //短信网关请求url域名
+    'message_url' => 'http://liyafangzhou.eicp.net:8600/',
 ];
