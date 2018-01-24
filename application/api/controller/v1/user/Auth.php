@@ -16,7 +16,6 @@ class Auth {
 	 */
     public function login () {
         $data = input('put.');
-        
         return \think\Loader::model('AuthLogic','logic\v1\user')->login($data);
     }
 

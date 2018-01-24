@@ -17,7 +17,7 @@ class Message extends Auth{
 	 */
     public function sendVerifyCode()
     {
-        $data = input('post.');
+        $data = input('put.');
         $data['company_id'] = $this->company_id;
 
         return Loader::model('ShortMessageLogic','logic\v1\short_message')->getVerifyCode($data);
@@ -26,7 +26,8 @@ class Message extends Auth{
 	//修改密码
     public function resetPassword()
     {
-        $data = input('post.');
+        $data = input('put.');
+
         $data['company_id'] = $this->company_id;
         return Loader::model('ShortMessageLogic','logic\v1\short_message')->resetPassword($data);
     }

@@ -438,8 +438,9 @@ class RuleLogic extends Model {
     public function getCommonQuickReplyGroup($data){
         $company_id = $data['company_id'];
         $uid = $data['uid'];
+        $keywords = empty($data['keywords']) ? '' : $data['keywords'];
 
-        $list = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'uid'=>$uid,'group_type'=>2])->select();
+        $list = Db::name('quick_reply_group')->where(['company_id'=>$company_id,'uid'=>$uid,'group_type'=>2])->where('quick_reply_text', 'like', '%' . $keywords . '%')->select();
 
         return msg(200,'success',$list);
     }

@@ -80,17 +80,24 @@ class ShortMessageLogic extends Model
     public function resetPassword($data)
     {
         $phone = $data['phone'];
-
         if (!$this->isMobile($phone)) {
             return msg(3001, '手机号格式输入不正确');
+        }
+        $verify_code = $data['verify_code'];
+        $company_id = $data['company_id'];
+        $user_map = [
+            'company_id' => $company_id,
+            'phone_no' => $phone,
+        ];
+        $exist = Db::name('user')->where($user_map)->find();
+        if(!$exist){
+            return msg(3001, '账号不存在');
         }
         $password = $data['password'];
         $repassword = $data['repassword'];
         if($password !== $repassword){
             return msg(3001,'两次输入的密码不一致');
         }
-        $verify_code = $data['verify_code'];
-        $company_id = $data['company_id'];
         $where = [
             'phone' => $phone,
             'verification_code' => $verify_code,
@@ -99,12 +106,8 @@ class ShortMessageLogic extends Model
         $exist = Db::name('verification_code')->where($where)->find();
         if ($exist) {
             Db::name('verification_code')->where('phone', $phone)->update(['state' => 1]);
-            $user_map = [
-                'company_id' => $company_id,
-                'phone_no' => $phone,
-            ];
             $save_data = [
-                'password' => md5($password)
+                'password' => $password
             ];
             $res = Db::name('user')->where($user_map)->update($save_data);
             if ($res >= 0) {
@@ -119,6 +122,6 @@ class ShortMessageLogic extends Model
 
     public function isMobile($phone)
     {
-        preg_match("/^1[34578]{1}\d{9}$/", $phone) ? true : false;
+        return preg_match("/^1[34578]{1}\d{9}$/", $phone) ? true : false;
     }
 }
