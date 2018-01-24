@@ -73,13 +73,30 @@ class CommonLogic extends Model
         $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
         $type = empty($data['type']) == true ? 1 : $data['type'];
         $keywords = empty($data['keywords']) ? '' : $data['keywords'];
-        $list = Db::name('quick_reply')->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')->select();
+        $page = empty($data['page']) ? 1 : $data['page'];
+
+        $page_count = 16;
+        $show_page = ($page - 1) * $page_count;
+        
+        $list = Db::name('quick_reply')
+        ->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')
+        ->limit($show_page, $page_count)
+        ->select();
+
+        $count = Db::name('quick_reply')
+        ->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')
+        ->count();
 
         foreach ($list as $k => $v) {
             $list[$k]['group_name'] = Db::name('quick_reply_group')->where(['company_id' => $company_id, 'reply_group_id' => $v['reply_group_id']])->value('group_name');
         }
 
-        return msg(200, 'success', $list);
+        $res['data_list'] = count($list) == 0 ? array() : $list;
+        $res['page_data']['count'] = $count;
+        $res['page_data']['rows_num'] = $page_count;
+        $res['page_data']['page'] = $page;
+
+        return msg(200, 'success', $res);
     }
 
     /**
