@@ -245,4 +245,64 @@ class Handle extends Auth{
         
         return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getRedEnvelopesList($this->company_id,$data['page']);
     }
+
+    /**
+     * 创建（获得）个人二维码
+     * 请求类型 post
+     * 传入JSON格式: {"type":"3","appid":"wx88c6052d06eaaf7d","activity_name":"测试推广","qrcode_group_id":"12","invalid_day":"2","label":["集团用户","新服务"],"customer_service_id":"12","customer_service_group_id"::""}
+     * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":{"qrcode_id":"a8ec8596f9fbad831595718dd618eaf6","qrcode_url":"https:\/\/mp.weixin.qq.com\/cgi-bin\/showqrcode?ticket=gQG-8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyYzAyZVJSRDBmNTExMDAwMHcwN0gAAgRyXxpaAwQAAAAA"}}
+     * API_URL_本地: http://localhost:91/api/v1/extension/Handle/createQrcode
+     * API_URL_服务器: http://kf.lyfz.net/api/v1/extension/Handle/createQrcode
+     * @param appid 公众号appid (编辑无法修改)
+     * @param qrcode_id 二维码id (修改时传入)
+     * @param activity_name 活动名称或渠道名称
+     * @param qrcode_group_id 二维码分组id 活动分组id 或渠道分组id
+     * @param label 关注自动打标签
+     * @param customer_service_id 关注的用户专属客服id
+     * @param reception_type 接待类型 1指定客服
+     * @param reply_type 自动回复类型 -1不回复 1文本内容 2图片 3微信图文信息
+     * @param media_id 回复微信媒体id
+     * @param resources_id 回复资源id
+     * @param reply_text 回复文本内容
+     * @return code 200->成功
+     */
+    public function createPersonQrcode () {
+        $data = input('put.');
+        $data['uid'] = $this->uid;
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->createPersonQrcode($data);
+    }
+
+    /**
+     * 获得个人二维码粉丝数量
+     * 请求类型 post
+     * 返回JSON格式:{}
+     */
+    public function getPersonQrcodeFansNum()
+    {
+        $data = input('put.');
+        $data['uid'] = $this->uid;
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getPersonQrcodeFansNum($data);
+    }
+
+    /**
+     * 获得个人二维码的粉丝列表
+     * 请求类型 post
+     * 返回json格式: {"meta":{"code":200,"message":"success"},"body":{"data_list":[{ "nickname":"Junwen","portrait":"http://wx.qlogo.cn/mmopen/jJtbwFuzNwCX0UtgFMYZj1HDCv1qpzHqOZoU81iaEStqJtgXicuMNdrs1CFpNBmn4d9j2pejibGiczXKLHtmiaicR2R9XEUzic7CDfv/132",},{}],"page_data":{ "count":2,"rows_num":15,"page":1}}
+     * @param keywords
+     * @param qrcode_id
+     * @param page
+     * @param appid
+     */
+    public function getPersonQrcodeFansList()
+    {
+        $data = input('put.');
+        $data['uid'] = $this->uid;
+        $data['company_id'] = $this->company_id;
+
+        return \think\Loader::model('ExtensionLogic','logic\v1\extension')->getPersonQrcodeFansList($data);
+    }
 }
