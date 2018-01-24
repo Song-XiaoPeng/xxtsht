@@ -459,7 +459,7 @@ class RuleLogic extends Model
         $uid = $data['uid'];
         $keywords = empty($data['keywords']) ? '' : $data['keywords'];
 
-        $list = Db::name('quick_reply_group')->where(['company_id' => $company_id, 'uid' => $uid, 'group_type' => 2])->where(['quick_reply_text'=>['like',"%$keywords%"]])->select();
+        $list = Db::name('quick_reply_group')->where(['company_id' => $company_id, 'uid' => $uid, 'group_type' => 2])->where(['group_name'=>['like',"%$keywords%"]])->select();
 
         return msg(200, 'success', $list);
     }
