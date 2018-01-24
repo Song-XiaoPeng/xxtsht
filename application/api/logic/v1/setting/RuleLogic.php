@@ -108,10 +108,10 @@ class RuleLogic extends Model
                     'company_id' => $company_id,
                     'reply_group_id' => $reply_group_id,
                     'type' => 2,
-                    'title' => $title
                 ])
                 ->update([
-                    'quick_reply_text' => $text
+                    'quick_reply_text' => $text,
+                    'title' => $title
                 ]);
 
             if ($update_res !== false) {
