@@ -173,7 +173,7 @@ class RuleLogic extends Model
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('quick_reply')->where(['company_id' => $company_id, 'type' => 2, 'reply_group_id' => $reply_group_id])->limit($show_page, $page_count)->select();
+        $list = Db::name('quick_reply')->where(['company_id' => $company_id, 'type' => 2, 'reply_group_id' => $reply_group_id])->limit($show_page, $page_count)->order('quick_reply_id desc')->select();
         $count = Db::name('quick_reply')->where(['company_id' => $company_id, 'type' => 2, 'reply_group_id' => $reply_group_id])->limit($show_page, $page_count)->count();
 
         foreach ($list as $k => $v) {
@@ -459,7 +459,7 @@ class RuleLogic extends Model
         $uid = $data['uid'];
         $keywords = empty($data['keywords']) ? '' : $data['keywords'];
 
-        $list = Db::name('quick_reply_group')->where(['company_id' => $company_id, 'uid' => $uid, 'group_type' => 2])->where('quick_reply_text', 'like', '%' . $keywords . '%')->select();
+        $list = Db::name('quick_reply_group')->where(['company_id' => $company_id, 'uid' => $uid, 'group_type' => 2])->where(['group_name'=>['like',"%$keywords%"]])->select();
 
         return msg(200, 'success', $list);
     }
