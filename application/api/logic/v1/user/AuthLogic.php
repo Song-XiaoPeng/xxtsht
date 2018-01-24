@@ -131,6 +131,10 @@ class AuthLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function checkToken($uid,$token,$client){
+        if($client == 'ios' || $client == 'android'){
+            $client = 'mobile';
+        }
+
         $cache_key = $client.$uid;
         if(empty(cache($cache_key))){
             return msg(3001,'校验失败');
