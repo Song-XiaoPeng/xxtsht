@@ -45,7 +45,7 @@ class Common {
      * @param session_id 会话id
      * @param customer_service_id 客服id
      * @param type 消息类型 0其他 1文本 2图片 3语音 4视频 5坐标 6图文素材 7链接
-     * @param opercode 操作码 1客服发送信息 2客服接收消息 3监控发出消息
+     * @param opercode 操作码 1客服发送信息 2客服接收消息 3管理员监控插话 4群聊消息
      * @param data_obj 数据对象
 	 * @return code 200->成功
 	 */
