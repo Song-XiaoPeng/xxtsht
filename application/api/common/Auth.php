@@ -29,10 +29,18 @@ class Auth extends Controller{
 
         $client = Request::instance()->header('client');
         if(empty($client)){
+            $client = input('get.client');
+        }
+
+        if(empty($client)){
             $this->returnJson(6004,'client参数缺少');
         }
 
         $uid = Request::instance()->header('uid');
+        if(empty($uid)){
+            $uid = input('get.uid');
+        }
+
         if(empty($uid)){
             $this->returnJson(6005,'uid参数缺少');
         }
