@@ -37,6 +37,10 @@ class Auth extends Controller{
             $this->returnJson(6005,'uid参数缺少');
         }
 
+        if($client == 'ios' || $client == 'android'){
+            $client = 'mobile';
+        }
+
         //更新token时效判断正确性
         $cache_key = $client.$uid;
         if(empty(cache($cache_key))){
