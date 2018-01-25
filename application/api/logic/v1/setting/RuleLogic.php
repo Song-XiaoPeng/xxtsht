@@ -168,13 +168,24 @@ class RuleLogic extends Model
         $company_id = $data['company_id'];
         $page = $data['page'];
         $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
+        $quick_reply_text = empty($data['quick_reply_text']) == true ? '' : $data['quick_reply_text'];
 
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('quick_reply')->where(['company_id' => $company_id, 'type' => 2, 'reply_group_id' => $reply_group_id])->limit($show_page, $page_count)->order('quick_reply_id desc')->select();
-        $count = Db::name('quick_reply')->where(['company_id' => $company_id, 'type' => 2, 'reply_group_id' => $reply_group_id])->limit($show_page, $page_count)->count();
+        $list = Db::name('quick_reply')
+        ->where(['company_id' => $company_id, 'type' => 2, 'reply_group_id' => $reply_group_id])
+        ->where(['quick_reply_text'=>['like',"%$quick_reply_text%"]])
+        ->limit($show_page, $page_count)
+        ->order('quick_reply_id desc')
+        ->select();
+
+        $count = Db::name('quick_reply')
+        ->where(['company_id' => $company_id, 'type' => 2, 'reply_group_id' => $reply_group_id])
+        ->where(['quick_reply_text'=>['like',"%$quick_reply_text%"]])
+        ->limit($show_page, $page_count)
+        ->count();
 
         foreach ($list as $k => $v) {
             if ($v['reply_group_id'] != -1) {
