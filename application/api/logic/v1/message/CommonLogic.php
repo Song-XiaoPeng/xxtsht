@@ -129,7 +129,7 @@ class CommonLogic extends Model
     public function accessQueuingSession($company_id, $uid, $session_id)
     {
         $redis = Common::createRedis();
-        $redis->select(2);
+        $redis->select(config('redis_business')['line_up_session']);
 
         $time = date('Y-m-d H:i:s');
 

@@ -73,7 +73,7 @@ class MassLogic extends Model {
             $str = json_encode($arr);
 
             $key = $appid.$openid.md5(uniqid());
-            $redis->select(3);
+            $redis->select(config('redis_business')['mass_template']);
             $redis->set($key,$str);
             $redis->expire($key,7200);
         }

@@ -1006,11 +1006,11 @@ class BusinessLogic extends Model {
             $redis = Common::createRedis();
 
             if(empty($customer_service_uid) == false && $is_push == true){
-                $redis->select(0);
+                $redis->select(config('redis_business')['waiting_session']);
                 $redis->sAdd($customer_service_uid, json_encode($insert_data));
             }else{
                 if($is_push == true){
-                    $redis->select(2);
+                    $redis->select(config('redis_business')['line_up_session']);
                     $redis->sAdd($company_id, json_encode($insert_data));
                 }
             }

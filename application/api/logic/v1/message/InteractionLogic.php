@@ -337,7 +337,7 @@ class InteractionLogic extends Model {
         try {
             $redis = Common::createRedis();
                 
-            $redis->select(0);
+            $redis->select(config('redis_business')['waiting_session']);
 
             $session_list = $redis->sMembers($session_data['uid']);
 

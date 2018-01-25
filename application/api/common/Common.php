@@ -121,7 +121,7 @@ class Common {
 
             if($opercode == 3){
                 $redis = self::createRedis();
-                $redis->select(1);
+                $redis->select(config('redis_business')['message']);
                 $redis->zAdd($uid,time(),json_encode($add_data));
             }
         }else if($opercode == 2){
@@ -132,7 +132,7 @@ class Common {
 
             if (empty($customer_service_id) == false && empty($uid) == false) {
                 $redis = self::createRedis();
-                $redis->select(1);
+                $redis->select(config('redis_business')['message']);
                 $redis->zAdd($uid,time(),json_encode($add_data));
             }
         }else{

@@ -351,7 +351,7 @@ class AautoMaticLogic extends Model {
     public function colseQueuingSession(){
         $redis = Common::createRedis();
             
-        $redis->select(2); 
+        $redis->select(config('redis_business')['line_up_session']); 
 
         $company_list = $redis->keys('*');
 
@@ -389,7 +389,7 @@ class AautoMaticLogic extends Model {
     public function colseWaitingSession(){
         $redis = Common::createRedis();
             
-        $redis->select(0); 
+        $redis->select(config('redis_business')['waiting_session']); 
 
         $company_list = $redis->keys('*');
 
@@ -589,7 +589,7 @@ class AautoMaticLogic extends Model {
     //群发模板消息
     public function massTemplate(){
         $redis = Common::createRedis();
-        $redis->select(3);
+        $redis->select(config('redis_business')['mass_template']);
 
         $list = $redis->keys('*');
 
