@@ -220,6 +220,7 @@ class WxOperationLogic extends Model {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $token = $data['token'];
+        $uid = $data['uid'];
 
         $file = request()->file('file');
  
@@ -244,7 +245,7 @@ class WxOperationLogic extends Model {
                 $client = new \GuzzleHttp\Client();
                 $request_res = $client->request(
                     'PUT',
-                    'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/WxOperation/wxUploadImg?token='.$token,
+                    'http://'.$_SERVER['HTTP_HOST']."/api/v1/we_chat/WxOperation/wxUploadImg?token=$token&uid=$uid&client=pc",
                     [
                         'json' => $request_data,
                         'timeout' => 10
