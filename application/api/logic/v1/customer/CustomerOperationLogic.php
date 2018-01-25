@@ -55,6 +55,13 @@ class CustomerOperationLogic extends Model {
             return msg(3001,'客户微信基础信息不存在或未同步');
         }
 
+        //判断意向客户必要信息是否填写完全
+        if($customer_type == 1){
+            if($real_name == '' ||  $real_phone == ''){
+                return msg(3015,'请填写完整客户姓名或客户手机');
+            }
+        }
+
         //限制状态更改
         $wx_user_state = $wx_user_res['is_clue'];
         $is_correct_state = false;
