@@ -114,6 +114,7 @@ class AuthLogic extends Model
                 'expiration_date' => $expiration_date,
                 'login_token' => $login_token,
                 'address' => $address,
+                'login_ip' => $_SERVER['REMOTE_ADDR'],
                 'company_id' => $company_id,
                 'company_name' => $company_name,
                 'username' => $username,
