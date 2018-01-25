@@ -25,7 +25,7 @@ class Common extends Auth{
 
     /**
      * 获取快捷回复语句
-     * 请求类型 get
+     * 请求类型 post
      * 请求参数  type 1个人 2公共
 	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":[{"quick_reply_id":1,"quick_reply_text":"测试快捷回复语句","uid":6454,"company_id":"51454009d703c86c91353f61011ecf2f"}]}
 	 * API_URL_本地: http://localhost:91/api/v1/message/Common/getQuickReplyList
@@ -33,7 +33,7 @@ class Common extends Auth{
 	 * @return code 200->成功
 	 */
 	public function getQuickReplyList(){
-        $data = input('get.');
+        $data = input('put.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
 

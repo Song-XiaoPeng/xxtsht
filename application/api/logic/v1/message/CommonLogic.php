@@ -80,7 +80,7 @@ class CommonLogic extends Model
 
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
-        
+
         $list = Db::name('quick_reply')
         ->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')
         ->limit($show_page, $page_count)
