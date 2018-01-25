@@ -20,6 +20,7 @@ class CommonLogic extends Model
     {
         $quick_reply_id = empty($data['quick_reply_id']) == true ? false : $data['quick_reply_id'];
         $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
+        $title = $data['title'];
         $text = $data['text'];
         $uid = $data['uid'];
         $company_id = $data['company_id'];
@@ -34,6 +35,7 @@ class CommonLogic extends Model
                 ])
                 ->update([
                     'quick_reply_text' => $text,
+                    'title' => $title,
                     'reply_group_id' => $reply_group_id
                 ]);
 
@@ -48,6 +50,7 @@ class CommonLogic extends Model
             ->insert([
                 'quick_reply_text' => $text,
                 'company_id' => $company_id,
+                'title' => $title,
                 'reply_group_id' => $reply_group_id,
                 'uid' => $uid,
                 'type' => 1,
