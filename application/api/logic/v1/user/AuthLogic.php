@@ -28,7 +28,7 @@ class AuthLogic extends Model
         */
 
         $client_version_res = Db::name('client_version')->where(['client_version_id' => '6'])->cache(true, 60)->find();
-        if ($client_version_res['version'] != $client_version) {
+        if ($client_version_res['version'] != $client_version && $client_version_res['client'] == 'pc') {
             return msg(3006, '请升级到最新版本' . $client_version_res['version']);
         }
 
