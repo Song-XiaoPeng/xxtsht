@@ -295,4 +295,13 @@ return [
 
     //短信网关请求url域名
     'message_api_url' => 'http://msg.lyfz.net:8600',
+
+    //redis 业务库
+    'redis_business' => [
+        'waiting_session' => 0,
+        'message' => 1,
+        'line_up_session' => 2,
+        'mass_template' => 3,
+        'cache' => 4
+    ]
 ];
