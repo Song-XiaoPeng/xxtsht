@@ -1640,9 +1640,9 @@ class WxOperationLogic extends Model {
             $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();
         }catch (\Exception $e) {
             if($e->getCode() == 45015){
-                return msg(3020,'此客户近期未与公众号发生消息交互,不得主动发送消息');
+                return msg(3020,'此客户近期未与公众号发生消息交互,不得主动发送消息！');
             }else if($e->getCode() == 45047){
-                return msg(3022,'根据小程序客服规则连续发送超出5条消息需等待客户回复再发送');
+                return msg(3022,'发送信息过于频繁请稍候再试！');
             }else{
                 return msg(3021,$e->getMessage());
             }
