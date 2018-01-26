@@ -242,18 +242,21 @@ class WxOperationLogic extends Model {
                     'relative_path' => $relative_path,
                 ];
 
-                $client = new \GuzzleHttp\Client();
-                $request_res = $client->request(
-                    'PUT',
-                    'http://'.$_SERVER['HTTP_HOST']."/api/v1/we_chat/WxOperation/wxUploadImg?token=$token&uid=$uid&client=pc",
-                    [
-                        'json' => $request_data,
-                        'timeout' => 10
-                    ]
-                );
-
-                $request_arr = json_decode($request_res->getBody(),true);
-                return msg(200,'success',$request_arr['body']);
+                try {
+                    $client = new \GuzzleHttp\Client();
+                    $request_res = $client->request(
+                        'PUT',
+                        'http://'.$_SERVER['HTTP_HOST']."/api/v1/we_chat/WxOperation/wxUploadImg?token=$token&uid=$uid&client=pc",
+                        [
+                            'json' => $request_data,
+                            'timeout' => 10
+                        ]
+                    );
+    
+                    return json_decode($request_res->getBody(),true);
+                } catch (\Exception $e) {
+                    return msg(3003,$e->getMessage());
+                }
             }else{
                 return msg(3001,$file->getError());
             }
@@ -268,18 +271,22 @@ class WxOperationLogic extends Model {
         $company_id = $data['company_id'];
         $relative_path = $data['relative_path'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
-            $refresh_token = $token_info['body']['refresh_token'];
-        }else{
-            return $token_info;
+        try {
+            $token_info = Common::getRefreshToken($appid,$company_id);
+            if($token_info['meta']['code'] == 200){
+                $refresh_token = $token_info['body']['refresh_token'];
+            }else{
+                return $token_info;
+            }
+    
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+            $result = $material->uploadImage($relative_path);
+            @unlink($relative_path);
+        } catch (\Exception $e) {
+            return msg(3001,$e->getMessage());
         }
-
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
-        $result = $material->uploadImage($relative_path);
-        @unlink($relative_path);
         
         return msg(200,'success',['media_id'=>$result['media_id'],'url'=>$result['url']]);
     }
