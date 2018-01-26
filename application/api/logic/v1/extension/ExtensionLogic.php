@@ -127,6 +127,7 @@ class ExtensionLogic extends Model
             }
 
             $ticket = $qrcode_result->ticket;
+            $content = $qrcode_result->url;
             $qrcode_url = $qrcode->url($ticket);
 
             Db::name('extension_qrcode')->insert([
@@ -138,6 +139,7 @@ class ExtensionLogic extends Model
                 'activity_name' => $activity_name,
                 'create_time' => date('Y-m-d H:i:s'),
                 'qrcode_url' => $qrcode_url,
+                'content' => $content,
                 'label' => json_encode($label),
                 'create_uid' => $uid,
                 'customer_service_id' => $customer_service_id,
