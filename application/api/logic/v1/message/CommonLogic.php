@@ -599,6 +599,7 @@ class CommonLogic extends Model
             ->partition(['session_id' => $session_id], 'session_id', ['type' => 'md5', 'num' => config('separate')['message_session']])
             ->where(['session_id' => $session_id])
             ->update(['state' => 2]);
+        Log::record($session_res);
 
         if ($update_res === false) {
             return msg(6001, '创建群聊失败');

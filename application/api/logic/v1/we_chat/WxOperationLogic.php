@@ -1599,7 +1599,7 @@ class WxOperationLogic extends Model
                 'uid' => $uid,
                 'company_id' => $company_id,
                 'session_id' => $session_id,
-                'state' => 1,
+                'state' => ['in',[1,2]],
             ])->cache(true, 10)->find();
 
         if (empty($session_res)) {

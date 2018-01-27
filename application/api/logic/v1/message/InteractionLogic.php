@@ -319,7 +319,7 @@ class InteractionLogic extends Model {
 
         $session_data = Db::name('message_session')
         ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where(['company_id'=>$company_id,'session_id'=>$session_id,'state'=>['in',[0,1,3]]])
+        ->where(['company_id'=>$company_id,'session_id'=>$session_id,'state'=>['in',[0,1,2,3]]])
         ->find();
 
         if(empty($session_data)){
