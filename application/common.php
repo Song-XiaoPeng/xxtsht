@@ -184,6 +184,15 @@ function getWeekTimeSolt(){
     ];
 }
 
+//检验手机号码
+function checkPhone($phone){
+    if(preg_match("/^1[34578]{1}\d{9}$/",$phone)){  
+        return true;
+    }else{  
+        return false;
+    }  
+}
+
 //计算相差天数
 function distanceDay($time){
     return floor((strtotime(date('YmdHis'))-strtotime($time))/86400);

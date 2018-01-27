@@ -21,6 +21,11 @@ class UserOperationLogic extends Model {
         $user_group_id = $data['user_group_id'];
         $company_id = $data['company_id'];
 
+        //检验手机号
+        if(!checkPhone($phone_no)){
+            return msg(3003,'手机号不合法');
+        }
+
         $insert_data = [
             'user_group_id' => $user_group_id,
             'phone_no' => $phone_no,
