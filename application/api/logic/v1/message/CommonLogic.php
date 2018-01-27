@@ -2,6 +2,7 @@
 
 namespace app\api\logic\v1\message;
 
+use think\Exception;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
@@ -82,14 +83,14 @@ class CommonLogic extends Model
         $show_page = ($page - 1) * $page_count;
 
         $list = Db::name('quick_reply')
-        ->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')
-        ->limit($show_page, $page_count)
-        ->order('quick_reply_id desc')
-        ->select();
+            ->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')
+            ->limit($show_page, $page_count)
+            ->order('quick_reply_id desc')
+            ->select();
 
         $count = Db::name('quick_reply')
-        ->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')
-        ->count();
+            ->where(['company_id' => $company_id, 'uid' => $uid, 'type' => $type, 'reply_group_id' => $reply_group_id])->where('quick_reply_text', 'like', '%' . $keywords . '%')
+            ->count();
 
         foreach ($list as $k => $v) {
             $list[$k]['group_name'] = Db::name('quick_reply_group')->where(['company_id' => $company_id, 'reply_group_id' => $v['reply_group_id']])->value('group_name');
@@ -572,5 +573,101 @@ class CommonLogic extends Model
         $res['page_data']['page'] = $page;
 
         return msg(200, 'success', $res);
+    }
+
+    //创建群聊会话
+    public function createGroupSession($data)
+    {
+        if (empty($data['session_id'])) {
+            return msg(6001, '请选择会话');
+        }
+        $session_id = $data['session_id'];
+        $session_res = Db::name('message_session')
+            ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
+            ->where('session_id', $session_id)
+            ->find();
+        if (!$session_res) {
+            return msg(6001, '会话不存在');
+        }
+        /*$update_res = Db::name('message_session')
+            ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
+            ->where('session_id', $session_id)
+            ->update(['state' => 2]);//状态设置为群聊*/
+
+        $update_res = Db::name('message_session')
+            ->partition(['session_id' => $session_id], 'session_id', ['type' => 'md5', 'num' => config('separate')['message_session']])
+            ->where(['session_id' => $session_id])
+            ->update(['state' => 2]);
+
+        if ($update_res === false) {
+            return msg(6001, '创建群聊失败');
+        }
+
+        $group_session_data = [
+            "session_id" => $session_id,
+            "customer_service_id" => $session_res['customer_wx_openid'],    //客服id
+            "customer_wx_openid" => $session_res['customer_wx_openid'],
+            "add_time" => $session_res['add_time'],
+            "uid" => $session_res['uid'],    //客服uid
+            "appid" => $session_res['appid'],
+            "company_id" => $session_res['company_id'],
+            "customer_wx_nickname" => $session_res['customer_wx_nickname'],
+            "customer_wx_portrait" => $session_res['customer_wx_portrait'],
+            "state" => 2,
+            "wx_user_id" => $session_res['wx_user_id'],
+        ];
+
+        $group_session_data['session_frequency'] = Db::name('message_session')
+            ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
+            ->where(['customer_wx_openid' => $session_res['customer_wx_openid'], 'company_id' => $session_res['company_id']])
+            ->cache(true, 60)
+            ->count();
+
+        $wx_user_res = Db::name('wx_user')
+            ->partition(['company_id' => $session_res['company_id']], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where(['appid' => $session_res['appid'], 'openid' => $session_res['customer_wx_openid']])
+            ->find();
+
+        $group_session_data['invitation_frequency'] = $wx_user_res['active_count'];
+
+        $nick_name = Db::name('openweixin_authinfo')->where(['appid' => $session_res['appid']])->cache(true, 60)->value('nick_name');
+        $group_session_data['app_name'] = empty($nick_name) == true ? '来源公众号已解绑' : $nick_name;
+
+        $customer_service_id = $data['customer_service_id'];//客服id
+        $new = explode(',', $customer_service_id);
+        $customer_res = Db::name('customer_service')->whereIn('customer_service_id', $new)->column('customer_service_id,uid');
+        $old = Db::name('message_session_group')->column('customer_service_id');
+        $del = array_diff($old, $new);
+        $insert = array_diff($new, $old);
+        try {
+            if ($del) {
+                $res = Db::name('message_session_group')->where('customer_service_id', $del)->delete();
+                if (!$res) {
+                    throw new Exception('删除群聊成员失败');
+                }
+            }
+            if ($insert) {
+                $insertData = [];
+                $redis = Common::createRedis();//创建群聊会话
+                $redis->select(config('redis_business')['group']);
+                foreach ($insert as $v) {
+                    $group_session_data['customer_service_id'] = $v;
+                    $group_session_data['uid'] = $customer_res[$v];
+                    $redis->zAdd($customer_res[$v], time(), json_encode($group_session_data));
+                    $insertData[] = [
+                        'session_id' => $session_id,
+                        'customer_service_id' => $v,
+                        'uid' => $customer_res[$v]
+                    ];
+                }
+                $res = Db::name('message_session_group')->insertAll($insertData);
+                if (!$res) {
+                    throw new Exception('创建群聊成员失败');
+                }
+            }
+            return msg(200, 'success');
+        } catch (Exception $e) {
+            return msg(6001, $e->getMessage());
+        }
     }
 }

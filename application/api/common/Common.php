@@ -124,7 +124,7 @@ class Common {
                 $redis->select(config('redis_business')['message']);
                 $redis->zAdd($uid,time(),json_encode($add_data));
             }
-        }else if($opercode == 2){
+        }else if($opercode == 2){ //客服接收消息
             Db::name('message_session')
             ->partition(['session_id'=>$session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
             ->where(['session_id'=>$session_id])
@@ -135,7 +135,11 @@ class Common {
                 $redis->select(config('redis_business')['message']);
                 $redis->zAdd($uid,time(),json_encode($add_data));
             }
-        }else{
+        }else if($opercode == 4){//群聊
+            $redis = self::createRedis();
+            $redis->select(config('redis_business')['message']);
+            $redis->zAdd($uid,time(),json_encode($add_data));
+        } else{
             return msg(3001,'opercode参数错误');
         }
 
