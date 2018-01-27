@@ -588,6 +588,14 @@ class AautoMaticLogic extends Model {
 
     //群发模板消息
     public function massTemplate(){
+        $cache_key = 'is_start_template_mass';
+
+        if (!empty(cache($cache_key))) {
+            return;
+        }
+
+        cache($cache_key, true, 21600);
+
         $redis = Common::createRedis();
         $redis->select(config('redis_business')['mass_template']);
 
@@ -623,5 +631,7 @@ class AautoMaticLogic extends Model {
                 continue;
             }
         }
+
+        cache($cache_key, NULL);
     }
 }
