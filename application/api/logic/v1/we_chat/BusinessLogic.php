@@ -320,9 +320,9 @@ class BusinessLogic extends Model
         //判断是否存在客服会话
         $session_res = $this->getSession($appid, $openid);
         if ($session_res) {
-            if($session_res['session_state'] == 2){
+            if ($session_res['session_state'] == 2) {//群聊
                 $opercode = 4;
-            }else{
+            } else {
                 $opercode = 2;
             }
             Common::addMessagge($appid, $openid, $session_res['session_id'], $session_res['customer_service_id'], $session_res['uid'], 1, $opercode, ['text' => $key_word]);
@@ -848,14 +848,15 @@ class BusinessLogic extends Model
         if (empty($company_id)) {
             return '公众号未绑定第三方平台';
         }
-
         //匹配是否存在正在会话中数据
         $session_res = Db::name('message_session')
             ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
-            ->where(['appid' => $appid, 'customer_wx_openid' => $openid, 'state' => array('in', [0, 1, 3])])
+            ->where(['appid' => $appid, 'customer_wx_openid' => $openid, 'state' => array('in', [0, 1, 2, 3])])
             ->find();
+        Log::record($session_res);
+
         if ($session_res) {
-            if ($session_res['state'] == 0 || $session_res['state'] == 1) {
+            if ($session_res['state'] == 0 || $session_res['state'] == 1 || $session_res['state'] == 2) {
                 $customer_service_name = Db::name('customer_service')->where(['customer_service_id' => $session_res['customer_service_id']])->value('name');
             }
 
@@ -871,6 +872,14 @@ class BusinessLogic extends Model
                 case 1:
                     if ($is_code) {
                         return msg(3002, '已被' . $customer_service_name . '客服接入');
+                    } else {
+                        return '客服' . $customer_service_name . '正在为您服务！';
+                    }
+
+                    break;
+                case 2:
+                    if ($is_code) {
+                        return msg(3002, '群聊已被' . $customer_service_name . '客服接入');
                     } else {
                         return '客服' . $customer_service_name . '正在为您服务！';
                     }
