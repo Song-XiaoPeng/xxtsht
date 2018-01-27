@@ -319,10 +319,11 @@ class BusinessLogic extends Model
 
         //判断是否存在客服会话
         $session_res = $this->getSession($appid, $openid);
-        $opercode = 2;
         if ($session_res) {
-            if ($session_res['session_state'] == 2) { //会话是群聊
-                $opercode = 4;//消息操作码是群聊
+            if($session_res['session_state'] == 2){
+                $opercode = 4;
+            }else{
+                $opercode = 2;
             }
             Common::addMessagge($appid, $openid, $session_res['session_id'], $session_res['customer_service_id'], $session_res['uid'], 1, $opercode, ['text' => $key_word]);
 
@@ -755,13 +756,13 @@ class BusinessLogic extends Model
             $this->receiveRedEnvelopes(cache($cache_key));
         }
 
-        $qrcode_res = Db::name('extension_qrcode')->where(['appid'=>$appid,'qrcode_id'=>$qrcode_id,'is_del'=>-1])->cache(true,60)->find();
-        if(!$qrcode_res){
+        $qrcode_res = Db::name('extension_qrcode')->where(['qrcode_id' => $qrcode_id, 'is_del' => -1])->cache(true, 60)->find();
+        if (!$qrcode_res) {
             return '欢迎关注！';
         }
 
-        if($qrcode_res['reception_type'] == 1){
-            $uid = Db::name('customer_service')->where(['customer_service_id'=>$qrcode_res['customer_service_id']])->value('uid');
+        if ($qrcode_res['reception_type'] == 1) {
+            $uid = Db::name('customer_service')->where(['customer_service_id' => $qrcode_res['customer_service_id']])->value('uid');
 
             $this->createSession($appid, $openid, 'user', $uid);
         }
@@ -774,25 +775,22 @@ class BusinessLogic extends Model
             $this->createSession($appid, $openid, 'other');
         }
 
-        // 关注二维码打标签待修复
-        // $label_list = json_decode($qrcode_res['label'],true);
+        if (count(json_decode($qrcode_res['label'], true)) != 0) {
+            try {
+                $company_id = Db::name('openweixin_authinfo')->where(['appid' => $appid])->value('company_id');
+                $label_list = json_decode($qrcode_res['label'], true);
 
-        // if(count($label_list) != 0){
-        //     $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,3600)->value('company_id');
-
-        //     foreach($label_list as $label_id){
-        //         try{
-        //             $WxOperationLogic = new WxOperationLogic();
-        //             $data['company_id'] = $company_id;
-        //             $data['appid'] = $appid;
-        //             $data['openid'] = $openid;
-        //             $data['label_id'] = $label_id;
-        //             $WxOperationLogic->setWxUserLabel($data);
-        //         }catch (\Exception $e) {
-        //             continue;
-        //         }
-        //     }
-        // }
+                foreach ($label_list as $label_id) {
+                    $WxOperationLogic = new WxOperationLogic();
+                    $data['company_id'] = $company_id;
+                    $data['appid'] = $appid;
+                    $data['openid'] = $openid;
+                    $data['label_id'] = $label_id;
+                    $WxOperationLogic->setWxUserLabel($data);
+                }
+            } catch (\Exception $e) {
+            }
+        }
 
         return $this->authReply($qrcode_res);
     }
@@ -854,7 +852,7 @@ class BusinessLogic extends Model
         //匹配是否存在正在会话中数据
         $session_res = Db::name('message_session')
             ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
-            ->where(['appid' => $appid, 'customer_wx_openid' => $openid, 'state' => array('in', [0, 1, 2, 3])])
+            ->where(['appid' => $appid, 'customer_wx_openid' => $openid, 'state' => array('in', [0, 1, 3])])
             ->find();
         if ($session_res) {
             if ($session_res['state'] == 0 || $session_res['state'] == 1) {
@@ -871,14 +869,6 @@ class BusinessLogic extends Model
 
                     break;
                 case 1:
-                    if ($is_code) {
-                        return msg(3002, '已被' . $customer_service_name . '客服接入');
-                    } else {
-                        return '客服' . $customer_service_name . '正在为您服务！';
-                    }
-
-                    break;
-                case 2:
                     if ($is_code) {
                         return msg(3002, '已被' . $customer_service_name . '客服接入');
                     } else {
