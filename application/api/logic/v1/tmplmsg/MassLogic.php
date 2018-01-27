@@ -27,13 +27,11 @@ class MassLogic extends Model {
         $type = $data['type'];
 
         if($type == 1){
-            $openid_res = Db::name('wx_user')
+            $openid_list = Db::name('wx_user')
             ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
             ->where(['appid'=>$appid,'company_id'=>$company_id])
-            ->field('openid')
+            ->field('openid,nickname')
             ->select();
-
-            $openid_list = array_column($openid_res, 'openid');
         }else if($type == 2){
             $label_res = Db::name('label')->where(['company_id'=>$company_id,'label_id'=>['in',$label_list]])->field('label_id')->select();
             $label_list = array_column($label_res, 'label_id');
@@ -46,13 +44,11 @@ class MassLogic extends Model {
                 $openid_res = Db::name('wx_user')
                 ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
                 ->where(['appid'=>$appid,'company_id'=>$company_id,'tagid_list'=>['like',"%$tag_id%"]])
-                ->field('openid')
+                ->field('openid,nickname')
                 ->select();
-                
-                $openid_arr = array_column($openid_res, 'openid');
 
-                foreach($openid_arr as $openid){
-                    array_push($openid_list, $openid);
+                foreach($openid_res as $k=>$v){
+                    array_push($openid_list, $v);
                 }
             }
         }else{
@@ -62,9 +58,14 @@ class MassLogic extends Model {
         $redis = Common::createRedis();
 
         //插入redis
-        foreach($openid_list as $openid){
+        foreach($openid_list as $k=>$v){
+            //组合数据
+            foreach($template_data as $t=>$c){
+                $template_data[$t] = str_replace("{{name}}", $v['nickname'], $c);
+            }
+
             $arr['appid'] = $appid;
-            $arr['openid'] = $openid;
+            $arr['openid'] = $v['openid'];
             $arr['template_id'] = $template_id;
             $arr['url'] = $template_url;
             $arr['data'] = $template_data;
@@ -72,7 +73,7 @@ class MassLogic extends Model {
 
             $str = json_encode($arr);
 
-            $key = $appid.$openid.md5(uniqid());
+            $key = $appid.$v['openid'].md5(uniqid());
             $redis->select(config('redis_business')['mass_template']);
             $redis->set($key,$str);
             $redis->expire($key,7200);
