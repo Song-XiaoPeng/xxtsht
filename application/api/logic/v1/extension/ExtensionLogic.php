@@ -802,31 +802,33 @@ class ExtensionLogic extends Model
     public function getPersonQrcodeFansNum($data)
     {
         $company_id = $data['company_id'];
-        $appid = empty($data['appid']) == true ? '' : $data['appid'];
+        /*$appid = empty($data['appid']) == true ? '' : $data['appid'];
         if (empty($appid)) {
             return msg(3003, '请选择默认的公众号');
-        }
+        }*/
         $uid = $data['uid'];
         //查找个人的客服码
         $where_customer = [
             'company_id' => $company_id,
             'uid' => $uid,
-            'appid' => $appid
+//            'appid' => $appid
         ];
-        $customer_service_id = Db::name('customer_service')->where($where_customer)->value('customer_service_id');
+//        $customer_service_id = Db::name('customer_service')->where($where_customer)->value('customer_service_id');
+        $customer_service_id = Db::name('customer_service')->where($where_customer)->column('customer_service_id');
         if (empty($customer_service_id)) {
             return msg(3003, '没有查询到客服id');
         }
         $type = 3;
         $where = [
             'company_id' => $company_id,
-            'customer_service_id' => $customer_service_id,
             'type' => $type,
-            'appid' => $appid
+//            'customer_service_id' => $customer_service_id,
+//            'appid' => $appid
         ];
-        $value = Db::name('extension_qrcode')->field('attention,canel_attention')->where($where)->find();
+//        $value = Db::name('extension_qrcode')->field('attention,canel_attention')->where($where)->find();
+        $value = Db::name('extension_qrcode')->field('sum(attention) as total')->whereIn('customer_service_id',$customer_service_id)->where($where)->select();
         if ($value) {
-            $total = $value['attention'];
+            $total = $value[0]['total'];
             $data = ['num' => $total];
         } else {
             $data = ['num' => 0];

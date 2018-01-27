@@ -1,5 +1,7 @@
 <?php
+
 namespace app\api\logic\v1\we_chat;
+
 use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
@@ -13,36 +15,38 @@ use EasyWeChat\Message\Video;
 use EasyWeChat\Message\Material;
 
 //微信后台操作业务类
-class WxOperationLogic extends Model {
+class WxOperationLogic extends Model
+{
     /**
      * 获取菜单List
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
-	 * @return code 200->成功
-	 */
-    public function getMenuList($data){
+     * @return code 200->成功
+     */
+    public function getMenuList($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-    
-            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+
+            $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
 
             $menu_data = $menu->all()['menu']['button'];
-        }catch (\Exception $e) {
-            return msg(200,'success',[]);
+        } catch (\Exception $e) {
+            return msg(200, 'success', []);
         }
 
-        return msg(200,'success',$menu_data);
+        return msg(200, 'success', $menu_data);
     }
 
     /**
@@ -50,30 +54,31 @@ class WxOperationLogic extends Model {
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
      * @param menu_list 菜单数据
-	 * @return code 200->成功
-	 */
-    public function setMenu($data){
+     * @return code 200->成功
+     */
+    public function setMenu($data)
+    {
         $appid = $data['appid'];
         $company_id = $data['company_id'];
         $menu_list = $data['menu_list'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+            $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
             $menu->add($menu_list);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
 
-        return msg(200,'success');
+        return msg(200, 'success');
     }
 
     /**
@@ -86,9 +91,10 @@ class WxOperationLogic extends Model {
      * @param rule_type 响应类型 1文本回复 2接入到指定客服 3接入到指定客服组 4关注自动回复
      * @param user_group_id 客服分组id rule_type为3必传
      * @param uid 客服id rule_type为2必传
-	 * @return code 200->成功
-	 */
-    public function setMessageRuld($data){
+     * @return code 200->成功
+     */
+    public function setMessageRuld($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $key_word = $data['rule_type'] == 4 ? 'follow_reply' : $data['key_word'];
@@ -99,31 +105,31 @@ class WxOperationLogic extends Model {
         $uid = empty($data['uid']) == true ? '' : $data['uid'];
         $pattern = $data['pattern'] == 2 ? 2 : 1;
 
-        if($rule_type == 2){
-            if(!$uid){
-                return msg(3006,'客服未选择');
+        if ($rule_type == 2) {
+            if (!$uid) {
+                return msg(3006, '客服未选择');
             }
         }
 
-        if($rule_type == 3){
-            if(!$user_group_id){
-                return msg(3005,'客服分组未选择');
+        if ($rule_type == 3) {
+            if (!$user_group_id) {
+                return msg(3005, '客服分组未选择');
             }
         }
 
-        if($rule_type != 4){
-            $rule_res = Db::name('message_rule')->where(['company_id'=>$company_id,'appid'=>$appid,'key_word'=>$key_word])->find();
-            if($rule_res){
-                return msg(3002,'回复关键词已存在'); 
+        if ($rule_type != 4) {
+            $rule_res = Db::name('message_rule')->where(['company_id' => $company_id, 'appid' => $appid, 'key_word' => $key_word])->find();
+            if ($rule_res) {
+                return msg(3002, '回复关键词已存在');
             }
-        }else{
-            $follow_reply = Db::name('message_rule')->where(['company_id'=>$company_id,'appid'=>$appid,'key_word'=>'follow_reply'])->find();
-            if($follow_reply){
+        } else {
+            $follow_reply = Db::name('message_rule')->where(['company_id' => $company_id, 'appid' => $appid, 'key_word' => 'follow_reply'])->find();
+            if ($follow_reply) {
                 $message_rule_id = $follow_reply['message_rule_id'];
             }
         }
 
-        if($message_rule_id){
+        if ($message_rule_id) {
             $res = Db::name('message_rule')->where([
                 'company_id' => $company_id,
                 'message_rule_id' => $message_rule_id,
@@ -136,7 +142,7 @@ class WxOperationLogic extends Model {
                 'user_group_id' => $user_group_id,
                 'uid' => $uid
             ]);
-        }else{
+        } else {
             $add_time = date('Y-m-d H:i:s');
 
             $res = Db::name('message_rule')->insert([
@@ -152,10 +158,10 @@ class WxOperationLogic extends Model {
             ]);
         }
 
-        if($res){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'数据更新或插入失败');
+        if ($res) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '数据更新或插入失败');
         }
     }
 
@@ -164,9 +170,10 @@ class WxOperationLogic extends Model {
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
      * @param page 分页参数默认1
-	 * @return code 200->成功
-	 */
-    public function getMessageRuleList($data){
+     * @return code 200->成功
+     */
+    public function getMessageRuleList($data)
+    {
         $company_id = $data['company_id'];
         $page = $data['page'];
         $appid = $data['appid'];
@@ -175,11 +182,11 @@ class WxOperationLogic extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $message_rule_res = Db::name('message_rule')->where(['appid'=>$appid,'company_id'=>$company_id])->limit($show_page,$page_count)->select();
-        $count = Db::name('message_rule')->where(['appid'=>$appid,'company_id'=>$company_id])->count();
+        $message_rule_res = Db::name('message_rule')->where(['appid' => $appid, 'company_id' => $company_id])->limit($show_page, $page_count)->select();
+        $count = Db::name('message_rule')->where(['appid' => $appid, 'company_id' => $company_id])->count();
 
-        if(empty($message_rule_res == false)){
-            foreach($message_rule_res as $k=>$v){
+        if (empty($message_rule_res == false)) {
+            foreach ($message_rule_res as $k => $v) {
                 $message_rule_res[$k]['reply_text'] = emoji_decode($v['reply_text']);
             }
         }
@@ -188,24 +195,25 @@ class WxOperationLogic extends Model {
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
+
+        return msg(200, 'success', $res);
     }
 
     /**
      * 删除自动回复关键词
      * @param message_rule_id 删除的规则od
-	 * @return code 200->成功
-	 */
-    public function delMessageRule($data){
+     * @return code 200->成功
+     */
+    public function delMessageRule($data)
+    {
         $company_id = $data['company_id'];
         $message_rule_id = $data['message_rule_id'];
 
-        $del_res = Db::name('message_rule')->where(['company_id'=>$company_id,'message_rule_id'=>$message_rule_id])->delete();
-        if($del_res){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'删除失败');
+        $del_res = Db::name('message_rule')->where(['company_id' => $company_id, 'message_rule_id' => $message_rule_id])->delete();
+        if ($del_res) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '删除失败');
         }
     }
 
@@ -214,28 +222,29 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param appid 公众号appid
      * @param token 登录token
-	 * @return code 200->成功
-	 */
-    public function uploadSourceMaterial($data){
+     * @return code 200->成功
+     */
+    public function uploadSourceMaterial($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $token = $data['token'];
         $uid = $data['uid'];
 
         $file = request()->file('file');
- 
-        if($file){
+
+        if ($file) {
             $date = date('Y-m-d');
             $save_path = '../uploads/source_material';
 
             $path = '/uploads/source_material';
-            $info = $file->validate(['size'=>3567810,'ext'=>'jpg,png,gif,jpeg'])->rule('uniqid')->move($save_path);
-            if($info){
+            $info = $file->validate(['size' => 3567810, 'ext' => 'jpg,png,gif,jpeg'])->rule('uniqid')->move($save_path);
+            if ($info) {
                 $file_name = $info->getFilename();
 
-                $img_url = config('file_url').$path.'/'.$file_name; 
+                $img_url = config('file_url') . $path . '/' . $file_name;
 
-                $relative_path = '..'.$path.'/'.$file_name;
+                $relative_path = '..' . $path . '/' . $file_name;
 
                 $request_data = [
                     'appid' => $appid,
@@ -246,69 +255,71 @@ class WxOperationLogic extends Model {
                     $client = new \GuzzleHttp\Client();
                     $request_res = $client->request(
                         'PUT',
-                        'http://'.$_SERVER['HTTP_HOST']."/api/v1/we_chat/WxOperation/wxUploadImg?token=$token&uid=$uid&client=pc",
+                        'http://' . $_SERVER['HTTP_HOST'] . "/api/v1/we_chat/WxOperation/wxUploadImg?token=$token&uid=$uid&client=pc",
                         [
                             'json' => $request_data,
                             'timeout' => 10
                         ]
                     );
-    
-                    return json_decode($request_res->getBody(),true);
+
+                    return json_decode($request_res->getBody(), true);
                 } catch (\Exception $e) {
-                    return msg(3003,$e->getMessage());
+                    return msg(3003, $e->getMessage());
                 }
-            }else{
-                return msg(3001,$file->getError());
+            } else {
+                return msg(3001, $file->getError());
             }
         } else {
-            return msg(3002,'未收到文件');
+            return msg(3002, '未收到文件');
         }
     }
 
     //微信上传图片
-    public function wxUploadImg($data){
+    public function wxUploadImg($data)
+    {
         $appid = $data['appid'];
         $company_id = $data['company_id'];
         $relative_path = $data['relative_path'];
 
         try {
-            $token_info = Common::getRefreshToken($appid,$company_id);
-            if($token_info['meta']['code'] == 200){
+            $token_info = Common::getRefreshToken($appid, $company_id);
+            if ($token_info['meta']['code'] == 200) {
                 $refresh_token = $token_info['body']['refresh_token'];
-            }else{
+            } else {
                 return $token_info;
             }
-    
+
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+            $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
             $result = $material->uploadImage($relative_path);
             @unlink($relative_path);
         } catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+            return msg(3001, $e->getMessage());
         }
-        
-        return msg(200,'success',['media_id'=>$result['media_id'],'url'=>$result['url']]);
+
+        return msg(200, 'success', ['media_id' => $result['media_id'], 'url' => $result['url']]);
     }
 
     //上传微信文章永久图片
-    public function uploadArticleImg($appid,$company_id,$relative_path){
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+    public function uploadArticleImg($appid, $company_id, $relative_path)
+    {
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
         $result = $material->uploadArticleImage($relative_path);
         @unlink($relative_path);
-        
-        return msg(200,'success',['url'=>$result['url']]);
+
+        return msg(200, 'success', ['url' => $result['url']]);
     }
-    
+
     /**
      * 发布或更新微信图文素材
      * @param company_id 商户company_id
@@ -320,9 +331,10 @@ class WxOperationLogic extends Model {
      * @param digest 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空。如果本字段为没有填写，则默认抓取正文前64个字。
      * @param show_cover_pic 是否显示封面，0为false，即不显示，1为true，即显示
      * @param content_source_url 图文消息的原文地址，即点击“阅读原文”后的URL
-	 * @return code 200->成功
-	 */
-    public function addArticle($data){
+     * @return code 200->成功
+     */
+    public function addArticle($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $content = $data['content'];
@@ -334,49 +346,49 @@ class WxOperationLogic extends Model {
         $content_source_url = $data['content_source_url'];
         $mediaId = empty($data['mediaId']) == true ? '' : $data['mediaId'];
 
-        if(empty($content)){
-            return msg(3001,'content参数不能为空');
+        if (empty($content)) {
+            return msg(3001, 'content参数不能为空');
         }
 
-        $pattern1 = '/url\(\'{0,1}\"{0,1}(.*?)\'{0,1}\"{0,1}\)/'; 
-        preg_match_all($pattern1,$content,$match1); 
+        $pattern1 = '/url\(\'{0,1}\"{0,1}(.*?)\'{0,1}\"{0,1}\)/';
+        preg_match_all($pattern1, $content, $match1);
 
-        $pattern2 = '/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg]))[\'|\"].*?[\/]?>/'; 
-        preg_match_all($pattern2,$content,$match2); 
+        $pattern2 = '/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg]))[\'|\"].*?[\/]?>/';
+        preg_match_all($pattern2, $content, $match2);
 
-        $img_res = array_merge($match1[1],$match2[1]);
+        $img_res = array_merge($match1[1], $match2[1]);
 
         $save_path = '../uploads/source_material';
 
-        foreach($img_res as $url){
-            $relative_path = getImage($url,$save_path)['save_path'];
-            if(empty($relative_path)){
+        foreach ($img_res as $url) {
+            $relative_path = getImage($url, $save_path)['save_path'];
+            if (empty($relative_path)) {
                 continue;
             }
 
-            $upload_res = $this->uploadArticleImg($appid,$company_id,$relative_path);
-            if($upload_res['meta']['code'] != 200){
+            $upload_res = $this->uploadArticleImg($appid, $company_id, $relative_path);
+            if ($upload_res['meta']['code'] != 200) {
                 continue;
             }
 
             $content = str_replace($url, $upload_res['body']['url'], $content);
         }
 
-        if(!empty($mediaId)){
+        if (!empty($mediaId)) {
             $data['content'] = $content;
             return $this->updateArticle($data);
         }
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
 
         $article = new Article([
             'title' => $title,
@@ -389,10 +401,10 @@ class WxOperationLogic extends Model {
         ]);
         $article_res = $material->uploadArticle($article);
 
-        if(!empty($article_res['media_id'])){
-            return msg(200,'success',['media_id'=>$article_res['media_id']]);
-        }else{
-            return msg(3002,'微信服务器故障请重试！');
+        if (!empty($article_res['media_id'])) {
+            return msg(200, 'success', ['media_id' => $article_res['media_id']]);
+        } else {
+            return msg(3002, '微信服务器故障请重试！');
         }
     }
 
@@ -407,9 +419,10 @@ class WxOperationLogic extends Model {
      * @param show_cover_pic 是否显示封面，0为false，即不显示，1为true，即显示
      * @param content_source_url 图文消息的原文地址，即点击“阅读原文”后的URL
      * @param mediaId 需要更新的图文素材id
-	 * @return code 200->成功
-	 */
-    public function updateArticle($data){
+     * @return code 200->成功
+     */
+    public function updateArticle($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $content = $data['content'];
@@ -421,16 +434,16 @@ class WxOperationLogic extends Model {
         $content_source_url = $data['content_source_url'];
         $mediaId = $data['mediaId'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
 
         $article_res = $material->updateArticle(
             $mediaId,
@@ -445,10 +458,10 @@ class WxOperationLogic extends Model {
             ])
         );
 
-        if($article_res['errcode'] == 0){
-            return msg(200,'success');
-        }else{
-            return msg(3002,$article_res['errmsg']);
+        if ($article_res['errcode'] == 0) {
+            return msg(200, 'success');
+        } else {
+            return msg(3002, $article_res['errmsg']);
         }
     }
 
@@ -458,32 +471,33 @@ class WxOperationLogic extends Model {
      * @param appid 公众号appid
      * @param page 分页参数默认1
      * @param type 素材的类型，图片（image）、视频（video）、语音 （voice）、图文（news）
-	 * @return code 200->成功
-	 */
-    public function getArticleList($company_id,$appid,$page,$type){
+     * @return code 200->成功
+     */
+    public function getArticleList($company_id, $appid, $page, $type)
+    {
         //分页
         $page_count = 12;
         $show_page = ($page - 1) * $page_count;
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
-        
+        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
+
         $lists = $material->lists($type, $show_page, $page_count);
-        
+
         $res['data_list'] = count($lists['item']) == 0 ? array() : $lists['item'];
         $res['page_data']['count'] = $lists['total_count'];
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
+
+        return msg(200, 'success', $res);
     }
 
     /**
@@ -491,25 +505,26 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param appid 公众号appid
      * @param mediaId 素材id
-	 * @return code 200->成功
-	 */
-    public function delSourceMaterial($company_id,$appid,$mediaId){
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+     * @return code 200->成功
+     */
+    public function delSourceMaterial($company_id, $appid, $mediaId)
+    {
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
 
         $res = $material->delete($mediaId);
-        if($res['errcode'] == 0){
-            return msg(200,'success');
-        }else{
-            return msg(3001,$res['errmsg']);
+        if ($res['errcode'] == 0) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, $res['errmsg']);
         }
     }
 
@@ -518,23 +533,24 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param appid 公众号appid
      * @param mediaId 素材id
-	 * @return code 200->成功
-	 */
-    public function getSourceMaterial($company_id,$appid,$mediaId){
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+     * @return code 200->成功
+     */
+    public function getSourceMaterial($company_id, $appid, $mediaId)
+    {
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->material;
+        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
 
         $res = $material->get($mediaId);
 
-        return msg(200,'success',$res);
+        return msg(200, 'success', $res);
     }
 
     /**
@@ -543,16 +559,17 @@ class WxOperationLogic extends Model {
      * @param appid 公众号appid
      * @param uid 操作人uid
      * @param type 任务类型 1同步粉丝列表 2同步粉丝基本信息
-	 * @return code 200->成功
-	 */
-    public function syncWxUser($company_id,$uid,$appid,$type){
+     * @return code 200->成功
+     */
+    public function syncWxUser($company_id, $uid, $appid, $type)
+    {
         $time = date('Y-m-d H:i:s');
 
         $map['company_id'] = $company_id;
-        $map['state'] = array('in',[0,1]);
+        $map['state'] = array('in', [0, 1]);
         $num = Db::name('task')->where($map)->count();
-        if($num >= 1){
-            return msg(3001,'每次执行任务数量不能大于1件');
+        if ($num >= 1) {
+            return msg(3001, '每次执行任务数量不能大于1件');
         }
 
         $data = [
@@ -565,11 +582,11 @@ class WxOperationLogic extends Model {
         ];
 
         $insert_data = Db::name('task')->insert($data);
-    
-        if($insert_data){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'插入数据失败');
+
+        if ($insert_data) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '插入数据失败');
         }
     }
 
@@ -577,26 +594,27 @@ class WxOperationLogic extends Model {
      * 获取任务计划列表
      * @param company_id 商户company_id
      * @param page 分页参数默认1
-	 * @return code 200->成功
-	 */
-    public function getTaskList($company_id,$page){
+     * @return code 200->成功
+     */
+    public function getTaskList($company_id, $page)
+    {
         //分页
         $page_count = 12;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('task')->where(['company_id'=>$company_id])->limit($show_page,$page_count)->order('add_time desc')->select();
-        $count = Db::name('task')->where(['company_id'=>$company_id])->count();
+        $list = Db::name('task')->where(['company_id' => $company_id])->limit($show_page, $page_count)->order('add_time desc')->select();
+        $count = Db::name('task')->where(['company_id' => $company_id])->count();
 
-        foreach($list as $k=>$v){
-            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+        foreach ($list as $k => $v) {
+            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid' => $v['appid']])->cache(true, 60)->value('nick_name');
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
+
+        return msg(200, 'success', $res);
     }
 
     /**
@@ -607,9 +625,10 @@ class WxOperationLogic extends Model {
      * @param real_name 微信用户真实姓名 (选传)
      * @param real_phone 微信用户真实联系电话 (选传)
      * @param wx_company_id 微信用户归属公司分组id (选传)
-	 * @return code 200->成功
+     * @return code 200->成功
      */
-    public function getWxUserList($data){
+    public function getWxUserList($data)
+    {
         $company_id = $data['company_id'];
         $page = $data['page'];
         $appid = empty($data['appid']) == true ? '' : $data['appid'];
@@ -622,49 +641,49 @@ class WxOperationLogic extends Model {
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        if($appid){
+        if ($appid) {
             $map['appid'] = $appid;
         }
-        
-        if($nickname){
-            $map['nickname'] = array('like',"%$nickname%");
+
+        if ($nickname) {
+            $map['nickname'] = array('like', "%$nickname%");
         }
 
-        if($real_name){
-            $map['real_name'] = array('like',"%$real_name%");
+        if ($real_name) {
+            $map['real_name'] = array('like', "%$real_name%");
         }
 
-        if($real_phone){
-            $map['real_phone'] = array('like',"%$real_phone%");
+        if ($real_phone) {
+            $map['real_phone'] = array('like', "%$real_phone%");
         }
 
-        if($wx_company_id){
+        if ($wx_company_id) {
             $map['wx_company_id'] = $wx_company_id;
         }
 
         $map['company_id'] = $company_id;
-        
+
         $wx_user_list = Db::name('wx_user')
-        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where($map)
-        ->limit($show_page,$page_count)
-        ->order('subscribe_time desc')
-        ->cache(true,60)
-        ->select();
+            ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where($map)
+            ->limit($show_page, $page_count)
+            ->order('subscribe_time desc')
+            ->cache(true, 60)
+            ->select();
 
         $count = Db::name('wx_user')
-        ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where($map)
-        ->cache(true,60)
-        ->count();
+            ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where($map)
+            ->cache(true, 60)
+            ->count();
 
-        foreach($wx_user_list as $k=>$v){
-            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
+        foreach ($wx_user_list as $k => $v) {
+            $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid' => $v['appid']])->value('nick_name');
 
-            if($v['qrcode_id']){
-                $activity_name = Db::name('extension_qrcode')->where(['qrcode_id'=>$v['qrcode_id']])->cache(true,60)->value('activity_name');
+            if ($v['qrcode_id']) {
+                $activity_name = Db::name('extension_qrcode')->where(['qrcode_id' => $v['qrcode_id']])->cache(true, 60)->value('activity_name');
                 $wx_user_list[$k]['source_qrcode_name'] = empty($activity_name) == true ? '公众号' : $activity_name;
-            }else{
+            } else {
                 $wx_user_list[$k]['source_qrcode_name'] = '公众号';
             }
         }
@@ -673,8 +692,8 @@ class WxOperationLogic extends Model {
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
+
+        return msg(200, 'success', $res);
     }
 
     /**
@@ -685,9 +704,10 @@ class WxOperationLogic extends Model {
      * @param person_charge_name 公司负责人联系电话 (选传)
      * @param contact_address 公司联系地址 (选传)
      * @param remarks 公司负责人联系电话 (选传)
-	 * @return code 200->成功
-	 */
-    public function addWxUserComapnyGroup($data){
+     * @return code 200->成功
+     */
+    public function addWxUserComapnyGroup($data)
+    {
         $company_id = $data['company_id'];
         $wx_comapny_name = $data['wx_comapny_name'];
         $wx_company_id = empty($data['wx_company_id']) == true ? '' : $data['wx_company_id'];
@@ -697,7 +717,7 @@ class WxOperationLogic extends Model {
         $remarks = empty($data['remarks']) == true ? '' : $data['remarks'];
         $contact_address = empty($data['contact_address']) == true ? '' : $data['contact_address'];
 
-        if(!$wx_company_id){
+        if (!$wx_company_id) {
             $wx_company_id = Db::name('wx_user_company')->insertGetId([
                 'company_id' => $company_id,
                 'wx_comapny_name' => $wx_comapny_name,
@@ -707,8 +727,8 @@ class WxOperationLogic extends Model {
                 'remarks' => $remarks,
                 'contact_address' => $contact_address
             ]);
-        }else{
-            $wx_company_id = Db::name('wx_user_company')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->update([
+        } else {
+            $wx_company_id = Db::name('wx_user_company')->where(['company_id' => $company_id, 'wx_company_id' => $wx_company_id])->update([
                 'wx_comapny_name' => $wx_comapny_name,
                 'person_charge_phone' => $person_charge_phone,
                 'person_charge_name' => $person_charge_name,
@@ -718,21 +738,22 @@ class WxOperationLogic extends Model {
             ]);
         }
 
-        if($wx_company_id){
-            return msg(200,'success',['wx_company_id'=>$wx_company_id]);
-        }else{
-            return msg(3001,'插入数据失败');
+        if ($wx_company_id) {
+            return msg(200, 'success', ['wx_company_id' => $wx_company_id]);
+        } else {
+            return msg(3001, '插入数据失败');
         }
     }
 
     /**
      * 获取微信用户公司分组List
-     * @param company_id 商户company_id 
-     * @param page 分页参数默认1 
+     * @param company_id 商户company_id
+     * @param page 分页参数默认1
      * @param wx_comapny_name 公司名称 (搜索选传)
-	 * @return code 200->成功
-	 */
-    public function getWxUserComapnyGroupList($data){
+     * @return code 200->成功
+     */
+    public function getWxUserComapnyGroupList($data)
+    {
         $company_id = $data['company_id'];
         $page = $data['page'];
         $wx_comapny_name = empty($data['wx_comapny_name']) == true ? '' : $data['wx_comapny_name'];
@@ -742,82 +763,85 @@ class WxOperationLogic extends Model {
         $show_page = ($page - 1) * $page_count;
 
         $map['company_id'] = $company_id;
-        if($wx_comapny_name){
-            $map['wx_comapny_name'] = array('like',"%$wx_comapny_name%");
+        if ($wx_comapny_name) {
+            $map['wx_comapny_name'] = array('like', "%$wx_comapny_name%");
         }
-        $list = Db::name('wx_user_company')->where($map)->limit($show_page,$page_count)->select();
+        $list = Db::name('wx_user_company')->where($map)->limit($show_page, $page_count)->select();
         $count = Db::name('wx_user_company')->where($map)->count();
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
+
+        return msg(200, 'success', $res);
     }
 
     /**
      * 删除微信用户公司
-     * @param company_id 商户company_id 
+     * @param company_id 商户company_id
      * @param wx_company_id 删除的公司id
-	 * @return code 200->成功
-	 */
-    public function delWxUserComapny($data){
+     * @return code 200->成功
+     */
+    public function delWxUserComapny($data)
+    {
         $company_id = $data['company_id'];
         $wx_company_id = $data['wx_company_id'];
 
-        $del_res = Db::name('wx_user_company')->where(['company_id'=>$company_id,'wx_company_id'=>$wx_company_id])->delete();
-        if($del_res){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'删除数据失败');
+        $del_res = Db::name('wx_user_company')->where(['company_id' => $company_id, 'wx_company_id' => $wx_company_id])->delete();
+        if ($del_res) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '删除数据失败');
         }
     }
 
     /**
      * 添加编辑客户池分组
-     * @param company_id 商户company_id 
+     * @param company_id 商户company_id
      * @param group_name 分组名称
      * @param wx_user_group_id 用户分组id 更新时传入
-	 * @return code 200->成功
-	 */
-    public function addCustomerGroup($data){
+     * @return code 200->成功
+     */
+    public function addCustomerGroup($data)
+    {
         $company_id = $data['company_id'];
         $group_name = $data['group_name'];
         $wx_user_group_id = empty($data['wx_user_group_id']) == true ? '' : $data['wx_user_group_id'];
 
-        if(!$wx_user_group_id){
+        if (!$wx_user_group_id) {
             $wx_user_group_id = Db::name('wx_user_group')->insertGetId([
-                'company_id'=>$company_id,
-                'group_name'=>$group_name,
+                'company_id' => $company_id,
+                'group_name' => $group_name,
             ]);
-        }else{
-            $wx_user_group_id = Db::name('wx_user_group')->where(['company_id'=>$company_id,'wx_user_group_id'=>$wx_user_group_id])->update([
-                'group_name'=>$group_name
+        } else {
+            $wx_user_group_id = Db::name('wx_user_group')->where(['company_id' => $company_id, 'wx_user_group_id' => $wx_user_group_id])->update([
+                'group_name' => $group_name
             ]);
         }
 
-        if($wx_user_group_id){
-            return msg(200,'success',['wx_user_group_id'=>$wx_user_group_id]);
-        }else{
-            return msg(3001,'插入数据失败');
+        if ($wx_user_group_id) {
+            return msg(200, 'success', ['wx_user_group_id' => $wx_user_group_id]);
+        } else {
+            return msg(3001, '插入数据失败');
         }
     }
 
     /**
      * 删除客户池分组
      * @param wx_user_group_id 删除的分组id
-	 * @return code 200->成功
-	 */
-    public function delCustomerGroup($data){
+     * @return code 200->成功
+     */
+    public function delCustomerGroup($data)
+    {
         $company_id = $data['company_id'];
         $wx_user_group_id = $data['wx_user_group_id'];
 
-        $del_res = Db::name('wx_user_group')->where(['company_id'=>$company_id,'wx_user_group_id'=>$wx_user_group_id])->delete();
-        if($del_res){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'删除数据失败');
+        $del_res = Db::name('wx_user_group')->where(['company_id' => $company_id, 'wx_user_group_id' => $wx_user_group_id])->delete();
+        if ($del_res) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '删除数据失败');
         }
     }
 
@@ -825,20 +849,21 @@ class WxOperationLogic extends Model {
      * 获取客户池分组list
      * @param company_id 商户company_id
      * @param group_name 客户池分组名称
-	 * @return code 200->成功
-	 */
-    public function getCustomerGroupList($data){
+     * @return code 200->成功
+     */
+    public function getCustomerGroupList($data)
+    {
         $company_id = $data['company_id'];
         $group_name = empty($data['group_name']) == true ? '' : $data['group_name'];
 
         $map['company_id'] = $company_id;
-        if($group_name){
-            $map['group_name'] = array('like',"%$group_name%");
+        if ($group_name) {
+            $map['group_name'] = array('like', "%$group_name%");
         }
 
         $res = Db::name('wx_user_group')->where($map)->select();
 
-        return msg(200,'success',$res);
+        return msg(200, 'success', $res);
     }
 
     /**
@@ -847,59 +872,61 @@ class WxOperationLogic extends Model {
      * @param comapny_id 商户company_id
      * @param menu_list 菜单数据
      * @param match_rule  菜单匹配规则
-	 * @return code 200->成功
-	 */
-    public function setWxIndividualizationMenu($data){
+     * @return code 200->成功
+     */
+    public function setWxIndividualizationMenu($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $menu_list = $data['menu_list'];
         $match_rule = $data['match_rule'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+            $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
             $menu->add($menu_list, $match_rule);
-        }catch (\Exception $e) {
-            return msg(3002,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3002, $e->getMessage());
         }
 
-        return msg(200,'success');
+        return msg(200, 'success');
     }
 
     /**
      * 获取个性化菜单数据
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
-	 * @return code 200->成功
-	 */
-    public function getWxIndividualizationMenu($data){
+     * @return code 200->成功
+     */
+    public function getWxIndividualizationMenu($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
-        }catch (\Exception $e) {
-            return msg(3002,$e->getMessage());
+            $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
+        } catch (\Exception $e) {
+            return msg(3002, $e->getMessage());
         }
 
-        return msg(200,'success',$menu->all()['conditionalmenu']);
+        return msg(200, 'success', $menu->all()['conditionalmenu']);
     }
 
     /**
@@ -907,61 +934,63 @@ class WxOperationLogic extends Model {
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
      * @param menuId 菜单id
-	 * @return code 200->成功
-	 */
-    public function delWxIndividualizationMenu($data){
+     * @return code 200->成功
+     */
+    public function delWxIndividualizationMenu($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $menuId = $data['menuId'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
+            $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
 
             $menu->destroy($menuId);
-        }catch (\Exception $e) {
-            return msg(3002,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3002, $e->getMessage());
         }
 
-        return msg(200,'success');
+        return msg(200, 'success');
     }
 
     /**
      * 获取微信公众号分组
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
-	 * @return code 200->成功
-	 */
-    public function getWxGroup($data){
+     * @return code 200->成功
+     */
+    public function getWxGroup($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+            $group = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user_group;
 
             $res = $group->lists();
-        }catch (\Exception $e) {
-            return msg(200,'success',[]);
+        } catch (\Exception $e) {
+            return msg(200, 'success', []);
         }
 
-        return msg(200,'success',$res['groups']);
+        return msg(200, 'success', $res['groups']);
     }
 
     /**
@@ -969,45 +998,46 @@ class WxOperationLogic extends Model {
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
      * @param name 分组名称
-	 * @return code 200->成功
-	 */
-    public function addWxGroup($data){
+     * @return code 200->成功
+     */
+    public function addWxGroup($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $name = $data['name'];
         $group_id = empty($data['group_id']) == true ? '' : $data['group_id'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+            $group = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user_group;
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
 
-        if(!$group_id){
-            try{
+        if (!$group_id) {
+            try {
                 $res = $group->create($name);
-            }catch (\Exception $e) {
-                return msg(3001,$e->getMessage());
+            } catch (\Exception $e) {
+                return msg(3001, $e->getMessage());
             }
 
-            return msg(200,'success',['group_id'=>$res['group']['id']]);
-        }else{
-            try{
-                $group->update($group_id,$name);
-            }catch (\Exception $e) {
-                return msg(3001,$e->getMessage());
+            return msg(200, 'success', ['group_id' => $res['group']['id']]);
+        } else {
+            try {
+                $group->update($group_id, $name);
+            } catch (\Exception $e) {
+                return msg(3001, $e->getMessage());
             }
-            
-            return msg(200,'success');
+
+            return msg(200, 'success');
         }
     }
 
@@ -1016,30 +1046,31 @@ class WxOperationLogic extends Model {
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
      * @param group_id 删除的分组id
-	 * @return code 200->成功
-	 */
-    public function delWxGroup($data){
+     * @return code 200->成功
+     */
+    public function delWxGroup($data)
+    {
         $appid = $data['appid'];
         $company_id = $data['company_id'];
         $group_id = $data['group_id'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+            $group = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user_group;
             $group->delete($group_id);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
-        
-        return msg(200,'success');
+
+        return msg(200, 'success');
     }
 
     /**
@@ -1048,37 +1079,38 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param group_id 移到到新的分组id
      * @param openid_list 移动的用户openid list ['openid...','opneid...']
-	 * @return code 200->成功
-	 */
-    public function moveUserWxGroup($data){
+     * @return code 200->成功
+     */
+    public function moveUserWxGroup($data)
+    {
         $appid = $data['appid'];
         $company_id = $data['company_id'];
         $group_id = $data['group_id'];
         $openid_list = $data['openid_list'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
-        $group = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_group;
+        $group = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user_group;
 
-        $res = $group->moveUsers($openid_list,$group_id);
-        if($res['errcode'] == 0){
-            foreach($openid_list as $openid){
+        $res = $group->moveUsers($openid_list, $group_id);
+        if ($res['errcode'] == 0) {
+            foreach ($openid_list as $openid) {
                 Db::name('wx_user')
-                ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
-                ->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid])
-                ->update(['groupid'=>$group_id]);
+                    ->partition(['company_id' => $company_id], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+                    ->where(['company_id' => $company_id, 'appid' => $appid, 'openid' => $openid])
+                    ->update(['groupid' => $group_id]);
             }
 
-            return msg(200,'success');
-        }else{
-            return msg(3001,$res['errmsg']);
+            return msg(200, 'success');
+        } else {
+            return msg(3001, $res['errmsg']);
         }
     }
 
@@ -1094,9 +1126,10 @@ class WxOperationLogic extends Model {
      * @param send_message_type 群发消息类型 1文字 2图文消息 3图片
      * @param media_id 群发的图文信息id(选传)
      * @param text 群发文字(选传)
-	 * @return code 200->成功
-	 */
-    public function addMassNews($data){
+     * @return code 200->成功
+     */
+    public function addMassNews($data)
+    {
         $time = date('Y-m-d H:i:s');
 
         $company_id = $data['company_id'];
@@ -1124,35 +1157,36 @@ class WxOperationLogic extends Model {
             'add_time' => $time,
         ]);
 
-        if($news_id){
-            return msg(200,'success',['news_id'=>$news_id]);
-        }else{
-            return msg(3001,'插入数据失败');
+        if ($news_id) {
+            return msg(200, 'success', ['news_id' => $news_id]);
+        } else {
+            return msg(3001, '插入数据失败');
         }
     }
-    
+
     /**
      * 删除群发消息
      * @param appid 公众号或小程序appid
      * @param news_id 删除的群发id
      * @param company_id 商户company_id
-	 * @return code 200->成功
-	 */
-    public function delMassNews($data){
+     * @return code 200->成功
+     */
+    public function delMassNews($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $news_id = $data['news_id'];
-    
+
         $del_res = Db::name('mass_news')->where([
             'news_id' => $news_id,
             'appid' => $appid,
             'company_id' => $company_id
         ])->delete();
-    
-        if($del_res){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'删除失败');
+
+        if ($del_res) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '删除失败');
         }
     }
 
@@ -1161,26 +1195,27 @@ class WxOperationLogic extends Model {
      * @param appid 公众号或小程序appid
      * @param company_id 商户company_id
      * @param page 分页参数默认1
-	 * @return code 200->成功
-	 */
-    public function getMassNewsList($appid,$company_id,$page){
+     * @return code 200->成功
+     */
+    public function getMassNewsList($appid, $company_id, $page)
+    {
         //分页
         $page_count = 16;
         $show_page = ($page - 1) * $page_count;
 
-        $list = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->limit($show_page,$page_count)->order('add_time desc')->select();
-        $count = Db::name('mass_news')->where(['appid'=>$appid,'company_id'=>$company_id])->count();
-        
-        foreach($list as $k=>$v){
-            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->cache(true,60)->value('nick_name');
+        $list = Db::name('mass_news')->where(['appid' => $appid, 'company_id' => $company_id])->limit($show_page, $page_count)->order('add_time desc')->select();
+        $count = Db::name('mass_news')->where(['appid' => $appid, 'company_id' => $company_id])->count();
+
+        foreach ($list as $k => $v) {
+            $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid' => $v['appid']])->cache(true, 60)->value('nick_name');
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
-        
-        return msg(200,'success',$res);
+
+        return msg(200, 'success', $res);
     }
 
     /**
@@ -1189,31 +1224,32 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param start_date 查询开始日期
      * @param end_date 查询结束日期
-	 * @return code 200->成功
-	 */
-    public function getUserSummary($data){
+     * @return code 200->成功
+     */
+    public function getUserSummary($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+            $stats = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->stats;
             $userSummary = $stats->userSummary($start_date, $end_date);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
 
-        return msg(200,'success',$userSummary['list']);
+        return msg(200, 'success', $userSummary['list']);
     }
 
     /**
@@ -1222,31 +1258,32 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param start_date 查询开始日期
      * @param end_date 查询结束日期
-	 * @return code 200->成功
-	 */
-    public function getUserCumulate($data){
+     * @return code 200->成功
+     */
+    public function getUserCumulate($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+            $stats = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->stats;
             $userCumulate = $stats->userCumulate($start_date, $end_date);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
-        
-        return msg(200,'success',$userCumulate['list']);
+
+        return msg(200, 'success', $userCumulate['list']);
     }
 
     /**
@@ -1255,31 +1292,32 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param start_date 查询开始日期
      * @param end_date 查询结束日期
-	 * @return code 200->成功
-	 */
-    public function getArticleSummary($data){
+     * @return code 200->成功
+     */
+    public function getArticleSummary($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+            $stats = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->stats;
             $articleSummary = $stats->articleSummary($start_date, $end_date);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
-        
-        return msg(200,'success',$articleSummary['list']);
+
+        return msg(200, 'success', $articleSummary['list']);
     }
 
     /**
@@ -1288,57 +1326,58 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param openid 微信用户openid
      * @param label_id 设置的标签id
-	 * @return code 200->成功
-	 */
-    public function setWxUserLabel($data){
+     * @return code 200->成功
+     */
+    public function setWxUserLabel($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $openid = $data['openid'];
         $label_id = $data['label_id'];
 
-        $tag_id = Db::name('label_tag')->where(['company_id'=>$company_id,'label_id'=>$label_id,'appid'=>$appid])->value('tag_id');
-        if(!$tag_id){
-            return msg(3001,'标签不存在');
+        $tag_id = Db::name('label_tag')->where(['company_id' => $company_id, 'label_id' => $label_id, 'appid' => $appid])->value('tag_id');
+        if (!$tag_id) {
+            return msg(3001, '标签不存在');
         }
 
-        try{
-            $token_info = Common::getRefreshToken($appid,$company_id);
-            if($token_info['meta']['code'] == 200){
+        try {
+            $token_info = Common::getRefreshToken($appid, $company_id);
+            if ($token_info['meta']['code'] == 200) {
                 $refresh_token = $token_info['body']['refresh_token'];
-            }else{
+            } else {
                 return $token_info;
             }
 
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $tag = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_tag;
+            $tag = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user_tag;
             $tag->batchTagUsers([$openid], $tag_id);
-        }catch (\Exception $e) {
-            return msg(3002,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3002, $e->getMessage());
         }
 
         $tagid_list = Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where(['appid'=>$appid,'openid'=>$openid])
-        ->value('tagid_list');
-        if($tagid_list){
-            $tagid_arr = json_decode($tagid_list,true);
+            ->partition(['company_id' => $company_id], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where(['appid' => $appid, 'openid' => $openid])
+            ->value('tagid_list');
+        if ($tagid_list) {
+            $tagid_arr = json_decode($tagid_list, true);
 
-            foreach($tagid_arr as $k=>$v){
-                if($v == (int)$tag_id){
+            foreach ($tagid_arr as $k => $v) {
+                if ($v == (int)$tag_id) {
                     unset($tagid_arr[$k]);
                 }
             }
 
-            $tagid_data = json_encode(array_merge($tagid_arr,[(int)$tag_id]));
- 
+            $tagid_data = json_encode(array_merge($tagid_arr, [(int)$tag_id]));
+
             Db::name('wx_user')
-            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
-            ->where(['appid'=>$appid,'openid'=>$openid])
-            ->update(['tagid_list'=>$tagid_data]);
+                ->partition(['company_id' => $company_id], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+                ->where(['appid' => $appid, 'openid' => $openid])
+                ->update(['tagid_list' => $tagid_data]);
         }
 
-        return msg(200,'success');
+        return msg(200, 'success');
     }
 
     /**
@@ -1347,44 +1386,45 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param openid 微信用户openid
      * @param label_id 设置的标签id
-	 * @return code 200->成功
-	 */
-    public function canelWxUserLabel($data){
+     * @return code 200->成功
+     */
+    public function canelWxUserLabel($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $openid = $data['openid'];
         $label_id = $data['label_id'];
 
-        $tag_id = Db::name('label_tag')->where(['company_id'=>$company_id,'label_id'=>$label_id,'appid'=>$appid])->value('tag_id');
-        if(!$tag_id){
-            return msg(3001,'标签不存在');
+        $tag_id = Db::name('label_tag')->where(['company_id' => $company_id, 'label_id' => $label_id, 'appid' => $appid])->value('tag_id');
+        if (!$tag_id) {
+            return msg(3001, '标签不存在');
         }
 
-        try{
-            $token_info = Common::getRefreshToken($appid,$company_id);
-            if($token_info['meta']['code'] == 200){
+        try {
+            $token_info = Common::getRefreshToken($appid, $company_id);
+            if ($token_info['meta']['code'] == 200) {
                 $refresh_token = $token_info['body']['refresh_token'];
-            }else{
+            } else {
                 return $token_info;
             }
 
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $tag = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->user_tag;
+            $tag = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user_tag;
             $tag->batchUntagUsers([$openid], $tag_id);
-        }catch (\Exception $e) {
-            return msg(3002,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3002, $e->getMessage());
         }
 
         $tagid_list = Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where(['appid'=>$appid,'openid'=>$openid])
-        ->value('tagid_list');
-        if($tagid_list){
-            $tagid_arr = json_decode($tagid_list,true);
+            ->partition(['company_id' => $company_id], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where(['appid' => $appid, 'openid' => $openid])
+            ->value('tagid_list');
+        if ($tagid_list) {
+            $tagid_arr = json_decode($tagid_list, true);
 
-            foreach($tagid_arr as $k=>$v){
-                if($v == (int)$tag_id){
+            foreach ($tagid_arr as $k => $v) {
+                if ($v == (int)$tag_id) {
                     unset($tagid_arr[$k]);
                 }
             }
@@ -1392,12 +1432,12 @@ class WxOperationLogic extends Model {
             $tagid_data = json_encode($tagid_arr);
 
             Db::name('wx_user')
-            ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
-            ->where(['appid'=>$appid,'openid'=>$openid])
-            ->update(['tagid_list'=>$tagid_data]);
+                ->partition(['company_id' => $company_id], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+                ->where(['appid' => $appid, 'openid' => $openid])
+                ->update(['tagid_list' => $tagid_data]);
         }
 
-        return msg(200,'success');
+        return msg(200, 'success');
     }
 
     /**
@@ -1406,31 +1446,32 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param start_date 查询开始日期
      * @param end_date 查询结束日期
-	 * @return code 200->成功
-	 */
-    public function getArticleTotal($data){
+     * @return code 200->成功
+     */
+    public function getArticleTotal($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+            $stats = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->stats;
             $articleTotal = $stats->articleTotal($start_date, $end_date);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
-        
-        return msg(200,'success',$articleTotal['list']);
+
+        return msg(200, 'success', $articleTotal['list']);
     }
 
     /**
@@ -1439,49 +1480,51 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param start_date 查询开始日期
      * @param end_date 查询结束日期
-	 * @return code 200->成功
-	 */
-    public function getUserShareSummary($data){
+     * @return code 200->成功
+     */
+    public function getUserShareSummary($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+            $stats = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->stats;
 
             $userShareSummary = $stats->userShareSummary($start_date, $end_date);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
-        
-        return msg(200,'success',$userShareSummary['list']);
+
+        return msg(200, 'success', $userShareSummary['list']);
     }
 
     /**
      * 解除微信绑定
      * @param appid 公众号appid
      * @param company_id 商户company_id
-	 * @return code 200->成功
-	 */
-    public function delWxAuth($data){
+     * @return code 200->成功
+     */
+    public function delWxAuth($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
 
-        $del_res = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id,'appid'=>$appid])->delete();
-        if($del_res){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'解除授权失败');
+        $del_res = Db::name('openweixin_authinfo')->where(['company_id' => $company_id, 'appid' => $appid])->delete();
+        if ($del_res) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '解除授权失败');
         }
     }
 
@@ -1491,32 +1534,33 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param start_date 查询开始日期
      * @param end_date 查询结束日期
-	 * @return code 200->成功
-	 */
-    public function getUpstreamMessageSummary($data){
+     * @return code 200->成功
+     */
+    public function getUpstreamMessageSummary($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
 
-        $token_info = Common::getRefreshToken($appid,$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($appid, $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
 
-        try{
-            $stats = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->stats;
+        try {
+            $stats = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->stats;
             $upstreamMessageSummary = $stats->upstreamMessageSummary($start_date, $end_date);
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
         }
-        
-        return msg(200,'success',$upstreamMessageSummary['list']);
+
+        return msg(200, 'success', $upstreamMessageSummary['list']);
     }
 
     /**
@@ -1530,9 +1574,10 @@ class WxOperationLogic extends Model {
      * @param media_id 素材id (图文素材)
      * @param link_url 链接 (链接)
      * @param link_name 链接名称 (链接)
-	 * @return code 200->成功
-	 */
-    public function sendMessage($data){
+     * @return code 200->成功
+     */
+    public function sendMessage($data)
+    {
         $company_id = $data['company_id'];
         $content = empty($data['message']) === true ? '' : $data['message'];
         $type = $data['type'];
@@ -1544,218 +1589,225 @@ class WxOperationLogic extends Model {
         $link_url = empty($data['link_url']) == true ? '' : $data['link_url'];
         $link_name = empty($data['link_name']) == true ? '' : $data['link_name'];
 
-        if($type == 1 && empty($content) == true){
-            return msg(3015,'消息内容不能为空');
+        if ($type == 1 && empty($content) == true) {
+            return msg(3015, '消息内容不能为空');
         }
 
         $session_res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where([
-            'uid' => $uid,
-            'company_id' => $company_id,
-            'session_id' => $session_id,
-            'state' => 1,
-        ])->cache(true,10)->find();
+            ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
+            ->where([
+                'uid' => $uid,
+                'company_id' => $company_id,
+                'session_id' => $session_id,
+                'state' => ['in',[1,2]],
+            ])->cache(true, 10)->find();
 
-        if(empty($session_res)){
-            return msg(3001,'会话不存在');
+        if (empty($session_res)) {
+            return msg(3001, '会话不存在');
         }
 
         $customer_service_res = Db::name('customer_service')->where([
             'customer_service_id' => $session_res['customer_service_id']
-        ])->cache(true,60)->find();
+        ])->cache(true, 60)->find();
 
-        $token_info = Common::getRefreshToken($session_res['appid'],$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($session_res['appid'], $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
         $app = new Application(wxOptions());
         $openPlatform = $app->open_platform;
 
-        try{
-            if($type == 2 || $type == 3 || $type == 4 || $type == 8){
-                $resources_res = Db::name('resources')->where(['resources_id'=>$resources_id])->find();
-                
-                if(!$resources_res){return msg(3005,'资源不存在');}
+        try {
+            if ($type == 2 || $type == 3 || $type == 4 || $type == 8) {
+                $resources_res = Db::name('resources')->where(['resources_id' => $resources_id])->find();
 
-                $temporary = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->material_temporary;
+                if (!$resources_res) {
+                    return msg(3005, '资源不存在');
+                }
+
+                $temporary = $openPlatform->createAuthorizerApplication($session_res['appid'], $refresh_token)->material_temporary;
             }
 
-            switch($type){
+            switch ($type) {
                 case 1:
-                    if(empty($content)){
-                        return msg(3012,'请输入内容');
+                    if (empty($content)) {
+                        return msg(3012, '请输入内容');
                     }
 
                     $message = new Text(['content' => $content]);
-                    $data_obj = ['text'=>$content];
+                    $data_obj = ['text' => $content];
                     break;
                 case 2:
-                    $upload_res = $temporary->uploadImage('..'.$resources_res['resources_route']);
+                    $upload_res = $temporary->uploadImage('..' . $resources_res['resources_route']);
                     $message = new Image(['media_id' => $upload_res['media_id']]);
-                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
+                    $data_obj = ['file_url' => $resources_res['resources_route'], 'resources_id' => $resources_res['resources_id']];
                     break;
                 case 3:
-                    if($resources_res['mime_type'] == 'audio/x-wav'){
+                    if ($resources_res['mime_type'] == 'audio/x-wav') {
                         $audio_name = md5(uniqid());
-                        
-                        $amr_file = '..'.$resources_res['resources_route'];
-                    
+
+                        $amr_file = '..' . $resources_res['resources_route'];
+
                         $mp3_file = "../uploads/source_material/$audio_name.mp3";
-        
+
                         $command = "/usr/local/bin/ffmpeg -i $amr_file $mp3_file";
-        
+
                         exec($command, $log, $status);
-    
-                        if(!file_exists($mp3_file)){
-                            return msg(3004,'file_error');
+
+                        if (!file_exists($mp3_file)) {
+                            return msg(3004, 'file_error');
                         }
-    
+
                         $upload_res = $temporary->uploadVoice($mp3_file);
                         $message = new Voice(['media_id' => $upload_res['media_id']]);
                         unlink($mp3_file);
-                    }else if($resources_res['mime_type'] == 'audio/mpeg'){
-                        $upload_res = $temporary->uploadVoice('..'.$resources_res['resources_route']);
+                    } else if ($resources_res['mime_type'] == 'audio/mpeg') {
+                        $upload_res = $temporary->uploadVoice('..' . $resources_res['resources_route']);
                         $message = new Voice(['media_id' => $upload_res['media_id']]);
-                    }else{
-                        return msg(3008,'File types do not support');
+                    } else {
+                        return msg(3008, 'File types do not support');
                     }
 
-                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
+                    $data_obj = ['file_url' => $resources_res['resources_route'], 'resources_id' => $resources_res['resources_id']];
                     break;
                 case 4:
-                    $upload_res = $temporary->uploadVideo('..'.$resources_res['resources_route']);
+                    $upload_res = $temporary->uploadVideo('..' . $resources_res['resources_route']);
                     $message = new Video(['media_id' => $upload_res['media_id']]);
-                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
+                    $data_obj = ['file_url' => $resources_res['resources_route'], 'resources_id' => $resources_res['resources_id']];
                     break;
                 case 6:
                     $message = new Material('mpnews', $media_id);
-                    $data_obj = ['media_id'=>$media_id];
+                    $data_obj = ['media_id' => $media_id];
                     break;
                 case 8:
-                    $upload_res = $temporary->uploadFile('..'.$resources_res['resources_route']);
+                    $upload_res = $temporary->uploadFile('..' . $resources_res['resources_route']);
                     $message = new Material('file', $upload_res['media_id']);
-                    $data_obj = ['file_url'=>$resources_res['resources_route'],'resources_id'=>$resources_res['resources_id']];
+                    $data_obj = ['file_url' => $resources_res['resources_route'], 'resources_id' => $resources_res['resources_id']];
                     break;
                 default:
-                    return msg(3006,'type参数错误');
+                    return msg(3006, 'type参数错误');
             }
 
-            $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
+            $staff = $openPlatform->createAuthorizerApplication($session_res['appid'], $refresh_token)->staff;
             $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();
-        }catch (\Exception $e) {
-            if($e->getCode() == 45015){
-                return msg(3020,'此客户近期未与公众号发生消息交互,不得主动发送消息！');
-            }else if($e->getCode() == 45047){
-                return msg(3022,'发送信息过于频繁请稍候再试！');
-            }else{
-                return msg(3021,$e->getMessage());
+        } catch (\Exception $e) {
+            if ($e->getCode() == 45015) {
+                return msg(3020, '此客户近期未与公众号发生消息交互,不得主动发送消息！');
+            } else if ($e->getCode() == 45047) {
+                return msg(3022, '发送信息过于频繁请稍候再试！');
+            } else {
+                return msg(3021, $e->getMessage());
             }
         }
 
         //区分是否监控介入发送消息
-        if($is_admin){
+        if ($is_admin) {
             $opercode = 3;
-        }else{
-            $opercode = 1;
+        } else {
+            if (Db::name('message_session_group')->where('session_id', $session_id)->find()) {
+                $opercode = 4;
+            } else {
+                $opercode = 1;
+            }
         }
 
         //记录交互时间
         Db::name('wx_user')
-        ->partition(['company_id'=>$company_id], "company_id", ['type'=>'md5','num'=>config('separate')['wx_user']])
-        ->where(['wx_user_id'=>$session_res['wx_user_id']])
-        ->update([
-            'last_time' => date('Y-m-d H:i:s')
-        ]);
+            ->partition(['company_id' => $company_id], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where(['wx_user_id' => $session_res['wx_user_id']])
+            ->update([
+                'last_time' => date('Y-m-d H:i:s')
+            ]);
 
-        $add_msg_res = Common::addMessagge($session_res['appid'],$session_res['customer_wx_openid'],$session_id,$session_res['customer_service_id'],$session_res['uid'],$type,$opercode,$data_obj);
+        $add_msg_res = Common::addMessagge($session_res['appid'], $session_res['customer_wx_openid'], $session_id, $session_res['customer_service_id'], $session_res['uid'], $type, $opercode, $data_obj);
 
-        return msg(200,'success',['message_id'=>$add_msg_res['body']['message_id']]);
+        return msg(200, 'success', ['message_id' => $add_msg_res['body']['message_id']]);
     }
 
     /**
      * 会话接入
      * @param company_id 商户id
      * @param session_id 待接入的会话id
-	 * @return code 200->成功
-	 */
-    public function sessionAccess($company_id,$uid,$session_id){
-        if(empty($session_id)){
-            return msg(3003,'session_id参数为空');
+     * @return code 200->成功
+     */
+    public function sessionAccess($company_id, $uid, $session_id)
+    {
+        if (empty($session_id)) {
+            return msg(3003, 'session_id参数为空');
         }
 
         $session_res = Db::name('message_session')
-        ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where([
-            'company_id' => $company_id,
-            'session_id' => $session_id,
-            'uid' => $uid,
-            'state' => 0,
-        ])->find();
-        if(!$session_res){
-            return msg(3001,'会话不可接入');
+            ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
+            ->where([
+                'company_id' => $company_id,
+                'session_id' => $session_id,
+                'uid' => $uid,
+                'state' => 0,
+            ])->find();
+        if (!$session_res) {
+            return msg(3001, '会话不可接入');
         }
 
         //判断会话是否来自小程序
-        $auth_info = Db::name('openweixin_authinfo')->where(['company_id'=>$company_id,'appid'=>$session_res['appid']])->cache(true,60)->find();
-        if(!$auth_info){
-            return msg(3003,'公众号或小程序已解绑会话无法接入');
+        $auth_info = Db::name('openweixin_authinfo')->where(['company_id' => $company_id, 'appid' => $session_res['appid']])->cache(true, 60)->find();
+        if (!$auth_info) {
+            return msg(3003, '公众号或小程序已解绑会话无法接入');
         }
 
-        if($auth_info['type'] == 1){
-            $customer_service_res = Db::name('customer_service')->where(['customer_service_id'=>$session_res['customer_service_id']])->cache(true,60)->find();
-            if(!$customer_service_res){
-                return msg(3003,'未获取到客服基础信息');
+        if ($auth_info['type'] == 1) {
+            $customer_service_res = Db::name('customer_service')->where(['customer_service_id' => $session_res['customer_service_id']])->cache(true, 60)->find();
+            if (!$customer_service_res) {
+                return msg(3003, '未获取到客服基础信息');
             }
-        }else{
-            $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$session_res['uid']])->cache(true,60)->find();
-            if(!$customer_service_res){
-                return msg(3004,'未获取到客服基础信息');
+        } else {
+            $customer_service_res = Db::name('customer_service')->where(['company_id' => $company_id, 'uid' => $session_res['uid']])->cache(true, 60)->find();
+            if (!$customer_service_res) {
+                return msg(3004, '未获取到客服基础信息');
             }
         }
 
-        $token_info = Common::getRefreshToken($session_res['appid'],$company_id);
-        if($token_info['meta']['code'] == 200){
+        $token_info = Common::getRefreshToken($session_res['appid'], $company_id);
+        if ($token_info['meta']['code'] == 200) {
             $refresh_token = $token_info['body']['refresh_token'];
-        }else{
+        } else {
             return $token_info;
         }
 
-        try{
+        try {
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
-            $staff = $openPlatform->createAuthorizerApplication($session_res['appid'],$refresh_token)->staff;
+            $staff = $openPlatform->createAuthorizerApplication($session_res['appid'], $refresh_token)->staff;
 
-            $message = new Text(['content' => '您好，我是客服'.$customer_service_res['name'].'请问有什么需要帮助吗？']);
+            $message = new Text(['content' => '您好，我是客服' . $customer_service_res['name'] . '请问有什么需要帮助吗？']);
 
-            if($auth_info['type'] == 1){
-                $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();   
-            }else{
+            if ($auth_info['type'] == 1) {
+                $staff->message($message)->by($customer_service_res['wx_sign'])->to($session_res['customer_wx_openid'])->send();
+            } else {
                 $staff->message($message)->to($session_res['customer_wx_openid'])->send();
-            }      
-        }catch (\Exception $e) {
-            if($e->getCode() != 45015){
-                return msg(3002,$e->getMessage());
+            }
+        } catch (\Exception $e) {
+            if ($e->getCode() != 45015) {
+                return msg(3002, $e->getMessage());
             }
         }
 
         $update_res = Db::name('message_session')
-        ->partition(['session_id' => $session_id], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])
-        ->where([
-            'session_id' => $session_id,
-            'company_id' => $company_id
-        ])
-        ->update([
-            'state' => 1
-        ]);
+            ->partition(['session_id' => $session_id], 'session_id', ['type' => 'md5', 'num' => config('separate')['message_session']])
+            ->where([
+                'session_id' => $session_id,
+                'company_id' => $company_id
+            ])
+            ->update([
+                'state' => 1
+            ]);
 
-        if($update_res !== false){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'接入失败');
+        if ($update_res !== false) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '接入失败');
         }
     }
 
@@ -1765,9 +1817,10 @@ class WxOperationLogic extends Model {
      * @param appid 账号appid
      * @param apiclient_cert_pem 支付公钥文件id
      * @param apiclient_key_pem 支付私钥文件id
-	 * @return code 200->成功
-	 */
-    public function setCertificate($data){
+     * @return code 200->成功
+     */
+    public function setCertificate($data)
+    {
         $company_id = $data['company_id'];
         $appid = $data['appid'];
         $cert_path = $data['apiclient_cert_pem'];
@@ -1776,13 +1829,13 @@ class WxOperationLogic extends Model {
         $pay_key = $data['pay_key'];
 
         $update_res = Db::name('openweixin_authinfo')
-        ->where(['appid'=>$appid,'company_id'=>$company_id])
-        ->update(['cert_path'=>$cert_path,'key_path'=>$key_path,'pay_key'=>$pay_key,'merchant_id'=>$merchant_id]);
+            ->where(['appid' => $appid, 'company_id' => $company_id])
+            ->update(['cert_path' => $cert_path, 'key_path' => $key_path, 'pay_key' => $pay_key, 'merchant_id' => $merchant_id]);
 
-        if($update_res !== false){
-            return msg(200,'success');
-        }else{
-            return msg(3001,'更新数据失败');
+        if ($update_res !== false) {
+            return msg(200, 'success');
+        } else {
+            return msg(3001, '更新数据失败');
         }
     }
 
@@ -1791,78 +1844,81 @@ class WxOperationLogic extends Model {
      * @param company_id 商户company_id
      * @param uid 客服uid
      * @param session_list 结束的会话id list
-	 * @return code 200->成功
-	 */
-    public function closeSession($data){
+     * @return code 200->成功
+     */
+    public function closeSession($data)
+    {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $session_list = $data['session_list'];
-        
+
         $success_close_session = [];
         $error_close_session = [];
 
-        foreach($session_list as $k=>$v){
+        foreach ($session_list as $k => $v) {
             $session_res = Db::name('message_session')
-            ->partition('', '', ['type'=>'md5','num'=>config('separate')['message_session']])
-            ->where([
-                'session_id' => $v,
-                'company_id' => $company_id,
-                'uid' => $uid,
-                'state' => array('in',[0,1]),
-            ])->find();
+                ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
+                ->where([
+                    'session_id' => $v,
+                    'company_id' => $company_id,
+                    'uid' => $uid,
+                    'state' => array('in', [0, 1, 2]),
+                ])->find();
 
-            if(empty($session_res)){
-                array_push($error_close_session,$v);
+            if (empty($session_res)) {
+                array_push($error_close_session, $v);
                 continue;
             }
 
             $customer_service_name = $this->getCustomerServiceName($session_res['customer_service_id']);
-            if(!$customer_service_name){
-                array_push($error_close_session,$v);
+            if (!$customer_service_name) {
+                array_push($error_close_session, $v);
                 continue;
             }
-    
-            $this->noticeCloseSession($session_res['appid'],$company_id,$session_res['customer_wx_openid'],$customer_service_name);
 
-            Db::name('message_session')->partition(['session_id' => $v], 'session_id', ['type'=>'md5','num'=>config('separate')['message_session']])->where(['session_id' => $v])->update(['state' => -1, 'close_explain' => '正常操作关闭']);
+            $this->noticeCloseSession($session_res['appid'], $company_id, $session_res['customer_wx_openid'], $customer_service_name);
 
-            array_push($success_close_session,$v);
+            Db::name('message_session')->partition(['session_id' => $v], 'session_id', ['type' => 'md5', 'num' => config('separate')['message_session']])->where(['session_id' => $v])->update(['state' => -1, 'close_explain' => '正常操作关闭']);
+
+            array_push($success_close_session, $v);
         }
 
-        return msg(200,'success',['success_close_session'=>$success_close_session,'error_close_session'=>$error_close_session]);
+        return msg(200, 'success', ['success_close_session' => $success_close_session, 'error_close_session' => $error_close_session]);
     }
 
     //通知会话结束
-    private function noticeCloseSession($appid,$company_id,$openid,$customer_service_name){
-        try{
-            $token_info = Common::getRefreshToken($appid,$company_id);
-            if($token_info['meta']['code'] == 200){
+    private function noticeCloseSession($appid, $company_id, $openid, $customer_service_name)
+    {
+        try {
+            $token_info = Common::getRefreshToken($appid, $company_id);
+            if ($token_info['meta']['code'] == 200) {
                 $refresh_token = $token_info['body']['refresh_token'];
-            }else{
+            } else {
                 return $token_info;
             }
-    
+
             $app = new Application(wxOptions());
             $openPlatform = $app->open_platform;
 
-            $staff = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->staff;
-            
-            $message = new Text(['content' => '客服'.$customer_service_name.'已结束与您的会话，感谢您的支持！']);
+            $staff = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->staff;
+
+            $message = new Text(['content' => '客服' . $customer_service_name . '已结束与您的会话，感谢您的支持！']);
             $staff->message($message)->to($openid)->send();
 
-            return msg(200,'success');
-        }catch (\Exception $e) {
-            return msg(3001,$e->getMessage());
-        }   
+            return msg(200, 'success');
+        } catch (\Exception $e) {
+            return msg(3001, $e->getMessage());
+        }
     }
 
     //获取客服名称
-    private function getCustomerServiceName($customer_service_id){
-        $customer_service_name = Db::name('customer_service')->where(['customer_service_id'=>$customer_service_id])->cache(true,60)->value('name');
+    private function getCustomerServiceName($customer_service_id)
+    {
+        $customer_service_name = Db::name('customer_service')->where(['customer_service_id' => $customer_service_id])->cache(true, 60)->value('name');
 
-        if(!empty($customer_service_name)){
+        if (!empty($customer_service_name)) {
             return $customer_service_name;
-        }else{
+        } else {
             return false;
         }
     }
@@ -1873,16 +1929,17 @@ class WxOperationLogic extends Model {
      * @param uid 客服uid
      * @param file 文件流字段名称
      * @param resources_type 资源类型 1:im资源 2:头像 3:支付授权证书 4:分享封面
-	 * @return code 200->成功
-	 */
-    public function uploadResources($data){
+     * @return code 200->成功
+     */
+    public function uploadResources($data)
+    {
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $resources_type = empty($data['resources_type']) == true ? 1 : $data['resources_type'];
 
         $catalog_name = date('Ymd');
         $save_catalog = "../uploads/message/$catalog_name";
-        if(!file_exists($save_catalog)){
+        if (!file_exists($save_catalog)) {
             mkdir($save_catalog, 0766);
             chmod($save_catalog, 0766);
         }
@@ -1891,7 +1948,7 @@ class WxOperationLogic extends Model {
             $storage = new \Upload\Storage\FileSystem($save_catalog);
             $file = new \Upload\File('file', $storage);
         } catch (\Exception $e) {
-            return msg(3003,$e->getMessage());
+            return msg(3003, $e->getMessage());
         }
 
         $new_filename = uniqid();
@@ -1917,31 +1974,31 @@ class WxOperationLogic extends Model {
                     'text/plain',
                     'application/x-rar'
                 ]),
-            
+
                 new \Upload\Validation\Size('10M')
             ));
         } catch (\Exception $e) {
-            return msg(3006,$e->getMessage());
+            return msg(3006, $e->getMessage());
         }
 
         $data = array(
-            'name'       => $file->getNameWithExtension(),
-            'extension'  => $file->getExtension(),
-            'mime'       => $file->getMimetype(),
-            'size'       => $file->getSize(),
-            'md5'        => $file->getMd5(),
+            'name' => $file->getNameWithExtension(),
+            'extension' => $file->getExtension(),
+            'mime' => $file->getMimetype(),
+            'size' => $file->getSize(),
+            'md5' => $file->getMd5(),
             'dimensions' => $file->getDimensions()
         );
 
-        $resources_res = Db::name('resources')->where(['resources_md5'=>$data['md5'],'company_id'=>$company_id])->find();
-        if($resources_res){
-            if(substr($resources_res['mime_type'],0,5) == 'image'){
-                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_res['resources_id'];
-            }else{
-                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getFile?resources_id='.$resources_res['resources_id'];
+        $resources_res = Db::name('resources')->where(['resources_md5' => $data['md5'], 'company_id' => $company_id])->find();
+        if ($resources_res) {
+            if (substr($resources_res['mime_type'], 0, 5) == 'image') {
+                $url = 'http://' . $_SERVER['HTTP_HOST'] . '/api/v1/we_chat/Business/getImg?resources_id=' . $resources_res['resources_id'];
+            } else {
+                $url = 'http://' . $_SERVER['HTTP_HOST'] . '/api/v1/we_chat/Business/getFile?resources_id=' . $resources_res['resources_id'];
             }
 
-            return msg(200,'messgae',['resources_id'=>$resources_res['resources_id'],'url'=>$url]);
+            return msg(200, 'messgae', ['resources_id' => $resources_res['resources_id'], 'url' => $url]);
         }
 
         try {
@@ -1959,81 +2016,82 @@ class WxOperationLogic extends Model {
                 'file_suffix_name' => $data['extension'],
                 'file_name' => $data['name'],
                 'name' => $_FILES['file']['name'],
-                'resources_route' => substr($save_catalog,2).'/'.$data['name'],
+                'resources_route' => substr($save_catalog, 2) . '/' . $data['name'],
                 'mime_type' => $data['mime'],
                 'resources_type' => $resources_type
             ]);
 
-            if(substr($data['mime'],0,5) == 'image'){
-                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
-            }else{
-                $url = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getFile?resources_id='.$resources_id;
+            if (substr($data['mime'], 0, 5) == 'image') {
+                $url = 'http://' . $_SERVER['HTTP_HOST'] . '/api/v1/we_chat/Business/getImg?resources_id=' . $resources_id;
+            } else {
+                $url = 'http://' . $_SERVER['HTTP_HOST'] . '/api/v1/we_chat/Business/getFile?resources_id=' . $resources_id;
             }
-            
-            return msg(200,'messgae',['resources_id'=>$resources_id,'url'=>$url]);
+
+            return msg(200, 'messgae', ['resources_id' => $resources_id, 'url' => $url]);
         } catch (\Exception $e) {
-            if(empty($file->getErrors()[0])){
-                return msg(3003,$e->getMessage());
-            }else{
-                return msg(3002,$file->getErrors()[0]);
+            if (empty($file->getErrors()[0])) {
+                return msg(3003, $e->getMessage());
+            } else {
+                return msg(3002, $file->getErrors()[0]);
             }
         }
     }
 
-    public function test(){
+    public function test()
+    {
         $appid = 'wxe30d2c612847beeb';
         $company_id = '51454009d703c86c91353f61011ecf2f';
         $menu_type = 'view';
         $event_key = 'http://s.lyfz.net/index.php?g=Wap&m=Index&a=content&token=kzrfek1393743903&id=304&wecha_id=oF_-jjkJvt9dbtwXYMkwwJpuEO9Y#mp.weixin.qq.com';
 
-        $cache_key = $appid.'_menu';
+        $cache_key = $appid . '_menu';
 
-        if(empty(cache($cache_key))){
+        if (empty(cache($cache_key))) {
             try {
-                $token_info = Common::getRefreshToken($appid,$company_id);
-                if($token_info['meta']['code'] == 200){
+                $token_info = Common::getRefreshToken($appid, $company_id);
+                if ($token_info['meta']['code'] == 200) {
                     $refresh_token = $token_info['body']['refresh_token'];
-                }else{
+                } else {
                     return $token_info;
                 }
-    
+
                 $app = new Application(wxOptions());
                 $openPlatform = $app->open_platform;
-    
-                $menu = $openPlatform->createAuthorizerApplication($appid,$refresh_token)->menu;
-    
+
+                $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
+
                 $menu_data = $menu->all()['menu']['button'];
-    
+
                 cache($cache_key, $menu_data, 21600);
             } catch (\Exception $e) {
-                return msg(3010,$e->getMessage());
+                return msg(3010, $e->getMessage());
             }
-        }else{
+        } else {
             $menu_data = cache($cache_key);
         }
 
         $menu_list = [];
 
-        foreach($menu_data as $k=>$v){
-            if(!empty($v['sub_button'])){
-                foreach($v['sub_button'] as $c){
-                    array_push($menu_list,$c);
+        foreach ($menu_data as $k => $v) {
+            if (!empty($v['sub_button'])) {
+                foreach ($v['sub_button'] as $c) {
+                    array_push($menu_list, $c);
                 }
-            }else{
-                array_push($menu_list,$v);
+            } else {
+                array_push($menu_list, $v);
             }
         }
 
-        foreach($menu_list as $k=>$v){
-            switch($v['type']){
+        foreach ($menu_list as $k => $v) {
+            switch ($v['type']) {
                 case 'view';
-                    if($v['url'] == $event_key){
-                        $desc = '点击菜单'.$v['name'];
+                    if ($v['url'] == $event_key) {
+                        $desc = '点击菜单' . $v['name'];
                     }
                     break;
                 case 'click';
-                    if($v['key'] == $event_key){
-                        $desc = '点击菜单'.$v['name'];
+                    if ($v['key'] == $event_key) {
+                        $desc = '点击菜单' . $v['name'];
                     }
                     break;
             }

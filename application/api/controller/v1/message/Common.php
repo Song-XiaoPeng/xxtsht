@@ -169,4 +169,14 @@ class Common extends Auth{
         
         return \think\Loader::model('CommonLogic','logic\v1\message')->createWxUserSession($data);
     }
+
+    //创建群聊会话
+    public function createGroupSession()
+    {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('CommonLogic','logic\v1\message')->createGroupSession($data);
+    }
 }
