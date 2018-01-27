@@ -145,8 +145,11 @@ class Common
             $redis->select(config('redis_business')['message']);
             //查找群聊的所有uid
             $uids = Db::name('message_session_group')->where('session_id', $session_id)->column('uid');
-            if($uids){
+            //查找uid对应的微信头像
+            $avators = Db::name('user_portrait')->whereIn('uid', $uids)->column('uid,resources_id');
+            if ($uids) {
                 foreach ($uids as $v) {
+                    $add_data['customer_service_avator'] = empty($avators[$v]) ? "" : "http://kf.lyfz.net/api/v1/we_chat/Business/getImg?resources_id=" . $avators[$v];
                     $redis->zAdd($v, time(), json_encode($add_data));
                 }
             }
