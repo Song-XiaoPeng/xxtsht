@@ -146,10 +146,10 @@ class Common
             //查找群聊的所有uid
             $uids = Db::name('message_session_group')->where('session_id', $session_id)->column('uid');
             //查找uid对应的微信头像
-            $avators = Db::name('user_portrait')->whereIn('uid', $uids)->column('uid,resources_id');
+            $avator = Db::name('user_portrait')->where('uid', $uid)->value('resources_id');
             if ($uids) {
                 foreach ($uids as $v) {
-                    $add_data['customer_service_avator'] = empty($avators[$v]) ? "" : "http://kf.lyfz.net/api/v1/we_chat/Business/getImg?resources_id=" . $avators[$v];
+                    $add_data['customer_service_avator'] = empty($avator) ? "" : "http://kf.lyfz.net/api/v1/we_chat/Business/getImg?resources_id=" . $avator;
                     $redis->zAdd($v, time(), json_encode($add_data));
                 }
             }
