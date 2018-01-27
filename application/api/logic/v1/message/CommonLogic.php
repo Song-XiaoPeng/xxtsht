@@ -636,7 +636,7 @@ class CommonLogic extends Model
         $customer_service_id = $data['customer_service_id'];//客服id
         $new = explode(',', $customer_service_id);
         $customer_res = Db::name('customer_service')->whereIn('customer_service_id', $new)->column('customer_service_id,uid');
-        $old = Db::name('message_session_group')->column('customer_service_id');
+        $old = Db::name('message_session_group')->where('session_id',$session_id)->column('customer_service_id');
         $del = array_diff($old, $new);
         $insert = array_diff($new, $old);
         try {
