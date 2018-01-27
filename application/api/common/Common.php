@@ -150,7 +150,6 @@ class Common
                     $redis->zAdd($v, time(), json_encode($add_data));
                 }
             }
-            $redis->zAdd($uid, time(), json_encode($add_data));
         } else {
             return msg(3001, 'opercode参数错误');
         }

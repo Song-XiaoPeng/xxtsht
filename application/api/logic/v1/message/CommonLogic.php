@@ -3,6 +3,7 @@
 namespace app\api\logic\v1\message;
 
 use think\Exception;
+use think\Log;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
@@ -650,10 +651,12 @@ class CommonLogic extends Model
                 $insertData = [];
                 $redis = Common::createRedis();//创建群聊会话
                 $redis->select(config('redis_business')['group']);
+                Log::record($insert);
                 foreach ($insert as $v) {
+                    Log::record($v);
                     $group_session_data['customer_service_id'] = $v;
                     $group_session_data['uid'] = $customer_res[$v];
-                    $redis->zAdd($customer_res[$v], time(), json_encode($group_session_data));
+                    $redis->sAdd($customer_res[$v], time(), json_encode($group_session_data));
                     $insertData[] = [
                         'session_id' => $session_id,
                         'customer_service_id' => $v,

@@ -1660,7 +1660,11 @@ class WxOperationLogic extends Model {
         if($is_admin){
             $opercode = 3;
         }else{
-            $opercode = 1;
+            if(Db::name('message_session_group')->where('session_id',$session_id)->find()){
+                $opercode = 4;
+            }else{
+                $opercode = 1;
+            }
         }
 
         //记录交互时间

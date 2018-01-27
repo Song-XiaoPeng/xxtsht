@@ -321,9 +321,9 @@ class BusinessLogic extends Model
         $session_res = $this->getSession($appid, $openid);
         $opercode = 2;
         if ($session_res) {
-//            if($session_res['state'] == 2){ //会话是群聊
-//                $opercode = 4;//消息操作码是群聊
-//            }
+            if ($session_res['session_state'] == 2) { //会话是群聊
+                $opercode = 4;//消息操作码是群聊
+            }
             Common::addMessagge($appid, $openid, $session_res['session_id'], $session_res['customer_service_id'], $session_res['uid'], 1, $opercode, ['text' => $key_word]);
 
             $map['appid'] = $appid;
@@ -520,7 +520,7 @@ class BusinessLogic extends Model
     {
         $res = Db::name('message_session')
             ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
-            ->where(['appid' => $appid, 'customer_wx_openid' => $openid, 'state' => array('in', [0, 1, 2,3])])
+            ->where(['appid' => $appid, 'customer_wx_openid' => $openid, 'state' => array('in', [0, 1, 2, 3])])
             ->find();
 
         if ($res) {
