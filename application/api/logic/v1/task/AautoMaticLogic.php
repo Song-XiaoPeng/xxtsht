@@ -591,9 +591,9 @@ class AautoMaticLogic extends Model {
         $redis = Common::createRedis();
         $redis->select(config('redis_business')['mass_template']);
 
-        $list = $redis->keys('*');
+        $count = $redis->dbsize();
 
-        if(!empty($list)){
+        if($count > 0){
             $cache_key = 'is_start_template_mass';
 
             if (!empty(cache($cache_key))) {
@@ -604,6 +604,8 @@ class AautoMaticLogic extends Model {
         }else{
             return;
         }
+
+        $list = $redis->keys('*');
 
         foreach($list as $key){
             $str = $redis->get($key);
