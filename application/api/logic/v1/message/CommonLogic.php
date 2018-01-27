@@ -637,7 +637,7 @@ class CommonLogic extends Model
         $customer_service_id = $data['customer_service_id'];//客服id
         $new = explode(',', $customer_service_id);
         $customer_res = Db::name('customer_service')->whereIn('customer_service_id', $new)->column('customer_service_id,uid');
-        $old = Db::name('message_session_group')->where('session_id',$session_id)->column('customer_service_id');
+        $old = Db::name('message_session_group')->where('session_id', $session_id)->column('customer_service_id');
         $del = array_diff($old, $new);
         $insert = array_diff($new, $old);
         try {
@@ -650,13 +650,11 @@ class CommonLogic extends Model
             if ($insert) {
                 $insertData = [];
                 $redis = Common::createRedis();//创建群聊会话
-                $redis->select(config('redis_business')['group']);
-                Log::record($insert);
+                $redis->select(5);
                 foreach ($insert as $v) {
-                    Log::record($v);
                     $group_session_data['customer_service_id'] = $v;
                     $group_session_data['uid'] = $customer_res[$v];
-                    $redis->sAdd($customer_res[$v], time(), json_encode($group_session_data));
+                    $redis->sAdd($customer_res[$v], json_encode($group_session_data));
                     $insertData[] = [
                         'session_id' => $session_id,
                         'customer_service_id' => $v,
