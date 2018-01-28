@@ -59,16 +59,17 @@ class MassLogic extends Model {
 
         //插入redis
         foreach($openid_list as $k=>$v){
+            $template = $template_data;
             //组合数据
-            foreach($template_data as $t=>$c){
-                $template_data[$t] = str_replace("{{name}}", $v['nickname'], $c);
+            foreach($template as $t=>$c){
+                $template[$t] = str_replace("{{name}}", $v['nickname'], $c);
             }
 
             $arr['appid'] = $appid;
             $arr['openid'] = $v['openid'];
             $arr['template_id'] = $template_id;
             $arr['url'] = $template_url;
-            $arr['data'] = $template_data;
+            $arr['data'] = $template;
             $arr['company_id'] = $company_id;
 
             $str = json_encode($arr);
