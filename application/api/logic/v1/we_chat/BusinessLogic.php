@@ -730,7 +730,7 @@ class BusinessLogic extends Model
             ->value('qrcode_id');
 
         if(!empty($qrcode_id)){
-            Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id,'appid'=>$appid])->setDec('canel_attention');
+            Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id,'appid'=>$appid])->setInc('canel_attention');
         }
 
         $update_res = Db::name('wx_user')
