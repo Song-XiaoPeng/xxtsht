@@ -577,7 +577,7 @@ class UserOperationLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function accountCancellation($company_id,$uid){
-        $update_res = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['state'=>-1]);
+        $update_res = Db::name('user')->where(['company_id'=>$company_id,'uid'=>$uid])->update(['is_on_line'=>-1]);
         if($update_res !== false){
             return msg(200,'success');
         }else{
