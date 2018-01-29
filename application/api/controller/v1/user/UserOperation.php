@@ -234,7 +234,6 @@ class UserOperation extends Auth{
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->setUserGroup($data);
     }
 
-
     /**
      * 修改账号密码
      * 请求类型 post
@@ -252,6 +251,24 @@ class UserOperation extends Auth{
         $data['uid'] = $this->uid;
 
         return \think\Loader::model('UserOperationLogic','logic\v1\user')->updatePassword($data);
+    }
+
+    /**
+     * 修改个人签名
+     * 请求类型 post
+	 * 传入JSON格式: {"autograph":"autograph..."}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/updateAutograph
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/updateAutograph
+	 * @param autograph 昵称
+	 * @return code 200->成功
+	 */
+    public function updateAutograph(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('UserOperationLogic','logic\v1\user')->updateAutograph($data);
     }
 
     /**

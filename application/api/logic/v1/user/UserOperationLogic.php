@@ -584,4 +584,29 @@ class UserOperationLogic extends Model {
             return msg(3001,'更新成功');
         }
     }
+
+    /**
+     * 修改个人签名
+	 * @param company_id 商户company_id
+	 * @param uid 账号uid
+	 * @param autograph 昵称
+	 * @return code 200->成功
+	 */
+    public function updateAutograph($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $autograph = $data['autograph'];
+
+        $update_res = Db::name('user')
+        ->where(['uid'=>$uid,'company_id'=>$company_id])
+        ->update([
+            'autograph' => $autograph
+        ]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
 }
