@@ -631,11 +631,10 @@ class AautoMaticLogic extends Model {
                 $data = $arr['data'];
                 
                 $result = $notice->uses($templateId)->withUrl($url)->andData($data)->andReceiver($userId)->send();
-            
-                $redis->del($key);
             } catch (\Exception $e) {
-                continue;
             }
+
+            $redis->del($key);
         }
 
         cache($cache_key, NULL);
