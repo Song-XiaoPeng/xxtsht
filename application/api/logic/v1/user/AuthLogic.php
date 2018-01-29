@@ -125,6 +125,7 @@ class AuthLogic extends Model
                 'group_name' => $group_name,
                 'uid' => $uid,
                 'avatar_url' => $avatar_url,
+                'autograph' => $user_info['autograph'],
                 'model_list' => $model_list,
             ]
         );
