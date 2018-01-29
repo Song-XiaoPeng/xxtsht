@@ -609,4 +609,29 @@ class UserOperationLogic extends Model {
             return msg(3001,'更新数据失败');
         }
     }
+
+    /**
+     * 修改个人性别
+	 * @param company_id 商户company_id
+	 * @param uid 账号uid
+	 * @param sex 账号用户性别 1男 2女
+	 * @return code 200->成功
+	 */
+    public function updateSex($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $sex = $data['sex'] == 1 ? 1 : 2;
+
+        $update_res = Db::name('user')
+        ->where(['uid'=>$uid,'company_id'=>$company_id])
+        ->update([
+            'sex' => $sex
+        ]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
 }
