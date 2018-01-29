@@ -272,6 +272,24 @@ class UserOperation extends Auth{
     }
 
     /**
+     * 修改个人姓名
+     * 请求类型 post
+	 * 传入JSON格式: {"user_name":"user_name..."}
+	 * 返回JSON格式: {"meta":{"code":200,"message":"success"},"body":null}
+	 * API_URL_本地: http://localhost:91/api/v1/user/UserOperation/updateUserName
+	 * API_URL_服务器: http://kf.lyfz.net/api/v1/user/UserOperation/updateUserName
+	 * @param user_name 账号姓名
+	 * @return code 200->成功
+	 */
+    public function updateUserName(){
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('UserOperationLogic','logic\v1\user')->updateUserName($data);
+    }
+
+    /**
      * 修改个人性别
      * 请求类型 post
 	 * 传入JSON格式: {"sex":1}

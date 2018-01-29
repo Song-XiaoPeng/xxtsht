@@ -265,7 +265,7 @@ class UserOperationLogic extends Model {
         }
 
         if($insert_res){
-            return msg(200,'success',['avatar_url'=>'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id]);
+            return msg(200,'success',['avatar_url'=>'http://'.$_SERVER['SERVER_NAME'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id]);
         }else{
             return msg(3001,'设置失败');
         }
@@ -627,6 +627,53 @@ class UserOperationLogic extends Model {
         ->update([
             'sex' => $sex
         ]);
+
+        if($update_res !== false){
+            return msg(200,'success');
+        }else{
+            return msg(3001,'更新数据失败');
+        }
+    }
+
+    /**
+     * 修改个人姓名
+	 * @param company_id 商户company_id
+	 * @param uid 账号uid
+	 * @param user_name 账号姓名
+	 * @return code 200->成功
+	 */
+    public function updateUserName($data){
+        $company_id = $data['company_id'];
+        $uid = $data['uid'];
+        $user_name = $data['user_name'];
+
+        $update_res = Db::name('user')
+        ->where(['uid'=>$uid,'company_id'=>$company_id])
+        ->update([
+            'user_name' => $user_name
+        ]);
+
+        $customer_service_res = Db::name('customer_service')->where(['company_id'=>$company_id,'uid'=>$uid])->select();
+        if($customer_service_res){
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+
+            foreach($customer_service_res as $k=>$v){
+                try{
+                    $token_info = Common::getRefreshToken($v['appid'],$company_id);
+                    if($token_info['meta']['code'] == 200){
+                        $refresh_token = $token_info['body']['refresh_token'];
+                    }else{
+                        return $token_info;
+                    }
+
+                    $staff = $openPlatform->createAuthorizerApplication($v['appid'],$refresh_token)->staff;
+                    $staff->update($v['wx_sign'], $user_name);
+                }catch (\Exception $e) {
+                    continue;
+                }
+            }
+        }
 
         if($update_res !== false){
             return msg(200,'success');

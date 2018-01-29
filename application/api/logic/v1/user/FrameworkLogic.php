@@ -261,6 +261,9 @@ class FrameworkLogic extends Model {
 
         //设为客服逻辑操作
         if($is_customer_service == 1){
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+
             //设置客服操作
             $UserOperationLogic = new UserOperationLogic();
             $UserOperationLogic->setUserCustomerService(['uid'=>$uid,'company_id'=>$company_id,'user_name'=>$user_name]);
