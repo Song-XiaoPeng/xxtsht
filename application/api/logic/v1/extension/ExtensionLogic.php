@@ -272,7 +272,6 @@ class ExtensionLogic extends Model
     public function getQrcodList($data)
     {
         $company_id = $data['company_id'];
-//        $type = $data['type'] == 1 ? 1 : 2;
         $type = $data['type'];
         $page = $data['page'];
 
@@ -304,7 +303,7 @@ class ExtensionLogic extends Model
             $list[$k]['attention_num'] = Db::name('wx_user')
                 ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
                 ->where(['company_id' => $company_id, 'qrcode_id' => $v['qrcode_id']])
-                ->cache(true, 3600)
+                ->cache(true, 21600)
                 ->count();
 
             $label = json_decode($v['label'], true);
@@ -341,14 +340,14 @@ class ExtensionLogic extends Model
             $list[$k]['intention_num'] = Db::name('wx_user')
                 ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
                 ->where(['company_id' => $company_id, 'qrcode_id' => $v['qrcode_id'], 'is_clue' => array('in', [2, 3])])
-                ->cache(false, 21600)
+                ->cache(true, 21600)
                 ->count();
 
             //产生订单客户数量
             $list[$k]['order_num'] = Db::name('wx_user')
                 ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
                 ->where(['company_id' => $company_id, 'qrcode_id' => $v['qrcode_id'], 'is_clue' => 4])
-                ->cache(false, 21600)
+                ->cache(true, 21600)
                 ->count();
         }
 
