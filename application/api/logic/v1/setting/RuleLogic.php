@@ -78,11 +78,13 @@ class RuleLogic extends Model
                 'number' => empty($rule_arr['cued_pool']['number']) == true ? '' : $rule_arr['cued_pool']['number']
             ],
             'cued_pool_recovery' => empty($rule_arr['cued_pool_recovery']) == true ? '' : $rule_arr['cued_pool_recovery'],
+            'not_intention' => empty($rule_arr['not_intention']) == true ? '' : $rule_arr['not_intention'],
             'intention_receive' => [
                 'cycle' => empty($rule_arr['intention_receive']['cycle']) == true ? '' : $rule_arr['intention_receive']['cycle'],
                 'number' => empty($rule_arr['intention_receive']['number']) == true ? '' : $rule_arr['intention_receive']['number']
             ],
-            'intention_recovery' => empty($rule_arr['intention_recovery']) == true ? '' : $rule_arr['intention_recovery']
+            'intention_recovery' => empty($rule_arr['intention_recovery']) == true ? '' : $rule_arr['intention_recovery'],
+            'not_deal' => empty($rule_arr['not_deal']) == true ? '' : $rule_arr['not_deal']
         ];
 
         return msg(200, 'success', $arr_data);
