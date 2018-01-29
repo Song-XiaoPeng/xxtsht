@@ -662,6 +662,7 @@ class WxOperationLogic extends Model
         }
 
         $map['company_id'] = $company_id;
+        $map['subscribe'] = 1;
 
         $wx_user_list = Db::name('wx_user')
             ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
