@@ -3,6 +3,7 @@ namespace app\api\logic\v1\user;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
+use app\api\logic\v1\user\Application;
 
 class FrameworkLogic extends Model {
     /**
