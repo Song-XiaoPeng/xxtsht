@@ -719,9 +719,18 @@ class BusinessLogic extends Model
      */
     private function unSubScribe($appid, $openid)
     {
-        $company_id = Db::name('openweixin_authinfo')->where(['appid' => $appid])->cache(true, 60)->value('company_id');
+        $company_id = Db::name('openweixin_authinfo')->where(['appid' => $appid])->cache(true, 3600)->value('company_id');
         if (empty($company_id)) {
             return false;
+        }
+
+        $qrcode_id = Db::name('wx_user')
+            ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where(['appid' => $appid, 'openid' => $openid])
+            ->value('qrcode_id');
+
+        if(!empty($qrcode_id)){
+            Db::name('extension_qrcode')->where(['qrcode_id'=>$qrcode_id,'appid'=>$appid])->setDec('canel_attention');
         }
 
         $update_res = Db::name('wx_user')
