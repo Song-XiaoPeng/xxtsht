@@ -25,12 +25,16 @@ class RuleLogic extends Model
         $cued_pool_recovery = $data['cued_pool_recovery'];
         $intention_receive = $data['intention_receive'];
         $intention_recovery = $data['intention_recovery'];
+        $not_deal = $data['not_deal'];
+        $not_intention = $data['not_intention'];
 
         $configure_value = [
             'cued_pool' => $cued_pool,
             'cued_pool_recovery' => $cued_pool_recovery,
             'intention_receive' => $intention_receive,
-            'intention_recovery' => $intention_recovery
+            'intention_recovery' => $intention_recovery,
+            'not_deal' => $not_deal,
+            'not_intention' => $not_intention
         ];
 
         $company_baseinfo_id = Db::name('company_baseinfo')->where(['company_id' => $company_id, 'configure_key' => 'sustomer_resources_rule'])->value('company_baseinfo_id');
