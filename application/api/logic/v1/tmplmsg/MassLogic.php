@@ -43,7 +43,7 @@ class MassLogic extends Model {
             foreach($tag_list as $k=>$tag_id){
                 $openid_res = Db::name('wx_user')
                 ->partition([], "", ['type'=>'md5','num'=>config('separate')['wx_user']])
-                ->where(['appid'=>$appid,'company_id'=>$company_id,,'subscribe'=>1,'tagid_list'=>['like',"%$tag_id%"]])
+                ->where(['appid'=>$appid,'company_id'=>$company_id,'subscribe'=>1,'tagid_list'=>['like',"%$tag_id%"]])
                 ->field('openid,nickname')
                 ->select();
 
