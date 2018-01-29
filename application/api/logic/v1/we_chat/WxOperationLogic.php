@@ -678,6 +678,12 @@ class WxOperationLogic extends Model
             ->cache(true, 60)
             ->count();
 
+        $canel_user = Db::name('wx_user')
+            ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+            ->where(['company_id'=>$company_id,'appid'=>$appid,'subscribe'=>0])
+            ->cache(true, 3600)
+            ->count();
+
         foreach ($wx_user_list as $k => $v) {
             $wx_user_list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid' => $v['appid']])->value('nick_name');
 
@@ -693,6 +699,7 @@ class WxOperationLogic extends Model
         $res['page_data']['count'] = $count;
         $res['page_data']['rows_num'] = $page_count;
         $res['page_data']['page'] = $page;
+        $res['page_data']['canel_user'] = $canel_user;
 
         return msg(200, 'success', $res);
     }
