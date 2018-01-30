@@ -49,7 +49,6 @@ class SurveyLogic extends Model {
         $res = $ClientLogic->getClientCountByGroup($company_id);
         $on_line_total = $res['body']['count'];
 
-        $off_line_total = Db::name('user')->where(['company_id'=>$company_id,'is_on_line'=>-1])->count();
         $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->count();
 
         return msg(200,'success',[
