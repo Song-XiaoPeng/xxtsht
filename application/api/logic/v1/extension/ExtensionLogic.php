@@ -376,7 +376,7 @@ class ExtensionLogic extends Model
         $uid = $data['uid'];
         $qrcode_id = $data['qrcode_id'];
 
-        $update_res = Db::name('extension_qrcode')->where(['qrcode_id' => $qrcode_id, 'company_id' => $company_id, 'create_uid' => $uid])->update(['is_del' => 1]);
+        $update_res = Db::name('extension_qrcode')->where(['qrcode_id' => $qrcode_id, 'company_id' => $company_id])->update(['is_del' => 1]);
 
         if ($update_res !== false) {
             return msg(200, 'success');
