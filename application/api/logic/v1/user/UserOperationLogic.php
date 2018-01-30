@@ -4,6 +4,7 @@ use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
+use GatewayClient\Gateway;
 
 class UserOperationLogic extends Model {
     /**
@@ -75,6 +76,8 @@ class UserOperationLogic extends Model {
         $user_list = Db::name('user')->where($map)->order('create_time desc')->limit($show_page,$page_count)->select();
         $count = Db::name('user')->where($map)->order('create_time desc')->count();
 
+        Gateway::$registerAddress = config('gw_address');
+
         foreach($user_list as $k=>$v){
             $resources_id = Db::name('user_portrait')->where(['uid'=>$v['uid']])->value('resources_id');
             if($resources_id){
@@ -112,6 +115,15 @@ class UserOperationLogic extends Model {
             }else{
                 $user_list[$k]['user_state_name'] = '禁用';
             }
+
+            //判断账号是否在线
+            $is_on_line = Gateway::isUidOnline($v['uid']);
+            if($is_on_line){
+                $user_list[$k]['is_on_line'] = 1;
+            }else{
+                $user_list[$k]['is_on_line'] = -1;
+            }
+
         }
 
         $page_data['count'] = $count;
