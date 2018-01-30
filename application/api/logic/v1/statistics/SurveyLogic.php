@@ -3,6 +3,7 @@ namespace app\api\logic\v1\statistics;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
+use app\api\logic\v1\push\ClientLogic;
 
 class SurveyLogic extends Model {
     /**
@@ -44,13 +45,16 @@ class SurveyLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getCustomerServiceTotal($company_id){
-        $on_line_total = Db::name('user')->where(['company_id'=>$company_id,'is_on_line'=>1])->count();
+        $ClientLogic = new ClientLogic();
+        $res = $ClientLogic->getClientCountByGroup($company_id);
+        $on_line_total = $res['body']['count'];
+
         $off_line_total = Db::name('user')->where(['company_id'=>$company_id,'is_on_line'=>-1])->count();
         $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->count();
 
         return msg(200,'success',[
             'on_line_total' => $on_line_total,
-            'off_line_total' => $off_line_total,
+            'off_line_total' => 0,
             'total' => $customer_service_total
         ]);
     }
