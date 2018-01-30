@@ -228,29 +228,33 @@ class AautoMaticLogic extends Model {
                     'num'  => 5    // 分表数量
                 ];
 
-                Db::name('wx_user')->partition(['company_id'=>$company_id], "company_id", $rule)
-                ->where([
-                    'openid' => $value['openid'],
-                    'appid' => $appid,
-                    'company_id' => $company_id
-                ])
-                ->update([
-                    'nickname' => $value['nickname'],
-                    'portrait' => $value['headimgurl'],
-                    'gender' => $value['sex'],
-                    'city' => $value['city'],
-                    'province' => $value['province'],
-                    'language' => $value['language'],
-                    'country' => $value['country'],
-                    'groupid' => $value['groupid'],
-                    'subscribe_time' => date("Y-m-d H:i:s",$value['subscribe_time']),
-                    'tagid_list' => json_encode($value['tagid_list']),
-                    'is_sync' => 1,
-                    'unionid' => empty($value['unionid']) == true ? null : $value['unionid'],
-                    'desc' => $value['remark'],
-                    'subscribe' => $value['subscribe'],
-                    'update_time' => date('Y-m-d H:i:s'),
-                ]);
+                try {
+                    Db::name('wx_user')->partition(['company_id'=>$company_id], "company_id", $rule)
+                    ->where([
+                        'openid' => $value['openid'],
+                        'appid' => $appid,
+                        'company_id' => $company_id
+                    ])
+                    ->update([
+                        'nickname' => $value['nickname'],
+                        'portrait' => $value['headimgurl'],
+                        'gender' => $value['sex'],
+                        'city' => $value['city'],
+                        'province' => $value['province'],
+                        'language' => $value['language'],
+                        'country' => $value['country'],
+                        'groupid' => $value['groupid'],
+                        'subscribe_time' => date("Y-m-d H:i:s",$value['subscribe_time']),
+                        'tagid_list' => json_encode($value['tagid_list']),
+                        'is_sync' => 1,
+                        'unionid' => empty($value['unionid']) == true ? null : $value['unionid'],
+                        'desc' => $value['remark'],
+                        'subscribe' => $value['subscribe'],
+                        'update_time' => date('Y-m-d H:i:s'),
+                    ]);
+                } catch (\Exception $e) {
+                    continue;
+                }
             }
 
            $this->progressCalculation($task_res['task_id'],$total,100,$i+1);
