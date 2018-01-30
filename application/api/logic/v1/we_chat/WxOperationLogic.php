@@ -1,7 +1,5 @@
 <?php
-
 namespace app\api\logic\v1\we_chat;
-
 use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;

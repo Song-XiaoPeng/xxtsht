@@ -1,9 +1,11 @@
 <?php
 
 namespace app\api\common;
-
 use think\Db;
 use EasyWeChat\Foundation\Application;
+use EasyWeChat\Message\Material;
+use EasyWeChat\Message\Image;
+use think\Log;
 
 class Common
 {
@@ -231,4 +233,65 @@ class Common
 
         return msg(200, 'success', $uid_list);
     }
+
+    /**
+     * 发送微信消息
+     * @param appid 公众号appid
+     * @param openid 消息接收openid
+     * @param type 消息类型 1文字 2图片 3图文
+     * @param message_data 消息数据
+     * @return code 200->成功
+     */
+    public static function sendWxMessage($data){
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+        $type = $data['type'];
+        $message_data = $data['message_data'];
+
+        $authinfo = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true, 360)->find();
+        if (!$authinfo) {
+            return msg(3001, 'appid不存在');
+        }
+
+        try {
+            $token_info = Common::getRefreshToken($appid, $authinfo['company_id']);
+            if ($token_info['meta']['code'] == 200) {
+                $refresh_token = $token_info['body']['refresh_token'];
+            } else {
+                return $token_info;
+            }
+    
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $temporary = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material_temporary;
+
+            switch($type){
+                case 1:
+                    $message = new Text(['content' => $message_data['content']]);
+                    break;
+                case 2:
+                    $resources_res = Db::name('resources')->where(['resources_id' => $message_data['resources_id']])->find();
+                    if (!$resources_res) {
+                        return msg(3003, '资源不存在');
+                    }
+
+                    $upload_res = $temporary->uploadImage('..' . $resources_res['resources_route']);
+                    $message = new Image(['media_id' => $upload_res['media_id']]);
+                    break;
+                case 3:
+                    $message = new Material('mpnews', $message_data['media_id']);
+                    break;
+                default:
+                    return msg(3002,'不支持的消息类型');
+            }
+    
+            $staff = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->staff;
+            $staff->message($message)->to($openid)->send();
+        } catch (\Exception $e) {
+            return msg(3008, $e->getMessage());
+        }
+
+        return msg(200, 'success');
+    }
+
 }

@@ -1,7 +1,5 @@
 <?php
-
 namespace app\api\logic\v1\we_chat;
-
 use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
@@ -765,7 +763,7 @@ class BusinessLogic extends Model
             $this->receiveRedEnvelopes(cache($cache_key));
         }
 
-        $qrcode_res = Db::name('extension_qrcode')->where(['qrcode_id' => $qrcode_id, 'is_del' => -1])->cache(true, 60)->find();
+        $qrcode_res = Db::name('extension_qrcode')->where(['qrcode_id' => $qrcode_id, 'is_del' => -1])->cache(true, 30)->find();
         if (!$qrcode_res) {
             return '欢迎关注！';
         }
@@ -784,22 +782,25 @@ class BusinessLogic extends Model
             $this->createSession($appid, $openid, 'other');
         }
 
-        if (count(json_decode($qrcode_res['label'], true)) != 0) {
-            try {
-                $company_id = Db::name('openweixin_authinfo')->where(['appid' => $appid])->value('company_id');
-                $label_list = json_decode($qrcode_res['label'], true);
+        // if (count(json_decode($qrcode_res['label'], true)) != 0) {
+        //     try {
+        //         $company_id = Db::name('openweixin_authinfo')->where(['appid' => $appid])->value('company_id');
+        //         $label_list = json_decode($qrcode_res['label'], true);
 
-                foreach ($label_list as $label_id) {
-                    $WxOperationLogic = new WxOperationLogic();
-                    $data['company_id'] = $company_id;
-                    $data['appid'] = $appid;
-                    $data['openid'] = $openid;
-                    $data['label_id'] = $label_id;
-                    $WxOperationLogic->setWxUserLabel($data);
-                }
-            } catch (\Exception $e) {
-            }
-        }
+        //         foreach ($label_list as $label_id) {
+        //             $WxOperationLogic = new WxOperationLogic();
+        //             $data['company_id'] = $company_id;
+        //             $data['appid'] = $appid;
+        //             $data['openid'] = $openid;
+        //             $data['label_id'] = $label_id;
+        //             $WxOperationLogic->setWxUserLabel($data);
+        //         }
+        //     } catch (\Exception $e) {
+        //     }
+        // }
+
+        $qrcode_res['openid'] = $openid;
+        $qrcode_res['reply_type'] = $qrcode_res['type'];
 
         return $this->authReply($qrcode_res);
     }
@@ -816,6 +817,7 @@ class BusinessLogic extends Model
     public function authReply($data)
     {
         $appid = $data['appid'];
+        $openid = $data['openid'];
         $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
         $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
@@ -823,23 +825,24 @@ class BusinessLogic extends Model
 
         switch ($reply_type) {
             case 1:
-                return $reply_text;
+                $message_data = ['content'=>$reply_text];
                 break;
             case 2:
-                $resources_res = Db::name('resources')->where(['resources_id' => $resources_id])->find();
-                if (!$resources_res) {
-                    return '回复的图片不存在或已清理';
-                }
-
-                $upload_res = $temporary->uploadImage('..' . $resources_res['resources_route']);
-                return new Image(['media_id' => $upload_res['media_id']]);
+                $message_data = ['resources_id'=>$resources_id];
                 break;
             case 3:
-                return new Material('mpnews', $media_id);
+                $message_data = ['media_id'=>$media_id];
                 break;
             default:
                 return '欢迎关注';
         }
+
+        Common::sendWxMessage([
+            'appid' => $appid,
+            'openid' => $openid,
+            'type' => 3,
+            'message_data' => $message_data
+        ]);
     }
 
     /**
@@ -862,7 +865,6 @@ class BusinessLogic extends Model
             ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
             ->where(['appid' => $appid, 'customer_wx_openid' => $openid, 'state' => array('in', [0, 1, 2, 3])])
             ->find();
-        Log::record($session_res);
 
         if ($session_res) {
             if ($session_res['state'] == 0 || $session_res['state'] == 1 || $session_res['state'] == 2) {
