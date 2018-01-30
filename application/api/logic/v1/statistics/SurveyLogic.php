@@ -4,6 +4,7 @@ use think\Model;
 use think\Db;
 use app\api\common\Common;
 use app\api\logic\v1\push\ClientLogic;
+use GatewayClient\Gateway;
 
 class SurveyLogic extends Model {
     /**
@@ -45,9 +46,8 @@ class SurveyLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getCustomerServiceTotal($company_id){
-        $ClientLogic = new ClientLogic();
-        $res = $ClientLogic->getClientCountByGroup($company_id);
-        $on_line_total = $res['body']['count'];
+        Gateway::$registerAddress = config('gw_address');
+        $on_line_total = Gateway::getClientCountByGroup($company_id);
 
         $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->count();
 
