@@ -66,7 +66,7 @@ class ExtensionLogic extends Model
         }
 
         if (empty($customer_service_id) == false && $reception_type == 1) {
-            $customer_service_res = Db::name('customer_service')->where(['appid' => $appid, 'company_id' => $company_id, 'customer_service_id' => $customer_service_id])->find();
+            $customer_service_res = Db::name('customer_service')->where(['appid' => $appid, 'company_id' => $company_id, 'uid' => $uid])->find();
             if (empty($customer_service_res)) {
                 return msg(3003, '客服不存在');
             }
