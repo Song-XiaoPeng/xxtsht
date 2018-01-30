@@ -6,6 +6,7 @@ use EasyWeChat\Foundation\Application;
 use EasyWeChat\Message\Material;
 use EasyWeChat\Message\Image;
 use think\Log;
+use EasyWeChat\Message\Text;
 
 class Common
 {

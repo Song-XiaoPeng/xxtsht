@@ -800,7 +800,6 @@ class BusinessLogic extends Model
         // }
 
         $qrcode_res['openid'] = $openid;
-        $qrcode_res['reply_type'] = $qrcode_res['type'];
 
         return $this->authReply($qrcode_res);
     }
@@ -825,12 +824,15 @@ class BusinessLogic extends Model
 
         switch ($reply_type) {
             case 1:
+                $type = 1;
                 $message_data = ['content'=>$reply_text];
                 break;
             case 2:
+                $type = 2;
                 $message_data = ['resources_id'=>$resources_id];
                 break;
             case 3:
+                $type = 3;
                 $message_data = ['media_id'=>$media_id];
                 break;
             default:
@@ -840,7 +842,7 @@ class BusinessLogic extends Model
         Common::sendWxMessage([
             'appid' => $appid,
             'openid' => $openid,
-            'type' => 3,
+            'type' => $type,
             'message_data' => $message_data
         ]);
     }
