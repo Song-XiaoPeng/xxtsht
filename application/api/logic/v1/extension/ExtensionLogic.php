@@ -85,7 +85,6 @@ class ExtensionLogic extends Model
             $update_res = Db::name('extension_qrcode')
                 ->where(['qrcode_id' => $qrcode_id, 'company_id' => $company_id])
                 ->update([
-                    'invalid_time' => $invalid_time,
                     'activity_name' => $activity_name,
                     'label' => json_encode($label),
                     'customer_service_id' => $customer_service_id,
