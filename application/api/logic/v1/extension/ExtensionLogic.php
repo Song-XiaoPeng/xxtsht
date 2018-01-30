@@ -54,6 +54,10 @@ class ExtensionLogic extends Model
             return msg(3004, '专属客服与专属客服分组只能选取一个选项');
         }
 
+        if ($type == 2 && $invalid_day > 30) {
+            return msg(3016,'临时二维码有效天数不得大于30天');
+        }
+
         if (!empty($customer_service_group_id)) {
             $group_res = Db::name('extension_qrcode_group')->where(['company_id' => $company_id, 'qrcode_group_id' => $qrcode_group_id, 'del' => -1])->find();
             if (empty($group_res)) {
