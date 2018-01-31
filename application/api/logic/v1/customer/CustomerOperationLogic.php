@@ -146,6 +146,10 @@ class CustomerOperationLogic extends Model {
                 'add_time' => date('Y-m-d H:i:s'),
             ]);
         }else{
+            if($wx_user_res['customer_service_uid'] !== $uid){
+                return msg(3016, '非此客户的专属客服不允许修改信息');
+            }
+
             $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
 
             $db_operation_res = Db::name('customer_info')
