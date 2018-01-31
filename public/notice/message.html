@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="Content-Language" content="zh-CN" />
+        <title>{$title}</title>
+        <style>
+            html,body{
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+                background: #f8f8f9;
+            }
+
+            *{
+                padding: 0;
+                margin: 0;
+            }
+
+            body {
+                background-image: url('');
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+                -webkit-user-select: none;
+                -webkit-user-select: none;
+            }
+
+            #header {
+                width: 100%;
+                height: 35px;
+                position: absolute;
+                right: 0;
+                background: #2d8cf0;
+            }
+
+            #content {
+                margin-top: 15px;
+                padding: 10px;
+                line-height: 25px;
+            }
+
+            .close {
+                cursor: pointer;
+                width: 35px;
+                height: 35px;
+                float: right;
+                color: #fff;
+                text-align: center;
+                line-height: 35px;
+                font-size: 24px;
+            }
+
+            .close:hover {
+                background: rgb(232,17,35);
+            }
+
+            .title {
+                width: 130px;
+                color: #fff;
+                font-size: 14px;
+                display: inline-block;
+                line-height: 35px;
+                margin-left: 10px;
+                animation: change 1s  ease-in  infinite ;
+            }
+
+            @keyframes blink{
+                0%{opacity: 1;}
+                50%{opacity: 1;}
+                50.01%{opacity: 0;}
+                100%{opacity: 0;} 
+            }
+
+            @-webkit-keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 1; }
+                50.01% { opacity: 0; }
+                100% { opacity: 0; }
+            }
+
+            @-moz-keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 1; }
+                50.01% { opacity: 0; }
+                100% { opacity: 0; }
+            }
+
+            @-ms-keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 1; }
+                50.01% { opacity: 0; }
+                100% { opacity: 0; }
+            }
+
+            @-o-keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 1; }
+                50.01% { opacity: 0; }
+                100% { opacity: 0; }
+            }
+
+            .blink{
+                animation: blink .75s linear infinite;  
+                -webkit-animation: blink .75s linear infinite;
+                -moz-animation: blink .75s linear infinite;
+                -ms-animation: blink .75s linear infinite;
+                -o-animation: blink .75s linear infinite;
+                color: #fff;
+            }
+
+            #bottom {
+                width: 100%;
+                height: 40px;
+                border-top: 1px #dddee1 solid;
+                position: absolute;
+                bottom: 0px;
+            }
+
+            .see {
+                width: 80px;
+                height: 25px;
+                float: right;
+                margin-top: 8px;
+                margin-right: 10px;
+                cursor: pointer;
+                background: #19be6b;
+                color: #fff;
+                border: 0px;
+                border-radius: 5px;
+                outline: none;
+            }
+
+            .portrait {
+                width: 120px;
+                height: 120px;
+                background: red;
+                margin-top: 35px;
+                display: inline-block;
+                vertical-align: top;
+                background-size: cover;
+                background-image: url('http://wx.qlogo.cn/mmopen/sTJptKvBQLLficQQgwfIkF2MsB2ZEPUrqm2UicK2doKMM3Tqb7sHDHq6JsEQA6cPm8URCFlLYLUvtELnicBnf7D8rsLudLvNItC/132');
+            }
+
+            .content {
+                width: 190px;
+                height: 30px;
+                display: inline-block;
+                vertical-align: top;
+                margin-top: 33px;
+                margin-left: 10px;
+                font-size: 13px;
+            }
+
+            .nickname {
+                color: #495060;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <div class="title">网鱼客服系统</div>
+            <div class="close" onclick="closes()">×</div>
+        </div>
+
+        <div id="content">
+            <div class="portrait"></div>
+            <div class="content">
+                <div class="nickname">微信昵称：Junwen</div>
+                <div class="nickname">来源平台：利亚方舟</div>
+                <div class="nickname">来访会话：10次</div>
+                <div class="nickname">主动会话：5次</div>
+                <div class="nickname">消息类型：等待会话</div>
+            </div>
+        </div>
+
+        <div id="bottom">
+            <button class="see" onclick="see()"><font class="blink">立即查看</font></button>
+        </div>
+
+        <script type="text/javascript" charset="utf-8">
+            var ipc = require('electron').ipcRenderer;
+
+            function closes () {
+                ipc.send('close-message-dialog');
+            }
+
+            function see () {
+                ipc.send('close-message-dialog');
+            }
+        </script>
+    </body>
+</html>
