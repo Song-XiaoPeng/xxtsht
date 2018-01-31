@@ -42,6 +42,7 @@ class CustomerOperationLogic extends Model {
         $wx_number = empty($data['wx_number']) == true ? '' : $data['wx_number'];
         $email = empty($data['email']) == true ? '' : $data['email'];
         $tel = empty($data['tel']) == true ? '' : $data['tel'];
+        $company_names = empty($data['company_names']) == true ? '' : $data['company_names'];
         $product_id = empty($data['product_id']) == true ? [] : $data['product_id'];
 
         $time = date('Y-m-d H:i:s');
@@ -129,6 +130,7 @@ class CustomerOperationLogic extends Model {
                 'real_name' => $real_name,
                 'real_sex' => $real_sex,
                 'real_phone' => $real_phone,
+                'company_names' => $company_names,
                 'contact_address' => $contact_address,
                 'wx_company_id' => $wx_company_id,
                 'wx_user_group_id' => $wx_user_group_id,
@@ -143,8 +145,6 @@ class CustomerOperationLogic extends Model {
                 'customer_type' => $customer_type,
                 'add_time' => date('Y-m-d H:i:s'),
             ]);
-
-            $wx_user_data['customer_service_uid'] = $uid;
         }else{
             $customer_info_id = empty($customer_info_id) == true ? $wx_user_res['customer_info_id'] : $customer_info_id;
 
@@ -159,6 +159,7 @@ class CustomerOperationLogic extends Model {
                 'real_phone' => $real_phone,
                 'contact_address' => $contact_address,
                 'wx_company_id' => $wx_company_id,
+                'company_names' => $company_names,
                 'wx_user_group_id' => $wx_user_group_id,
                 'desc' => $desc,
                 'birthday' => $birthday,
@@ -169,6 +170,8 @@ class CustomerOperationLogic extends Model {
                 'customer_type' => $customer_type,
             ]);
         }
+
+        $wx_user_data['customer_service_uid'] = $uid;
 
         $wx_user_data['customer_info_id'] = $customer_info_id;
         
