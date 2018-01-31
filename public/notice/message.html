@@ -138,7 +138,6 @@
                 display: inline-block;
                 vertical-align: top;
                 background-size: cover;
-                background-image: url('http://wx.qlogo.cn/mmopen/sTJptKvBQLLficQQgwfIkF2MsB2ZEPUrqm2UicK2doKMM3Tqb7sHDHq6JsEQA6cPm8URCFlLYLUvtELnicBnf7D8rsLudLvNItC/132');
             }
 
             .content {
@@ -166,13 +165,13 @@
         </div>
 
         <div id="content">
-            <div class="portrait"></div>
+            <div id="portrait" class="portrait"></div>
             <div class="content">
-                <div class="nickname">微信昵称：Junwen</div>
-                <div class="nickname">来源平台：利亚方舟</div>
-                <div class="nickname">来访会话：10次</div>
-                <div class="nickname">主动会话：5次</div>
-                <div class="nickname">消息类型：等待会话</div>
+                <div class="nickname">微信昵称：<span id="nickname"></span></div>
+                <div class="nickname">来源平台：<span id="platform"></span></div>
+                <div class="nickname">来访会话：<span id="visit"></span>次</div>
+                <div class="nickname">主动会话：<span id="active"></span>次</div>
+                <div class="nickname">消息类型：<span id="type"></span></div>
             </div>
         </div>
 
@@ -183,13 +182,43 @@
         <script type="text/javascript" charset="utf-8">
             var ipc = require('electron').ipcRenderer;
 
+            var seeUrl;
+
             function closes () {
                 ipc.send('close-message-dialog');
             }
 
             function see () {
                 ipc.send('close-message-dialog');
+                ipc.send('set-window-url', seeUrl);
             }
+
+            function getQueryString(name) {   
+                reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");   
+                r = window.location.search.substr(1).match(reg);   
+                if (r != null) return decodeURI(r[2]); return null;   
+            }  
+
+            data = JSON.parse(getQueryString('data'));
+
+            nickname = document.getElementById("nickname");
+            nickname.innerHTML = data.nickname;
+
+            platform = document.getElementById("platform");
+            platform.innerHTML = data.platform;
+
+            visit = document.getElementById("visit");
+            visit.innerHTML = data.visit;
+
+            active = document.getElementById("active");
+            active.innerHTML = data.active;
+
+            type = document.getElementById("type");
+            type.innerHTML = data.type;
+
+            seeUrl = decodeURIComponent(data.route);
+
+            document.getElementById("portrait").style.backgroundImage = 'url('+ data.portrait +')';
         </script>
     </body>
 </html>
