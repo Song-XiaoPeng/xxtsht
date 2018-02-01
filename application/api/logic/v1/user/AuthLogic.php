@@ -2,7 +2,6 @@
 namespace app\api\logic\v1\user;
 use think\Model;
 use think\Db;
-use GatewayClient\Gateway;
 
 class AuthLogic extends Model{
     /**
@@ -18,6 +17,7 @@ class AuthLogic extends Model{
         $client_type = $data['client'];
         $client_network_mac = empty($data['client_network_mac']) == true ? '' : $data['client_network_mac'];
         $time = date('Y-m-d H:i:s');
+        $ip = $_SERVER['REMOTE_ADDR'];
 
         /*        if(empty($client_network_mac)){
                     return msg(3001,'无法获取客户端硬件识别码');
@@ -56,7 +56,7 @@ class AuthLogic extends Model{
         Db::name('user')->where(['company_id' => $user_info['company_id'], 'uid' => $user_info['uid']])->update([
             'client_network_mac' => $client_network_mac,
             'client_version' => $client_version,
-            'login_time' => date('Y-m-d H:i:s')
+            'login_time' => $time
         ]);
 
         $user_group_name = Db::name('user_group')->where(['user_group_id' => $user_info['user_group_id']])->value('user_group_name');
@@ -104,6 +104,13 @@ class AuthLogic extends Model{
 
         Db::name('customer_service')->where(['company_id' => $company_id, 'uid' => $uid])->update(['state' => 1]);
 
+        $login_remind_data = [
+            'type' => 'remind',
+            'countDownClose' => 8,
+            'icon' => 'http://kf.lyfz.net/static/images/ok.png',
+            'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：广东省惠州市惠城区华乐</div><div class="nickname">登录时间：'.$time.'</div>'
+        ];
+
         return msg(
             200,
             'success',
@@ -124,6 +131,7 @@ class AuthLogic extends Model{
                 'avatar_url' => $avatar_url,
                 'autograph' => $user_info['autograph'],
                 'model_list' => $model_list,
+                'login_remind_data' => $login_remind_data
             ]
         );
     }
@@ -178,29 +186,5 @@ class AuthLogic extends Model{
         } else {
             return msg(3001, '更新数据失败');
         }
-    }
-
-    /**
-     * 登录推送客户端提醒
-     * @param uid 账号uid
-	 * @return code 200->成功
-	 */
-    public function pushRemind($uid){
-        $user_res = Db::name('user')->where(['uid'=>$uid])->find();
-
-        $ip = $_SERVER['REMOTE_ADDR'];
-
-        $login_time = $user_res['login_time'];
-
-        $phone_no = $user_res['phone_no'];
-
-        $data = msg(200, 'success', [
-            'type' => 'remind',
-            'icon' => 'http://kf.lyfz.net/static/images/ok.png',
-            'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：广东省惠州市惠城区华乐</div><div class="nickname">登录时间：'.$login_time.'</div>'
-        ]);
-
-        Gateway::$registerAddress = config('gw_address');
-        Gateway::sendToUid($uid, json_encode($data));
     }
 }
