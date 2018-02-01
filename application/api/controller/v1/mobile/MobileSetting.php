@@ -25,4 +25,12 @@ class MobileSetting extends Auth
         $data['uid'] = $this->uid;
         return Loader::model('MobileSettingLogic','logic\v1\mobile')->profileSetting($data);
     }
+
+    /**
+     * 个人信息列表
+     */
+    public function profile()
+    {
+        return Loader::model('MobileSettingLogic','logic\v1\mobile')->profile($this->uid);
+    }
 }

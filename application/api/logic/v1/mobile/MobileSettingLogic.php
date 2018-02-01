@@ -42,4 +42,16 @@ class MobileSettingLogic extends Model
             return msg(6001, '修改失败');
         }
     }
+
+    public function profile($uid)
+    {
+        try {
+            $res = Db::name('user')->field('user_name,sex,autograph')->where('uid', $uid)->find();
+            $avator = Db::name('user_portrait')->where('uid', $uid)->value('resources_id');
+            $res['avator'] = $avator;
+            return msg(200, 'success', $res);
+        } catch (Exception $e) {
+            return msg(6001, $e->getMessage());
+        }
+    }
 }
