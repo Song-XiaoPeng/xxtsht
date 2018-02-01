@@ -5,6 +5,7 @@ use think\Db;
 use EasyWeChat\Foundation\Application;
 use think\Log;
 use app\api\common\Common;
+use app\api\logic\v1\we_chat\BusinessLogic;
 
 class InteractiveLogic extends Model {
     /**
@@ -113,6 +114,20 @@ class InteractiveLogic extends Model {
 
         if(empty($desc)){
             return msg(3003,'未找到菜单');
+        }
+
+        $WxBusiness = new BusinessLogic();
+        $WxBusiness->createSession($appid, $openid, 'other');
+
+        //判断是否存在客服会话
+        $session_res = $WxBusiness->getSession($appid, $openid);
+        if ($session_res) {
+            if ($session_res['session_state'] == 2) {//群聊
+                $opercode = 4;
+            } else {
+                $opercode = 2;
+            }
+            Common::addMessagge($appid, $openid, $session_res['session_id'], $session_res['customer_service_id'], $session_res['uid'], 1, $opercode, ['text' => $desc]);
         }
 
         $insert_res = Db::name('wx_user_operation')

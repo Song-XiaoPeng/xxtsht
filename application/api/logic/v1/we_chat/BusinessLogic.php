@@ -515,7 +515,7 @@ class BusinessLogic extends Model
      * @param openid 用户微信openid
      * @return code 200->成功
      */
-    private function getSession($appid, $openid)
+    public function getSession($appid, $openid)
     {
         $res = Db::name('message_session')
             ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
