@@ -717,6 +717,8 @@ class BusinessLogic extends Model
      */
     private function unSubScribe($appid, $openid)
     {
+        $time = date('Y-m-d H:i:s');
+
         $company_id = Db::name('openweixin_authinfo')->where(['appid' => $appid])->cache(true, 3600)->value('company_id');
         if (empty($company_id)) {
             return false;
@@ -734,7 +736,7 @@ class BusinessLogic extends Model
         $update_res = Db::name('wx_user')
             ->partition(['company_id' => $company_id], "company_id", ['type' => 'md5', 'num' => config('separate')['wx_user']])
             ->where(['appid' => $appid, 'openid' => $openid])
-            ->update(['subscribe' => 0]);
+            ->update(['subscribe' => 0, 'canel_time' => $time]);
 
         if ($update_res !== false) {
             return true;
