@@ -182,7 +182,7 @@
         <script type="text/javascript" charset="utf-8">
             var ipc = require('electron').ipcRenderer;
 
-            var seeUrl;
+            var routeName;
 
             function closes () {
                 ipc.send('close-message-dialog');
@@ -190,7 +190,7 @@
 
             function see () {
                 ipc.send('close-message-dialog');
-                ipc.send('set-window-url', seeUrl);
+                ipc.send('set-window-url', routeName);
             }
 
             function getQueryString(name) {   
@@ -216,7 +216,7 @@
             type = document.getElementById("type");
             type.innerHTML = data.type;
 
-            seeUrl = decodeURIComponent(data.route);
+            routeName = data.route;
 
             document.getElementById("portrait").style.backgroundImage = 'url('+ data.portrait +')';
         </script>
