@@ -104,11 +104,13 @@ class AuthLogic extends Model{
 
         Db::name('customer_service')->where(['company_id' => $company_id, 'uid' => $uid])->update(['state' => 1]);
 
+        $ip_res = \think\Loader::model('AddressLogic','logic\v1\map')->getIp($ip);
+
         $login_remind_data = [
             'type' => 'remind',
             'countDownClose' => 12,
             'icon' => 'http://kf.lyfz.net/static/images/ok.png',
-            'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：广东省惠州市惠城区华乐</div><div class="nickname">登录时间：'.$time.'</div>'
+            'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：'.$ip_res['body'].'</div><div class="nickname">登录时间：'.$time.'</div>'
         ];
 
         return msg(

@@ -25,4 +25,26 @@ class AddressLogic extends Model {
 
         return msg(200,'success',$arr['result']);
     }
+
+    /**
+     * 腾讯ip地址解析
+	 * @param ip
+	 * @return code 200->成功
+	 */
+    public function getIp($ip){
+        if(empty($ip) == true){
+            return msg(3001, 'ip参数错误');
+        }
+
+        $url = 'http://apis.map.qq.com/ws/location/v1/ip?ip='.$ip.'&key='.config('web_service_api');
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('GET', $url);
+
+        $arr = json_decode($res->getBody(),true);
+
+        $address = $arr['result']['ad_info']['province'].$arr['result']['ad_info']['city'].$arr['result']['ad_info']['district'];
+        
+        return msg(200,'success',$address);
+    }
 }
