@@ -5,7 +5,6 @@ namespace app\api\logic\v1\statistics;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
-use app\api\logic\v1\push\ClientLogic;
 use GatewayClient\Gateway;
 
 class SurveyLogic extends Model

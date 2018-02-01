@@ -1,26 +1,23 @@
 <?php
-
 namespace app\api\logic\v1\user;
-
 use think\Model;
 use think\Db;
 
-class AuthLogic extends Model
-{
+class AuthLogic extends Model{
     /**
      * 账号登录
      * @param phone_no 用户手机
      * @param password 密码md5
      * @return code 200->成功
      */
-    public function login($data)
-    {
+    public function login($data){
         $phone_no = $data['phone_no'];
         $password = $data['password'];
         $client_version = $data['version'];
         $client_type = $data['client'];
         $client_network_mac = empty($data['client_network_mac']) == true ? '' : $data['client_network_mac'];
         $time = date('Y-m-d H:i:s');
+        $ip = $_SERVER['REMOTE_ADDR'];
 
         /*        if(empty($client_network_mac)){
                     return msg(3001,'无法获取客户端硬件识别码');
@@ -59,7 +56,7 @@ class AuthLogic extends Model
         Db::name('user')->where(['company_id' => $user_info['company_id'], 'uid' => $user_info['uid']])->update([
             'client_network_mac' => $client_network_mac,
             'client_version' => $client_version,
-            'login_time' => date('Y-m-d H:i:s')
+            'login_time' => $time
         ]);
 
         $user_group_name = Db::name('user_group')->where(['user_group_id' => $user_info['user_group_id']])->value('user_group_name');
@@ -107,6 +104,15 @@ class AuthLogic extends Model
 
         Db::name('customer_service')->where(['company_id' => $company_id, 'uid' => $uid])->update(['state' => 1]);
 
+        $ip_res = \think\Loader::model('AddressLogic','logic\v1\map')->getIp($ip);
+
+        $login_remind_data = [
+            'type' => 'remind',
+            'countDownClose' => 20,
+            'icon' => 'http://kf.lyfz.net/static/images/ok.png',
+            'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：'.$ip_res['body'].'</div><div class="nickname">登录时间：'.$time.'</div>'
+        ];
+
         return msg(
             200,
             'success',
@@ -127,6 +133,7 @@ class AuthLogic extends Model
                 'avatar_url' => $avatar_url,
                 'autograph' => $user_info['autograph'],
                 'model_list' => $model_list,
+                'login_remind_data' => $login_remind_data
             ]
         );
     }
@@ -161,8 +168,7 @@ class AuthLogic extends Model
      * @param company_id 商户id
      * @return code 200->成功
      */
-    public function getUidCompanyId($uid)
-    {
+    public function getUidCompanyId($uid){
         $company_id = Db::name('user')->where(['uid' => $uid])->cache(true, 120)->value('company_id');
 
         return msg(200, 'success', ['company_id' => $company_id]);
@@ -174,8 +180,7 @@ class AuthLogic extends Model
      * @param state 是否在线 1在线 -1离线
      * @return code 200->成功
      */
-    public function setUserOnlineState($uid, $state)
-    {
+    public function setUserOnlineState($uid, $state){
         $update_res = Db::name('user')->where(['uid' => $uid])->update(['is_on_line' => $state]);
 
         if ($update_res !== false) {

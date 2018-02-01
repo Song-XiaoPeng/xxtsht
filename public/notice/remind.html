@@ -116,6 +116,13 @@
                 bottom: 0px;
             }
 
+            .identification {
+                line-height: 40px;
+                font-size: 12px;
+                color: #495060;
+                margin-right: 10px;
+            }
+
             .see {
                 width: 80px;
                 height: 25px;
@@ -133,7 +140,6 @@
             .portrait {
                 width: 120px;
                 height: 120px;
-                background: red;
                 margin-top: 35px;
                 display: inline-block;
                 vertical-align: top;
@@ -159,26 +165,19 @@
         </style>
     </head>
     <body>
-        <audio src="http://kf.lyfz.net/static/audio/message.wav" autoplay></audio>
-
         <div id="header">
             <div class="title">网鱼客服系统</div>
             <div class="close" onclick="closes()">×</div>
         </div>
 
         <div id="content">
-            <div id="portrait" class="portrait"></div>
-            <div class="content">
-                <div class="nickname">微信昵称：<span id="nickname"></span></div>
-                <div class="nickname">来源平台：<span id="platform"></span></div>
-                <div class="nickname">来访会话：<span id="visit"></span>次</div>
-                <div class="nickname">主动会话：<span id="active"></span>次</div>
-                <div class="nickname">消息类型：<span id="type"></span></div>
+            <div id="icon" class="portrait"></div>
+            <div class="content" id="contentHtml">
             </div>
         </div>
 
-        <div id="bottom">
-            <button class="see" onclick="see()"><font class="blink">立即查看</font></button>
+        <div id="bottom" style="text-align: right;">
+            <font class="identification">惠州市利亚方舟科技有限公司</font>
         </div>
 
         <script type="text/javascript" charset="utf-8">
@@ -187,12 +186,7 @@
             var routeName;
 
             function closes () {
-                ipc.send('close-message-dialog');
-            }
-
-            function see () {
-                ipc.send('close-message-dialog');
-                ipc.send('set-window-url', routeName);
+                ipc.send('close-remind-dialog');
             }
 
             function getQueryString(name) {   
@@ -203,24 +197,10 @@
 
             data = JSON.parse(getQueryString('data'));
 
-            nickname = document.getElementById("nickname");
-            nickname.innerHTML = data.nickname;
+            contentHtml = document.getElementById("contentHtml");
+            contentHtml.innerHTML = data.contentHtml;
 
-            platform = document.getElementById("platform");
-            platform.innerHTML = data.platform;
-
-            visit = document.getElementById("visit");
-            visit.innerHTML = data.visit;
-
-            active = document.getElementById("active");
-            active.innerHTML = data.active;
-
-            type = document.getElementById("type");
-            type.innerHTML = data.type;
-
-            routeName = data.route;
-
-            document.getElementById("portrait").style.backgroundImage = 'url('+ data.portrait +')';
+            document.getElementById("icon").style.backgroundImage = 'url('+ data.icon +')';
         </script>
     </body>
 </html>
