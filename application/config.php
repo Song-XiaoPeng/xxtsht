@@ -287,6 +287,9 @@ return [
         'wx_user' => 5,
     ],
 
+    //GatewayWorker内部通讯地址
+    'gw_address' => '127.0.0.1:1233',
+
     //短信网关账户账号
     'message_account' => '681990',
 

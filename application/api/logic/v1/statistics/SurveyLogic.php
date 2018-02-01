@@ -3,6 +3,8 @@ namespace app\api\logic\v1\statistics;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
+use app\api\logic\v1\push\ClientLogic;
+use GatewayClient\Gateway;
 
 class SurveyLogic extends Model {
     /**
@@ -44,13 +46,14 @@ class SurveyLogic extends Model {
 	 * @return code 200->成功
 	 */
     public function getCustomerServiceTotal($company_id){
-        $on_line_total = Db::name('user')->where(['company_id'=>$company_id,'is_on_line'=>1])->count();
-        $off_line_total = Db::name('user')->where(['company_id'=>$company_id,'is_on_line'=>-1])->count();
+        Gateway::$registerAddress = config('gw_address');
+        $on_line_total = Gateway::getClientCountByGroup($company_id);
+
         $customer_service_total = Db::name('customer_service')->where(['company_id'=>$company_id])->group('uid')->count();
 
         return msg(200,'success',[
             'on_line_total' => $on_line_total,
-            'off_line_total' => $off_line_total,
+            'off_line_total' => 0,
             'total' => $customer_service_total
         ]);
     }
