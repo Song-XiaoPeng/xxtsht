@@ -35,4 +35,40 @@ class Survey extends Auth{
 
 		return \think\Loader::model('SurveyLogic','logic\v1\statistics')->getCustomerServiceRanking($data);
 	}
+
+    public function getFansNumStatistic()
+    {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('SurveyLogic','logic\v1\statistics')->getFansNumStatistic($data);
+	}
+
+    public function get7Days()
+    {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('SurveyLogic','logic\v1\statistics')->get7Days($data);
+    }
+
+    public function getUserSource()
+    {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('SurveyLogic','logic\v1\statistics')->getUserSource($data);
+    }
+
+    public function getFunsNumStatistics()
+    {
+        $data = input('put.');
+        $data['company_id'] = $this->company_id;
+        $data['uid'] = $this->uid;
+
+        return \think\Loader::model('SurveyLogic','logic\v1\statistics')->getFunsNumStatistics($data);
+    }
 }

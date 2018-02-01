@@ -5,7 +5,9 @@
  * Date: 2018/1/27
  * Time: 16:01
  */
+
 namespace app\api\controller\v1\mobile;
+
 use app\api\common\Auth;
 use think\Loader;
 
@@ -23,7 +25,7 @@ class MobileSetting extends Auth
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
-        return Loader::model('MobileSettingLogic','logic\v1\mobile')->profileSetting($data);
+        return Loader::model('MobileSettingLogic', 'logic\v1\mobile')->profileSetting($data);
     }
 
     /**
@@ -31,6 +33,6 @@ class MobileSetting extends Auth
      */
     public function profile()
     {
-        return Loader::model('MobileSettingLogic','logic\v1\mobile')->profile($this->uid);
+        return Loader::model('MobileSettingLogic', 'logic\v1\mobile')->profile($this->uid);
     }
 }
