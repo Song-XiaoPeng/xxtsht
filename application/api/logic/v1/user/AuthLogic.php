@@ -1,20 +1,17 @@
 <?php
-
 namespace app\api\logic\v1\user;
-
 use think\Model;
 use think\Db;
+use GatewayClient\Gateway;
 
-class AuthLogic extends Model
-{
+class AuthLogic extends Model{
     /**
      * 账号登录
      * @param phone_no 用户手机
      * @param password 密码md5
      * @return code 200->成功
      */
-    public function login($data)
-    {
+    public function login($data){
         $phone_no = $data['phone_no'];
         $password = $data['password'];
         $client_version = $data['version'];
@@ -161,8 +158,7 @@ class AuthLogic extends Model
      * @param company_id 商户id
      * @return code 200->成功
      */
-    public function getUidCompanyId($uid)
-    {
+    public function getUidCompanyId($uid){
         $company_id = Db::name('user')->where(['uid' => $uid])->cache(true, 120)->value('company_id');
 
         return msg(200, 'success', ['company_id' => $company_id]);
@@ -174,8 +170,7 @@ class AuthLogic extends Model
      * @param state 是否在线 1在线 -1离线
      * @return code 200->成功
      */
-    public function setUserOnlineState($uid, $state)
-    {
+    public function setUserOnlineState($uid, $state){
         $update_res = Db::name('user')->where(['uid' => $uid])->update(['is_on_line' => $state]);
 
         if ($update_res !== false) {
@@ -183,5 +178,29 @@ class AuthLogic extends Model
         } else {
             return msg(3001, '更新数据失败');
         }
+    }
+
+    /**
+     * 登录推送客户端提醒
+     * @param uid 账号uid
+	 * @return code 200->成功
+	 */
+    public function pushRemind($uid){
+        $user_res = Db::name('user')->where(['uid'=>$uid])->find();
+
+        $ip = $_SERVER['REMOTE_ADDR'];
+
+        $login_time = $user_res['login_time'];
+
+        $phone_no = $user_res['phone_no'];
+
+        $data = msg(200, 'success', [
+            'type' => 'remind',
+            'icon' => 'http://kf.lyfz.net/static/images/ok.png',
+            'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：广东省惠州市惠城区华乐</div><div class="nickname">登录时间：'.$login_time.'</div>'
+        ]);
+
+        Gateway::$registerAddress = config('gw_address');
+        Gateway::sendToUid($uid, json_encode($data));
     }
 }
