@@ -24,6 +24,6 @@ class CommonApi extends Auth
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
-        return Loader::model('CommonApiLogic', 'logic\v1\push')->profileSetting($data);
+        return Loader::model('CommonApiLogic', 'logic\v1\push')->backgroundProcess($data);
     }
 }

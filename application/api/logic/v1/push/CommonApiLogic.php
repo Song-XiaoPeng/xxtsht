@@ -36,7 +36,6 @@ class CommonApiLogic extends Model
                 ]
             ]
         );
-
         return msg(200, $request_res);
     }
 }
