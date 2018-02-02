@@ -72,6 +72,8 @@ class WxOperationLogic extends Model
             $openPlatform = $app->open_platform;
             $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
             $menu->add($menu_list);
+
+            cache($appid.'_menu', null);
         } catch (\Exception $e) {
             return msg(3001, $e->getMessage());
         }
