@@ -41,10 +41,10 @@ class WxOperationLogic extends Model
 
             $menu_data = $menu->all()['menu'];
         } catch (\Exception $e) {
-            return msg(200, 'success', []);
+            return msg(200, 'success', ['button'=>[]]);
         }
 
-        return msg(200, 'success', $menu_data);
+        return msg(200, 'success', empty($menu_data) == true ? ['button'=>[]] : $menu_data);
     }
 
     /**
