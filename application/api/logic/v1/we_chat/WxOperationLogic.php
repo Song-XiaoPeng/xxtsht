@@ -39,7 +39,7 @@ class WxOperationLogic extends Model
 
             $menu = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->menu;
 
-            $menu_data = $menu->all()['menu']['button'];
+            $menu_data = $menu->all()['menu'];
         } catch (\Exception $e) {
             return msg(200, 'success', []);
         }
