@@ -543,17 +543,15 @@ class BusinessLogic extends Model
      */
     private function clickEvent($appid, $openid, $message)
     {
-        //记录用户操作轨迹数据
         if (!empty($message['EventKey'])) {
+            //记录用户操作轨迹数据
             InteractiveLogic::recordInteractiveEvent([
                 'appid' => $appid,
                 'openid' => $openid,
                 'event_type' => $message['Event'],
                 'event_key' => $message['EventKey']
             ]);
-        }
 
-        if (!empty($message['EventKey'])) {
             $event_arr = explode('_', $message['EventKey']);
             switch ($event_arr[0]) {
                 case 'kf':
@@ -568,6 +566,9 @@ class BusinessLogic extends Model
                     }
 
                     return $this->qrcodeEvent($appid, $openid, $event_arr[1]);
+                    break;
+                case 'text':
+                    return $event_arr[1];
                     break;
                 default:
                     return $this->default_message;
