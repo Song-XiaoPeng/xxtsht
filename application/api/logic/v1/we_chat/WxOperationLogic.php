@@ -475,22 +475,30 @@ class WxOperationLogic extends Model
      */
     public function getArticleList($company_id, $appid, $page, $type)
     {
+        $cache_key = $company_id.$appid.$page.$type;
+
         //分页
         $page_count = 12;
         $show_page = ($page - 1) * $page_count;
 
-        $token_info = Common::getRefreshToken($appid, $company_id);
-        if ($token_info['meta']['code'] == 200) {
-            $refresh_token = $token_info['body']['refresh_token'];
+        if (empty(cache($cache_key))) {
+            $token_info = Common::getRefreshToken($appid, $company_id);
+            if ($token_info['meta']['code'] == 200) {
+                $refresh_token = $token_info['body']['refresh_token'];
+            } else {
+                return $token_info;
+            }
+    
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
+    
+            $lists = $material->lists($type, $show_page, $page_count);
+
+            cache($cache_key, $lists, 3600);
         } else {
-            return $token_info;
+            $lists = cache($cache_key);
         }
-
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
-
-        $lists = $material->lists($type, $show_page, $page_count);
 
         $res['data_list'] = count($lists['item']) == 0 ? array() : $lists['item'];
         $res['page_data']['count'] = $lists['total_count'];
