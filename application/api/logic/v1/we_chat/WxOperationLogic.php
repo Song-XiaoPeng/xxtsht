@@ -495,7 +495,7 @@ class WxOperationLogic extends Model
     
             $lists = $material->lists($type, $show_page, $page_count);
 
-            cache($cache_key, $lists, 3600);
+            cache($cache_key, $lists, 60);
         } else {
             $lists = cache($cache_key);
         }
