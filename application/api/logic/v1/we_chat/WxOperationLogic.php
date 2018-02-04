@@ -475,7 +475,7 @@ class WxOperationLogic extends Model
      */
     public function getArticleList($company_id, $appid, $page, $type)
     {
-        $cache_key = $company_id.$appid.$page.$type;
+        $cache_key = $company_id.$appid.$page.$type.'_getArticleList';
 
         //分页
         $page_count = 12;
@@ -545,18 +545,26 @@ class WxOperationLogic extends Model
      */
     public function getSourceMaterial($company_id, $appid, $mediaId)
     {
-        $token_info = Common::getRefreshToken($appid, $company_id);
-        if ($token_info['meta']['code'] == 200) {
-            $refresh_token = $token_info['body']['refresh_token'];
+        $cache_key = $company_id.$appid.$mediaId.'_getSourceMaterial';
+
+        if (empty(cache($cache_key))) {
+            $token_info = Common::getRefreshToken($appid, $company_id);
+            if ($token_info['meta']['code'] == 200) {
+                $refresh_token = $token_info['body']['refresh_token'];
+            } else {
+                return $token_info;
+            }
+    
+            $app = new Application(wxOptions());
+            $openPlatform = $app->open_platform;
+            $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
+    
+            $res = $material->get($mediaId);
+
+            cache($cache_key, $res, 360);
         } else {
-            return $token_info;
+            $res = cache($cache_key);
         }
-
-        $app = new Application(wxOptions());
-        $openPlatform = $app->open_platform;
-        $material = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->material;
-
-        $res = $material->get($mediaId);
 
         return msg(200, 'success', $res);
     }
