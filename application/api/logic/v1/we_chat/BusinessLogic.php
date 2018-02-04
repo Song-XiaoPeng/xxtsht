@@ -10,6 +10,7 @@ use EasyWeChat\Message\Image;
 use EasyWeChat\Message\Material;
 use EasyWeChat\Message\Text;
 use app\api\logic\v1\trajectory\InteractiveLogic;
+use app\api\logic\v1\extension\ExtensionLogic;
 
 class BusinessLogic extends Model
 {
@@ -178,8 +179,11 @@ class BusinessLogic extends Model
                 //判断是否菜单事件
                 if (!empty($message['EventKey'])) {
                     $menu_data = explode(':', $message['EventKey']);
+
                     if(!empty($menu_data[0])){
-                        $this->menuEvent($appid,$openid,$menu_data[0],$menu_data[1]);
+                        if(!empty($menu_data[1])){
+                            $this->menuEvent($appid,$openid,$menu_data[0],$menu_data[1]);
+                        }
                     }
                 }
 
@@ -261,6 +265,35 @@ class BusinessLogic extends Model
     public function menuEvent($appid,$openid,$type,$event_data){
         switch($type){
             case 'extensionQrcode':
+                //查询公众号所属comppany_id
+                $company_id = Db::name('openweixin_authinfo')->where(['appid'=>$appid])->cache(true,3600)->value('company_id');
+                if(!$company_id){
+                    return;
+                }
+
+                try {
+                    $token_info = Common::getRefreshToken($appid, $company_id);
+                    if ($token_info['meta']['code'] == 200) {
+                        $refresh_token = $token_info['body']['refresh_token'];
+                    } else {
+                        return;
+                    }
+
+                    $app = new Application(wxOptions());
+                    $openPlatform = $app->open_platform;
+
+                    $userService = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user;
+                    $wx_info = $userService->get($openid);
+
+                    $extension = new ExtensionLogic();
+                    $extension->createFansQrcode([
+                        'appid' => $appid,
+                        'openid' => $openid,
+                        'nickname' => $wx_info['nickname'],
+                        'portrait' => $wx_info['portrait'],
+                        'company_id' => $company_id
+                    ]);
+                } catch (\Exception $e) {}
                 break;
             case 'text':
                 Common::sendWxMessage([

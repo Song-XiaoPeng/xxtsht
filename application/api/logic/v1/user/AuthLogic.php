@@ -104,7 +104,11 @@ class AuthLogic extends Model{
 
         Db::name('customer_service')->where(['company_id' => $company_id, 'uid' => $uid])->update(['state' => 1]);
 
-        $ip_res = \think\Loader::model('AddressLogic','logic\v1\map')->getIp($ip);
+        try {
+            $ip_res = \think\Loader::model('AddressLogic','logic\v1\map')->getIp($ip);
+        } catch (\Exception $e) {
+            $ip_res['body'] = '暂无';
+        }
 
         $login_remind_data = [
             'type' => 'remind',

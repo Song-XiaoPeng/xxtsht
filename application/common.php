@@ -198,6 +198,18 @@ function distanceDay($time){
     return floor((strtotime(date('YmdHis'))-strtotime($time))/86400);
 }
 
+//生成新郎短域名
+function getDomainName($url){
+    $url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=3271760578&url_long='.$url;
+
+    $client = new \GuzzleHttp\Client();
+    $res = $client->request('GET', $url);
+
+    $arr = json_decode($res->getBody(),true);
+
+    return $arr[0]['url_short'];
+}
+
 /**
  * 时间差计算
  * @param Timestamp $time

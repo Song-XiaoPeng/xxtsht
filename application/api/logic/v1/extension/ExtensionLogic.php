@@ -1,7 +1,6 @@
 <?php
-
 namespace app\api\logic\v1\extension;
-
+use think\Log;
 use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
@@ -15,7 +14,7 @@ class ExtensionLogic extends Model
      * @param appid 公众号appid (编辑无法修改)
      * @param company_id 商户company_id
      * @param qrcode_id 二维码id (修改时传入)
-     * @param type 二维码类型 1永久二维码 2临时二维码 (编辑无法修改)
+     * @param type 二维码类型 1永久二维码 2临时二维码 3个人二维码 4粉丝临时推广二维码 (编辑无法修改)
      * @param uid 创建人uid
      * @param activity_name 活动名称或渠道名称
      * @param qrcode_group_id 二维码分组id 活动分组id 或渠道分组id
@@ -43,8 +42,11 @@ class ExtensionLogic extends Model
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
         $reply_text = empty($data['reply_text']) == true ? '' : $data['reply_text'];
         $reception_type = $data['reception_type'];
-        $qrcode_group_id = $data['qrcode_group_id'];
+        $qrcode_group_id = empty($data['qrcode_group_id']) == true ? -1 : $data['qrcode_group_id'];
         $qrcode_id = empty($data['qrcode_id']) == true ? '' : $data['qrcode_id'];
+        $openid = empty($data['openid']) == true ? '' : $data['openid'];
+        $nickname = empty($data['nickname']) == true ? '' : $data['nickname'];
+        $portrait = empty($data['portrait']) == true ? '' : $data['portrait'];
         $invalid_day = empty($data['invalid_day']) == true ? '' : $data['invalid_day'];
         $label = empty($data['label']) == true ? '' : $data['label'];
         $customer_service_id = empty($data['customer_service_id']) == true ? '' : $data['customer_service_id'];
@@ -121,10 +123,10 @@ class ExtensionLogic extends Model
 
             $qrcode_data = 'qrscene_' . $qrcode_id;
 
-            if ($type == 1) {
+            if ($type == 1 || $type == 3) {
                 $qrcode_result = $qrcode->forever($qrcode_data);
                 $invalid_time = '';
-            } else if ($type == 2) {
+            } else if ($type == 2 || $type == 4) {
                 $qrcode_result = $qrcode->temporary($qrcode_data, $invalid_day * 24 * 3600);
                 $invalid_time = date('Y-m-d H:i:s', strtotime("+$invalid_day day"));
             }
@@ -150,13 +152,16 @@ class ExtensionLogic extends Model
                 'customer_service_group_id' => $customer_service_group_id,
                 'qrcode_group_id' => $qrcode_group_id,
                 'reply_type' => $reply_type,
+                'openid' => $openid,
+                'nickname' => $nickname,
+                'portrait' => $portrait,
                 'reply_text' => $reply_text,
                 'resources_id' => $resources_id,
                 'media_id' => $media_id,
                 'invalid_day' => $invalid_day
             ]);
 
-            return msg(200, 'success', ['qrcode_id' => $qrcode_id, 'qrcode_url' => $qrcode_url]);
+            return msg(200, 'success', ['qrcode_id' => $qrcode_id, 'qrcode_url' => $qrcode_url, 'invalid_time' => $invalid_time]);
         } catch (\Exception $e) {
             return msg(3001, $e->getMessage());
         }
@@ -876,5 +881,68 @@ class ExtensionLogic extends Model
         $res['page_data']['rows_num'] = $limit;
         $res['page_data']['page'] = $page;
         return msg(0,'success',$res);
+    }
+
+    /**
+     * 创建粉丝推广二维码
+     * @param appid 所属公众号id
+     * @param openid 粉丝openid
+     * @param nickname 昵称
+     * @param portrait 头像
+     * @return code 200->成功
+     */
+    public function createFansQrcode($data){
+        $appid = $data['appid'];
+        $openid = $data['openid'];
+        $nickname = $data['nickname'];
+        $portrait = $data['portrait'];
+        $company_id = $data['company_id'];
+
+        $qrcode_res = Db::name('extension_qrcode')->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid,'type'=>4])->cache(true,60)->find();
+
+        if($qrcode_res){
+            $send_content = $nickname."的推广二维码\n二维码：".getDomainName($qrcode_res['qrcode_url'])."\n累计关注数量：".$qrcode_res['attention']."\n累计取关数量：".$qrcode_res['canel_attention']."\n有效期至：".$qrcode_res['invalid_time'];
+
+            Common::sendWxMessage([
+                'appid' => $appid,
+                'openid' => $openid,
+                'type' => 1,
+                'message_data' => ['content' => $send_content]
+            ]);
+
+            return;
+        }
+
+        //查询商户管理员uid
+        $uid = Db::name('user')->where(['company_id'=>$company_id,'user_type'=>3,'is_main'=>1])->cache(true,3600)->value('uid');
+        if(!$uid){
+            return msg(3002,'管理员账户不存在');
+        }
+
+        //创建二维码
+        $qrcode_arr = $this->createQrcode([
+            'appid' => $appid,
+            'openid' => $openid,
+            'nickname' => $nickname,
+            'portrait' => $portrait,
+            'company_id' => $company_id,
+            'type' => 4,
+            'uid' => $uid,
+            'activity_name' => $nickname.'的推广二维码',
+            'reply_type' => -1,
+            'reception_type' => 3,
+            'invalid_day' => 30
+        ]);
+
+        if($qrcode_arr['meta']['code'] == 200){
+            $send_content = $nickname."的推广二维码\n二维码：".getDomainName($qrcode_arr['body']['qrcode_url'])."\n累计关注数量：0\n累计取关数量：0\n有效期至：".$qrcode_arr['body']['invalid_time'];
+
+            Common::sendWxMessage([
+                'appid' => $appid,
+                'openid' => $openid,
+                'type' => 1,
+                'message_data' => ['content' => $send_content]
+            ]);
+        }
     }
 }
