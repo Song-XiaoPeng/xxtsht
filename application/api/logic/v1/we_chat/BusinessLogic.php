@@ -272,18 +272,26 @@ class BusinessLogic extends Model
                 }
 
                 try {
-                    $token_info = Common::getRefreshToken($appid, $company_id);
-                    if ($token_info['meta']['code'] == 200) {
-                        $refresh_token = $token_info['body']['refresh_token'];
+                    $cache_key = $appid.$openid.'_get_info';
+
+                    if (empty(cache($cache_key))) {
+                        $token_info = Common::getRefreshToken($appid, $company_id);
+                        if ($token_info['meta']['code'] == 200) {
+                            $refresh_token = $token_info['body']['refresh_token'];
+                        } else {
+                            return;
+                        }
+    
+                        $app = new Application(wxOptions());
+                        $openPlatform = $app->open_platform;
+    
+                        $userService = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user;
+                        $wx_info = $userService->get($openid);
+
+                        cache($cache_key,$wx_info,21600);
                     } else {
-                        return;
+                        $wx_info = cache($cache_key);
                     }
-
-                    $app = new Application(wxOptions());
-                    $openPlatform = $app->open_platform;
-
-                    $userService = $openPlatform->createAuthorizerApplication($appid, $refresh_token)->user;
-                    $wx_info = $userService->get($openid);
 
                     $extension = new ExtensionLogic();
                     $extension->createFansQrcode([
