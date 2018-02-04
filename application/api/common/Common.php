@@ -271,12 +271,21 @@ class Common
                     $message = new Text(['content' => $message_data['content']]);
                     break;
                 case 2:
-                    $resources_res = Db::name('resources')->where(['resources_id' => $message_data['resources_id']])->find();
-                    if (!$resources_res) {
-                        return msg(3003, '资源不存在');
+                    $cache_key = $appid.$message_data['resources_id'].'_img_media';
+
+                    if (empty(cache($cache_key))) {
+                        $resources_res = Db::name('resources')->where(['resources_id' => $message_data['resources_id']])->find();
+                        if (!$resources_res) {
+                            return msg(3003, '资源不存在');
+                        }
+    
+                        $upload_res = $temporary->uploadImage('..' . $resources_res['resources_route']);
+
+                        cache($cache_key, $upload_res, 21600);
+                    }else{
+                        $upload_res = cache($cache_key);
                     }
 
-                    $upload_res = $temporary->uploadImage('..' . $resources_res['resources_route']);
                     $message = new Image(['media_id' => $upload_res['media_id']]);
                     break;
                 case 3:

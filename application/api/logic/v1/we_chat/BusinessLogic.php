@@ -175,6 +175,14 @@ class BusinessLogic extends Model
         $message = $server->getMessage();
         switch ($message['MsgType']) {
             case 'event':
+                //判断是否菜单事件
+                if (!empty($message['EventKey'])) {
+                    $menu_data = explode(':', $message['EventKey']);
+                    if(!empty($menu_data[0])){
+                        $this->menuEvent($appid,$openid,$menu_data[0],$menu_data[1]);
+                    }
+                }
+
                 //判断是否小程序用户
                 if ($message['Event'] == 'user_enter_tempsession' && $message['SessionFrom'] == 'wxapp') {
                     $this->addWxUserInfo($appid, $openid);
@@ -240,6 +248,47 @@ class BusinessLogic extends Model
 
         $response = $server->serve();
         return $response->send();
+    }
+
+    /**
+     * 菜单事件处理
+     * @param appid 公众号或小程序appid
+     * @param openid 用户openid
+     * @param type 菜单事件类型 extensionQrcode二维码推广 text文本回复 imageText图文素材回复 img图片回复 
+     * @param event_data 事件数据
+     * @return code 200->成功
+     */
+    public function menuEvent($appid,$openid,$type,$event_data){
+        switch($type){
+            case 'extensionQrcode':
+                break;
+            case 'text':
+                Common::sendWxMessage([
+                    'appid' => $appid,
+                    'openid' => $openid,
+                    'type' => 1,
+                    'message_data' => ['content' => $event_data]
+                ]);
+                break;
+            case 'imageText':
+                Common::sendWxMessage([
+                    'appid' => $appid,
+                    'openid' => $openid,
+                    'type' => 3,
+                    'message_data' => ['media_id' => $event_data]
+                ]);
+                break;
+            case 'img':
+                Common::sendWxMessage([
+                    'appid' => $appid,
+                    'openid' => $openid,
+                    'type' => 2,
+                    'message_data' => ['resources_id' => $event_data]
+                ]);
+                break;
+            default:
+                return '未知事件';
+        }
     }
 
     /**
@@ -566,9 +615,6 @@ class BusinessLogic extends Model
                     }
 
                     return $this->qrcodeEvent($appid, $openid, $event_arr[1]);
-                    break;
-                case 'text':
-                    return $event_arr[1];
                     break;
                 default:
                     return $this->default_message;
