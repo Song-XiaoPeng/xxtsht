@@ -298,7 +298,7 @@ class BusinessLogic extends Model
                         'appid' => $appid,
                         'openid' => $openid,
                         'nickname' => $wx_info['nickname'],
-                        'portrait' => $wx_info['portrait'],
+                        'portrait' => $wx_info['headimgurl'],
                         'company_id' => $company_id
                     ]);
                 } catch (\Exception $e) {}
