@@ -14,6 +14,8 @@ class Auth extends Controller{
     protected $expiration_date;
 
     protected $user_type;
+    
+    protected $client_type;
 
     public function __construct() {
         $header_token = Request::instance()->header('token');
@@ -74,6 +76,8 @@ class Auth extends Controller{
         $this->company_id = $company_id;
 
         $this->uid = $uid;
+
+        $this->client_type = $client;
 
         $this->expiration_date = $company_info['expiration_date'];
 

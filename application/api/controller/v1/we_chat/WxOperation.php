@@ -794,8 +794,9 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
+        $data['client_type'] = $this->client_type;
 
-        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->sessionAccess($data['company_id'],$data['uid'],$data['session_id']);
+        return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->sessionAccess($data['company_id'],$data['uid'],$data['session_id'],$data['client_type']);
     }
 
     /**
@@ -812,6 +813,7 @@ class WxOperation extends Auth{
         $data = input('put.');
         $data['company_id'] = $this->company_id;
         $data['uid'] = $this->uid;
+        $data['client_type'] = $this->client_type;
 
         return \think\Loader::model('WxOperationLogic','logic\v1\we_chat')->closeSession($data);
     }

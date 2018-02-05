@@ -1,20 +1,16 @@
 <?php
-
 namespace app\api\logic\v1\statistics;
-
 use think\Model;
 use think\Db;
 use app\api\common\Common;
 use GatewayClient\Gateway;
 
-class SurveyLogic extends Model
-{
+class SurveyLogic extends Model{
     /**
      * 获取首页概况信息
      * @return code 200->成功
      */
-    public function getHomeSurvey($company_id, $uid)
-    {
+    public function getHomeSurvey($company_id, $uid){
         $cache_key = 'home_survey_data_' . $company_id . '_' . $uid;
 
         if (!empty(cache($cache_key))) {
@@ -48,8 +44,7 @@ class SurveyLogic extends Model
      * @param company_id 商户company_id
      * @return code 200->成功
      */
-    public function getCustomerServiceTotal($company_id)
-    {
+    public function getCustomerServiceTotal($company_id){
         Gateway::$registerAddress = config('gw_address');
         $on_line_total = Gateway::getClientCountByGroup($company_id);
 
@@ -67,8 +62,7 @@ class SurveyLogic extends Model
      * @param company_id 商户company_id
      * @return code 200->成功
      */
-    public function getVisitorTotal($company_id)
-    {
+    public function getVisitorTotal($company_id){
         $reception_total = Db::name('message_session')
             ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
             ->where(['company_id' => $company_id, 'state' => 3])
@@ -95,8 +89,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    public function getCustomerServiceRanking($data)
-    {
+    public function getCustomerServiceRanking($data){
         $company_id = $data['company_id'];
         $type = $data['type'];
         $start_time = empty($data['start_time']) == true ? '' : $data['start_time'];
@@ -162,8 +155,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    public function getActiveSession($uid, $company_id, $type, $start_time = '', $end_time = '')
-    {
+    public function getActiveSession($uid, $company_id, $type, $start_time = '', $end_time = ''){
         switch ($type) {
             case 1:
                 $yesterday_res = getDayTimeSolt();
@@ -205,8 +197,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    private function getSessionTotal($uid, $company_id, $type, $start_time = '', $end_time = '')
-    {
+    private function getSessionTotal($uid, $company_id, $type, $start_time = '', $end_time = ''){
         switch ($type) {
             case 1:
                 $yesterday_res = getDayTimeSolt();
@@ -248,8 +239,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    private function getFirstSession($uid, $company_id, $type, $start_time = '', $end_time = '')
-    {
+    private function getFirstSession($uid, $company_id, $type, $start_time = '', $end_time = ''){
         switch ($type) {
             case 1:
                 $yesterday_res = getDayTimeSolt();
@@ -291,8 +281,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    private function getEffective($uid, $company_id, $type, $start_time = '', $end_time = '')
-    {
+    private function getEffective($uid, $company_id, $type, $start_time = '', $end_time = ''){
         switch ($type) {
             case 1:
                 $yesterday_res = getDayTimeSolt();
@@ -334,8 +323,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    private function getInvalidSession($uid, $company_id, $type, $start_time = '', $end_time = '')
-    {
+    private function getInvalidSession($uid, $company_id, $type, $start_time = '', $end_time = ''){
         switch ($type) {
             case 1:
                 $yesterday_res = getDayTimeSolt();
@@ -377,8 +365,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    private function getCollection($uid, $company_id, $type, $start_time = '', $end_time = '')
-    {
+    private function getCollection($uid, $company_id, $type, $start_time = '', $end_time = ''){
         switch ($type) {
             case 1:
                 $yesterday_res = getDayTimeSolt();
@@ -420,8 +407,7 @@ class SurveyLogic extends Model
      * @param end_time 结束时间
      * @return code 200->成功
      */
-    private function getSendMessageTotal($uid, $company_id, $type, $start_time = '', $end_time = '')
-    {
+    private function getSendMessageTotal($uid, $company_id, $type, $start_time = '', $end_time = ''){
         switch ($type) {
             case 1:
                 $yesterday_res = getDayTimeSolt();
@@ -459,8 +445,7 @@ class SurveyLogic extends Model
      * @param type 1今天 2昨天 3近一周 4近一月
      *
      */
-    public function getFansNumStatistic($data)
-    {
+    public function getFansNumStatistic($data){
         $company_id = $data['company_id'];
         $appid = empty($data['appid']) ? '' : $data['appid'];
         $type = $data['type'];
@@ -524,8 +509,7 @@ class SurveyLogic extends Model
     }
 
     //获得近7天的数据
-    public function get7Days($data)
-    {
+    public function get7Days($data){
         $company_id = $data['company_id'];
         $appid = empty($data['appid']) ? '' : $data['appid'];
         $where = $appid ? ['appid' => $appid] : '';
@@ -563,8 +547,7 @@ class SurveyLogic extends Model
     }
 
     //来源分析
-    public function getUserSource($data)
-    {
+    public function getUserSource($data){
         $company_id = $data['company_id'];
         $appid = empty($data['appid']) ? '' : $data['appid'];
         $where = $appid ? ['appid' => $appid] : '';
@@ -582,8 +565,7 @@ class SurveyLogic extends Model
     }
 
     //获得粉丝数量信息统计
-    public function getFunsNumStatistics($data)
-    {
+    public function getFunsNumStatistics($data){
         $daysNum = $this->get7Days($data);
         $userSource = $this->getUserSource($data);
         $getFansNumStatistic = $this->getFansNumStatistic($data);

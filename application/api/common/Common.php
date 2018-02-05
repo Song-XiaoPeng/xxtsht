@@ -303,5 +303,18 @@ class Common
 
         return msg(200, 'success');
     }
+    
+    /**
+     * 推送消息数据生成
+     * @param type 类型
+     * @param data 推送的数据
+     */
+    public static function pushData($type,$data){
+        $arr = msg(200,'success',[
+            'type' => $type,
+            'sk_data' => $data
+        ]);
 
+        return json_encode($arr);
+    }
 }

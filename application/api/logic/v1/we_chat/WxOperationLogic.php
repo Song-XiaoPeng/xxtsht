@@ -11,6 +11,7 @@ use EasyWeChat\Message\Image;
 use EasyWeChat\Message\Voice;
 use EasyWeChat\Message\Video;
 use EasyWeChat\Message\Material;
+use GatewayClient\Gateway;
 
 //微信后台操作业务类
 class WxOperationLogic extends Model
@@ -1757,7 +1758,7 @@ class WxOperationLogic extends Model
      * @param session_id 待接入的会话id
      * @return code 200->成功
      */
-    public function sessionAccess($company_id, $uid, $session_id)
+    public function sessionAccess($company_id, $uid, $session_id, $client_type)
     {
         if (empty($session_id)) {
             return msg(3003, 'session_id参数为空');
@@ -1829,6 +1830,18 @@ class WxOperationLogic extends Model
             ]);
 
         if ($update_res !== false) {
+            Gateway::$registerAddress = config('gw_address');
+
+            $send_data = Common::pushData(
+                'access_session',
+                [
+                    'session_id' => $session_id,
+                    'client' => $client_type
+                ]
+            );
+
+            Gateway::sendToUid($uid,$send_data);
+
             return msg(200, 'success');
         } else {
             return msg(3001, '接入失败');
@@ -1875,9 +1888,12 @@ class WxOperationLogic extends Model
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $session_list = $data['session_list'];
+        $client_type = $data['client_type'];
 
         $success_close_session = [];
         $error_close_session = [];
+
+        Gateway::$registerAddress = config('gw_address');
 
         foreach ($session_list as $k => $v) {
             $session_res = Db::name('message_session')
@@ -1903,6 +1919,16 @@ class WxOperationLogic extends Model
             $this->noticeCloseSession($session_res['appid'], $company_id, $session_res['customer_wx_openid'], $customer_service_name);
 
             Db::name('message_session')->partition(['session_id' => $v], 'session_id', ['type' => 'md5', 'num' => config('separate')['message_session']])->where(['session_id' => $v])->update(['state' => -1, 'close_explain' => '正常操作关闭']);
+
+            $send_data = Common::pushData(
+                'close_session',
+                [
+                    'session_id' => $v,
+                    'client' => $client_type
+                ]
+            );
+
+            Gateway::sendToUid($uid,$send_data);
 
             array_push($success_close_session, $v);
         }
