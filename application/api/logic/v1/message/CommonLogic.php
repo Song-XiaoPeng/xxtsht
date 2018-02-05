@@ -1,7 +1,6 @@
 <?php
 
 namespace app\api\logic\v1\message;
-
 use think\Exception;
 use think\Log;
 use think\Model;
@@ -10,16 +9,14 @@ use app\api\common\Common;
 use app\api\logic\v1\we_chat\BusinessLogic;
 use EasyWeChat\Foundation\Application;
 
-class CommonLogic extends Model
-{
+class CommonLogic extends Model{
     /**
      * 设置快捷回复语句
      * @param quick_reply_id 存在则是编辑
      * @param text 快捷回复语句
      * @return code 200->成功
      */
-    public function setQuickReplyText($data)
-    {
+    public function setQuickReplyText($data){
         $quick_reply_id = empty($data['quick_reply_id']) == true ? false : $data['quick_reply_id'];
         $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
         $title = $data['title'];
@@ -71,8 +68,7 @@ class CommonLogic extends Model
      * @param text 快捷回复语句
      * @return code 200->成功
      */
-    public function getQuickReplyList($data)
-    {
+    public function getQuickReplyList($data){
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $reply_group_id = empty($data['reply_group_id']) == true ? -1 : $data['reply_group_id'];
@@ -110,8 +106,7 @@ class CommonLogic extends Model
      * @param quick_reply_id 语句id
      * @return code 200->成功
      */
-    public function delQuickReply($company_id, $uid, $quick_reply_id)
-    {
+    public function delQuickReply($company_id, $uid, $quick_reply_id){
         $del_res = Db::name('quick_reply')->where(['quick_reply_id' => $quick_reply_id, 'uid' => $uid, 'company_id' => $company_id, 'type' => 1])->delete();
 
         if ($del_res) {
@@ -128,8 +123,7 @@ class CommonLogic extends Model
      * @param session_id 排队中session_id
      * @return code 200->成功
      */
-    public function accessQueuingSession($company_id, $uid, $session_id)
-    {
+    public function accessQueuingSession($company_id, $uid, $session_id){
         $redis = Common::createRedis();
         $redis->select(config('redis_business')['line_up_session']);
 
@@ -210,8 +204,7 @@ class CommonLogic extends Model
      * @param uid 登录账号uid
      * @return code 200->成功
      */
-    public function createWxUserSession($data)
-    {
+    public function createWxUserSession($data){
         $company_id = $data['company_id'];
         $openid = $data['openid'];
         $appid = $data['appid'];
@@ -263,8 +256,7 @@ class CommonLogic extends Model
      * @param uransfer_uid 转接的客服uid
      * @return code 200->成功
      */
-    public function sessionTransfer($data)
-    {
+    public function sessionTransfer($data){
         $company_id = $data['company_id'];
         $session_id = $data['session_id'];
         $uid = $data['uid'];
@@ -325,8 +317,7 @@ class CommonLogic extends Model
      * @param appid 客户微信appid
      * @return code 200->成功
      */
-    public function getWxUserInfo($company_id, $openid, $appid)
-    {
+    public function getWxUserInfo($company_id, $openid, $appid){
         $user_info = Db::name('wx_user')
             ->partition([], '', ['type' => 'md5', 'num' => config('separate')['wx_user']])
             ->where(['company_id' => $company_id, 'appid' => $appid, 'openid' => $openid])
@@ -382,8 +373,7 @@ class CommonLogic extends Model
      * @param link_name 链接名称 (链接)
      * @return code 200->成功
      */
-    public function forcedSendMessage($data)
-    {
+    public function forcedSendMessage($data){
         $company_id = $data['company_id'];
         $content = empty($data['message']) === true ? '' : $data['message'];
         $type = $data['type'];
@@ -520,8 +510,7 @@ class CommonLogic extends Model
      * @param page 分页参数
      * @return code 200->成功
      */
-    public function getHistoricalConversation($data)
-    {
+    public function getHistoricalConversation($data){
         $company_id = $data['company_id'];
         $uid = $data['uid'];
         $page = $data['page'];
@@ -577,8 +566,7 @@ class CommonLogic extends Model
     }
 
     //创建群聊会话
-    public function createGroupSession($data)
-    {
+    public function createGroupSession($data){
         if (empty($data['session_id'])) {
             return msg(6001, '请选择会话');
         }
@@ -672,4 +660,6 @@ class CommonLogic extends Model
             return msg(6001, $e->getMessage());
         }
     }
+
+
 }
