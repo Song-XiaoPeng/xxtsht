@@ -1837,6 +1837,7 @@ class WxOperationLogic extends Model
                 [
                     'session_id' => $session_id,
                     'customer_wx_openid' => $session_res['customer_wx_openid'],
+                    'session_state' => $session_res['state'],
                     'client' => $client_type
                 ]
             );
@@ -1905,7 +1906,7 @@ class WxOperationLogic extends Model
                     'uid' => $uid,
                     'state' => array('in', [0, 1, 2]),
                 ])
-                ->field('customer_service_id,appid,customer_wx_openid')
+                ->field('customer_service_id,appid,customer_wx_openid,state')
                 ->find();
 
             if (empty($session_res)) {
@@ -1928,6 +1929,7 @@ class WxOperationLogic extends Model
                 [
                     'session_id' => $v,
                     'customer_wx_openid' => $session_res['customer_wx_openid'],
+                    'session_state' => $session_res['state'],
                     'client' => $client_type
                 ]
             );
