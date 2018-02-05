@@ -3,6 +3,7 @@ namespace app\api\logic\v1\message;
 use think\Model;
 use think\Db;
 use app\api\common\Common;
+use GatewayClient\Gateway;
 
 class InteractionLogic extends Model {
     /**
@@ -360,6 +361,20 @@ class InteractionLogic extends Model {
                     $redis->SREM($company_id, $str);
                 }
             }
+
+            Gateway::$registerAddress = config('gw_address');
+
+            $send_data = Common::pushData(
+                'close_session',
+                [
+                    'session_id' => $v,
+                    'customer_wx_openid' => $session_data['customer_wx_openid'],
+                    'session_state' => $session_data['state'],
+                    'client' => 'admin'
+                ]
+            );
+
+            Gateway::sendToUid($uid,$send_data);
         } catch (\Exception $e) {
             return msg(3003,$e->getMessage());
         }
