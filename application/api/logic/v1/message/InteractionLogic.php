@@ -374,7 +374,7 @@ class InteractionLogic extends Model {
                 ]
             );
 
-            Gateway::sendToUid($uid,$send_data);
+            Gateway::sendToUid($session_data['uid'],$send_data);
         } catch (\Exception $e) {
             return msg(3003,$e->getMessage());
         }
