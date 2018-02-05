@@ -367,7 +367,7 @@ class InteractionLogic extends Model {
             $send_data = Common::pushData(
                 'close_session',
                 [
-                    'session_id' => $v,
+                    'session_id' => $session_data['session_id'],
                     'customer_wx_openid' => $session_data['customer_wx_openid'],
                     'session_state' => $session_data['state'],
                     'client' => 'admin'
