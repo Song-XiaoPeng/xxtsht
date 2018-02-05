@@ -452,7 +452,7 @@ class FrameworkLogic extends Model {
         $position_list = Db::name('position')->where(['company_id'=>$company_id])->field('position_id,position_name,user_group_id,position_superior_id')->select();
         foreach($position_list as $k=>$v){
             if($v['position_id'] != -1){
-                $position_list[$k]['user_list'] = Db::name('user')->where(['company_id'=>$company_id,'position_id'=>$v['position_id']])->field('uid,phone_no,user_name')->select();
+                $position_list[$k]['user_list'] = Db::name('user')->where(['company_id'=>$company_id,'position_id'=>$v['position_id'],'user_state'=>1,'user_type'=>4])->field('uid,phone_no,user_name')->select();
             }else{
                 $position_list[$k]['user_list'] = [];
             }
