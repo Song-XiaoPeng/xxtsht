@@ -655,7 +655,7 @@ class AautoMaticLogic extends Model {
 
 
         foreach($user_res as $k=>$v){
-            $cache_key = $v['uid'].'_push_update_cc';
+            $cache_key = $v['uid'].'_push_update';
 
             if(!empty(cache($cache_key))){
                 continue;
@@ -669,7 +669,7 @@ class AautoMaticLogic extends Model {
                 $send_data = Common::pushRemindData(
                     [
                         'countDownClose' => -1,
-                        'icon' => 'http://kf.lyfz.net/static/images/ok.png',
+                        'icon' => 'http://kf.lyfz.net/static/images/up.png',
                         'contentHtml' => '<div class="nickname">版本升级提醒：</div><div>客户端'.$version.'现已发布，请及时更新升级客户端体验最新功能，感谢您的支持！</div>'
                     ]
                 );
