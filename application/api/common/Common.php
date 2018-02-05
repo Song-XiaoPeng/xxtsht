@@ -317,4 +317,20 @@ class Common
 
         return json_encode($arr);
     }
+
+    /**
+     * 推送提醒消息数据生成
+     * @param type 类型
+     * @param data 推送的数据
+     */
+    public static function pushRemindData($data){
+        $arr = msg(200,'success',[
+            'type' => 'remind',
+            'countDownClose' => $data['countDownClose'],
+            'icon' => $data['icon'],
+            'contentHtml' => $data['contentHtml']
+        ]);
+
+        return json_encode($arr);
+    }
 }

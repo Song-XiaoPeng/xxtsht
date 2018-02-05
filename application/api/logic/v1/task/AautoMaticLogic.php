@@ -4,6 +4,7 @@ use think\Model;
 use think\Db;
 use EasyWeChat\Foundation\Application;
 use app\api\common\Common;
+use GatewayClient\Gateway;
 
 //自动任务处理
 class AautoMaticLogic extends Model {
@@ -642,5 +643,41 @@ class AautoMaticLogic extends Model {
         }
 
         cache($cache_key, NULL);
+    }
+
+    //推送升级客户端提醒
+    public function pushClientUpdate(){
+        $user_res = Db::name('user')->where(['user_state'=>1,'client_version'=>['not in',NULL]])->field('uid,client_version')->select();
+
+        $version = Db::name('client_version')->group('version')->value('version');
+
+        Gateway::$registerAddress = config('gw_address');
+
+
+        foreach($user_res as $k=>$v){
+            $cache_key = $v['uid'].'_push_update_cc';
+
+            if(!empty(cache($cache_key))){
+                continue;
+            }
+
+            if($v['client_version'] == $version){
+                continue;
+            }
+
+            if(Gateway::isUidOnline($v['uid'])){
+                $send_data = Common::pushRemindData(
+                    [
+                        'countDownClose' => -1,
+                        'icon' => 'http://kf.lyfz.net/static/images/ok.png',
+                        'contentHtml' => '<div class="nickname">版本升级提醒：</div><div>客户端'.$version.'现已发布，请及时更新升级客户端体验最新功能，感谢您的支持！</div>'
+                    ]
+                );
+
+                Gateway::sendToUid($v['uid'],$send_data);
+
+                cache($cache_key,1,10800);
+            }
+        }
     }
 }

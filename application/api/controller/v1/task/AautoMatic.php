@@ -54,9 +54,13 @@ class AautoMatic {
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->massTemplate();
     }
 
+    //推送升级客户端提醒 url: http://kf.lyfz.net/api/v1/task/AautoMatic/pushClientUpdate
+    public function pushClientUpdate(){
+        return \think\Loader::model('AautoMaticLogic','logic\v1\task')->pushClientUpdate();
+    }
+
     //发送手机验证码
-    public function sendShortMessage()
-    {
+    public function sendShortMessage(){
         return \think\Loader::model('ShortMessageLogic','logic\v1\short_message')->sendShortMessage();
     }
 }
