@@ -1836,6 +1836,7 @@ class WxOperationLogic extends Model
                 'access_session',
                 [
                     'session_id' => $session_id,
+                    'customer_wx_openid' => $session_res['customer_wx_openid'],
                     'client' => $client_type
                 ]
             );
@@ -1903,7 +1904,9 @@ class WxOperationLogic extends Model
                     'company_id' => $company_id,
                     'uid' => $uid,
                     'state' => array('in', [0, 1, 2]),
-                ])->find();
+                ])
+                ->field('customer_service_id,appid,customer_wx_openid')
+                ->find();
 
             if (empty($session_res)) {
                 array_push($error_close_session, $v);
@@ -1924,6 +1927,7 @@ class WxOperationLogic extends Model
                 'close_session',
                 [
                     'session_id' => $v,
+                    'customer_wx_openid' => $session_res['customer_wx_openid'],
                     'client' => $client_type
                 ]
             );
