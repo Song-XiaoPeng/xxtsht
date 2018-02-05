@@ -900,7 +900,7 @@ class ExtensionLogic extends Model
 
         $time = date('Y-m-d H:i:s');
 
-        $qrcode_res = Db::name('extension_qrcode')->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid,'type'=>4,'is_del'=>-1])->where('invalid_time', '<= time', $time)->cache(true,6)->find();
+        $qrcode_res = Db::name('extension_qrcode')->where(['company_id'=>$company_id,'appid'=>$appid,'openid'=>$openid,'type'=>4,'is_del'=>-1])->where('invalid_time', '> time', $time)->cache(true,6)->find();
 
         if($qrcode_res){
             $send_content = $nickname."的推广二维码\n二维码：".getDomainName($qrcode_res['qrcode_url'])."\n累计关注数量：".$qrcode_res['attention']."\n累计取关数量：".$qrcode_res['canel_attention']."\n有效期至：".$qrcode_res['invalid_time'];

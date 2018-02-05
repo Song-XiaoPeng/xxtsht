@@ -11,11 +11,14 @@ class ConversationLogic extends Model {
      * @param uid 客服uid
      */
     public function getSessionList($company_id,$uid){
-        Db::name('message_session')
+        $message_session = Db::name('message_session')
         ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
         ->where([
-            
+            'company_id' => $company_id,
+            'uid' => $uid
         ])
         ->select();
+
+        
     }
 }
