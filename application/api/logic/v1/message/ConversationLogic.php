@@ -24,6 +24,8 @@ class ConversationLogic extends Model {
             $message_session[$k]['session_frequency'] = 0;
 
             $message_session[$k]['invitation_frequency'] = 0;
+
+            $message_session[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid'=>$v['appid']])->value('nick_name');
         }
 
         return msg(200,'success',$message_session);
