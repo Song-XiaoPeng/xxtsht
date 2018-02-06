@@ -306,6 +306,7 @@ return [
         'line_up_session' => 2,
         'mass_template' => 3,
         'cache' => 4,
-        'group' => 5
+        'group' => 5,
+        'message_sync' => 6
     ]
 ];
