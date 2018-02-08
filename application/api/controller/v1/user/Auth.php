@@ -65,4 +65,8 @@ class Auth {
         
         return \think\Loader::model('AuthLogic','logic\v1\user')->getUidCompanyId($uid);
     }
+
+    public function test(){
+        \think\Loader::model('AuthLogic','logic\v1\user')->test();
+    }
 }

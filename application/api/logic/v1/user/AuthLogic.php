@@ -2,6 +2,7 @@
 namespace app\api\logic\v1\user;
 use think\Model;
 use think\Db;
+use asynchronous\Coroutine;
 
 class AuthLogic extends Model{
     /**
@@ -192,5 +193,28 @@ class AuthLogic extends Model{
         } else {
             return msg(3001, '更新数据失败');
         }
+    }
+
+    public function test(){
+        $i = 10000;  
+  
+        $c = new Coroutine();  
+        $c->start($this->task1());  
+        $c->start($this->task2());  
+    }
+
+    public function task1(){  
+        global $i;
+        echo "wait start" . PHP_EOL;
+        while ($i-- > 0) {
+            yield;
+        }
+        echo "wait end" . PHP_EOL;
+    }
+
+    public function task2(){
+        echo "Hello " . PHP_EOL;
+        yield;
+        echo "world!" . PHP_EOL;
     }
 }

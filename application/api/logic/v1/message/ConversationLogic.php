@@ -11,13 +11,14 @@ class ConversationLogic extends Model {
      * @param uid 客服uid
      */
     public function getSessionList($company_id,$uid){
-        $message_session = Db::name('message_session')
+        $c = Db::name('message_session')
         ->partition('', '', ['type' => 'md5', 'num' => config('separate')['message_session']])
         ->where([
             'company_id' => $company_id,
             'uid' => $uid,
             'state' => ['in',[0,1,2]]
         ])
+        ->order('receive_message_time desc')
         ->select();
 
         foreach($message_session as $k=>$v){
