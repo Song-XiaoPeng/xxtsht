@@ -1,6 +1,6 @@
 <?php
 //协程异步
-//依赖swoole定时器 请安装swoole扩展
+//依赖swoole扩展的定时器
 
 class Coroutine {
     //可以根据需要更改定时器间隔，单位ms
