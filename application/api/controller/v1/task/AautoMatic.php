@@ -49,6 +49,11 @@ class AautoMatic {
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->recoveryIntentionCustomer();
     }
 
+    //回收线索客户 url: http://kf.lyfz.net/api/v1/task/AautoMatic/recoveryClueCustomer
+    public function recoveryClueCustomer(){
+        return \think\Loader::model('AautoMaticLogic','logic\v1\task')->recoveryClueCustomer();
+    }
+
     //群发模板消息 url: http://kf.lyfz.net/api/v1/task/AautoMatic/massTemplate
     public function massTemplate(){
         return \think\Loader::model('AautoMaticLogic','logic\v1\task')->massTemplate();
