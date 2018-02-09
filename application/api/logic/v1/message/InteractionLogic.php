@@ -132,6 +132,22 @@ class InteractionLogic extends Model {
             if($c['message_type'] == 3 || $c['message_type'] == 4 && $c['opercode'] == 1){
                 $message_res[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$c['resources_id'];
             }
+
+            if ($c['opercode'] == 3) {
+                $user_name = Db::name('user')->where(['uid'=>$c['additional_uid']])->cache(true,60)->value('user_name');
+
+                $message_res[$i]['additional_user_name'] = empty($user_name) == true ? '管理员' : $user_name;
+
+                $resources_id = Db::name('user_portrait')->where(['uid'=>$c['additional_uid']])->cache(true,60)->value('resources_id');
+                if($resources_id){
+                    $message_res[$i]['additional_avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+                }else{
+                    $message_res[$i]['additional_avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
+                }
+            } else {
+                $message_res[$i]['additional_user_name'] = null;
+                $message_res[$i]['additional_avatar_url'] = null;
+            }
         }
 
         $res['data_list'] = count($message_res) == 0 ? array() : $message_res;
