@@ -312,6 +312,22 @@ class InteractionLogic extends Model {
                     $list[$i]['file_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getFile?resources_id='.$c['resources_id'];
                 }
             }
+
+            if ($c['opercode'] == 3) {
+                $user_name = Db::name('user')->where(['uid'=>$c['additional_uid']])->cache(true,60)->value('user_name');
+
+                $list[$i]['additional_user_name'] = empty($user_name) == true ? '管理员' : $user_name;
+
+                $resources_id = Db::name('user_portrait')->where(['uid'=>$c['additional_uid']])->cache(true,60)->value('resources_id');
+                if($resources_id){
+                    $list[$i]['additional_avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+                }else{
+                    $list[$i]['additional_avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
+                }
+            } else {
+                $list[$i]['additional_user_name'] = null;
+                $list[$i]['additional_avatar_url'] = null;
+            }
         }
 
         $res['data_list'] = count($list) == 0 ? array() : $list;
