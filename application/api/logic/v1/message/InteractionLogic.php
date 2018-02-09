@@ -145,6 +145,8 @@ class InteractionLogic extends Model {
                     $message_res[$i]['additional_avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
                 }
             } else {
+                $message_res[$i]['user_name'] = Db::name('user')->where(['uid'=>$c['uid']])->cache(true,60)->value('user_name');
+
                 $message_res[$i]['additional_user_name'] = null;
                 $message_res[$i]['additional_avatar_url'] = null;
             }
@@ -325,6 +327,10 @@ class InteractionLogic extends Model {
                     $list[$i]['additional_avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
                 }
             } else {
+                $user_name = Db::name('user')->where(['uid'=>$c['uid']])->cache(true,60)->value('user_name');
+
+                $list[$i]['user_name'] = $user_name;
+
                 $list[$i]['additional_user_name'] = null;
                 $list[$i]['additional_avatar_url'] = null;
             }
