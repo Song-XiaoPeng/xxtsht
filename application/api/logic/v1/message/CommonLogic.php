@@ -551,21 +551,23 @@ class CommonLogic extends Model{
 
         $wx_user_list = Db::name('wx_user')
         ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
-        ->where(['openid' => ['in',$openid_list]])
+        ->where(['openid' => ['in',$openid_list], 'customer_service_uid' => ['not in', -1]])
         ->field('openid,customer_service_uid')
-        ->cache(true,120)
         ->select();
+
+
 
         foreach ($list as $k => $v) {
             foreach($wx_user_list as $c=>$t){
-                if($t['customer_service_uid'] = $v['uid']){
+                if($t['openid'] == $v['customer_wx_openid']){
                     $user_name = Db::name('user')->where(['uid' => $t['customer_service_uid']])->cache(true, 3600)->value('user_name');
 
-                    continue;
+                    $list[$k]['user_name'] = empty($user_name) == true ? '暂无' : $user_name; 
+                    break;
+                }else{
+                    $list[$k]['user_name'] = '暂无';
                 }
             }
-
-            $list[$k]['user_name'] = empty($user_name) == true ? '暂无' : $user_name;
 
             $list[$k]['app_name'] = Db::name('openweixin_authinfo')->where(['appid' => $v['appid']])->cache(true, 3600)->value('nick_name');
         }
