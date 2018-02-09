@@ -1735,10 +1735,10 @@ class WxOperationLogic extends Model
             $data_obj['additional_uid'] = $additional_uid;
 
             //获取监控介入人姓名
-            $user_name = Db::name('user')->where(['uid'=>$additional_uid,'company_id'=>$company_id])->value('user_name');
+            $user_name = Db::name('user')->where(['uid'=>$additional_uid,'company_id'=>$company_id])->cache(true,60)->value('user_name');
 
             //获取监控介入人头像
-            $resources_id = Db::name('user_portrait')->where(['uid'=>$additional_uid,'company_id'=>$company_id])->value('resources_id');
+            $resources_id = Db::name('user_portrait')->where(['uid'=>$additional_uid,'company_id'=>$company_id])->cache(true,60)->value('resources_id');
             if($resources_id){
                 $data_obj['additional_avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
             }else{
