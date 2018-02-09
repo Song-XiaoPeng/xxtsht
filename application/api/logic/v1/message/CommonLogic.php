@@ -543,14 +543,27 @@ class CommonLogic extends Model{
             ->group('customer_wx_openid')
             ->count();
 
-        foreach ($list as $k => $v) {
-            $customer_service_uid = Db::name('wx_user')
-                ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
-                ->where(['openid' => $v['customer_wx_openid']])
-                ->cache(true, 21600)
-                ->value('customer_service_uid');
+        $openid_list = [];
 
-            $user_name = Db::name('user')->where(['uid' => $customer_service_uid])->cache(true, 21600)->value('user_name');
+        foreach ($list as $k => $v) {
+            array_push($openid_list, $v['customer_wx_openid']);
+        }
+
+        $wx_user_list = Db::name('wx_user')
+        ->partition([], "", ['type' => 'md5', 'num' => config('separate')['wx_user']])
+        ->where(['openid' => ['in',$openid_list]])
+        ->field('openid,customer_service_uid')
+        ->cache(true,120)
+        ->select();
+
+        foreach ($list as $k => $v) {
+            foreach($wx_user_list as $c=>$t){
+                if($t['customer_service_uid'] = $v['uid']){
+                    $user_name = Db::name('user')->where(['uid' => $t['customer_service_uid']])->cache(true, 3600)->value('user_name');
+
+                    continue;
+                }
+            }
 
             $list[$k]['user_name'] = empty($user_name) == true ? '暂无' : $user_name;
 
