@@ -712,6 +712,7 @@ class WxOperation extends Auth{
     public function sendMessage(){
         $data = input('put.');
         $data['company_id'] = $this->company_id;
+        $data['additional_uid'] = $this->uid;
 
         if(empty($data['uid'])){
             $data['uid'] = $this->uid;

@@ -60,6 +60,10 @@ class Common
     {
         $time = date('Y-m-d H:i:s');
 
+        if(!empty($data_obj['additional_uid'])){
+            $arr['additional_uid'] = $data_obj['additional_uid'];
+        }
+
         switch ($type) {
             case '1':
                 $arr['text'] = emoji_encode($data_obj['text']);
@@ -128,6 +132,9 @@ class Common
                 ->update(['send_time' => $time]);
 
             if ($opercode == 3) {
+                $add_data['additional_user_name'] = $data_obj['additional_user_name'];
+                $add_data['additional_avatar_url'] = $data_obj['additional_avatar_url'];
+
                 $redis = self::createRedis();
                 $redis->select(config('redis_business')['message']);
                 $redis->zAdd($uid, time(), json_encode($add_data));

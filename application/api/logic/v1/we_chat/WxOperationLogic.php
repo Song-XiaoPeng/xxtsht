@@ -1610,6 +1610,7 @@ class WxOperationLogic extends Model
         $is_admin = $data['is_admin'];
         $session_id = $data['session_id'];
         $media_id = empty($data['media_id']) == true ? '' : $data['media_id'];
+        $additional_uid = $data['additional_uid'];
         $resources_id = empty($data['resources_id']) == true ? '' : $data['resources_id'];
         $link_url = empty($data['link_url']) == true ? '' : $data['link_url'];
         $link_name = empty($data['link_name']) == true ? '' : $data['link_name'];
@@ -1731,6 +1732,20 @@ class WxOperationLogic extends Model
         //区分是否监控介入发送消息
         if ($is_admin) {
             $opercode = 3;
+            $data_obj['additional_uid'] = $additional_uid;
+
+            //获取监控介入人姓名
+            $user_name = Db::name('user')->where(['uid'=>$additional_uid,'company_id'=>$company_id])->value('user_name');
+
+            //获取监控介入人头像
+            $resources_id = Db::name('user_portrait')->where(['uid'=>$additional_uid,'company_id'=>$company_id])->value('resources_id');
+            if($resources_id){
+                $data_obj['additional_avatar_url'] = 'http://'.$_SERVER['HTTP_HOST'].'/api/v1/we_chat/Business/getImg?resources_id='.$resources_id;
+            }else{
+                $data_obj['additional_avatar_url'] = 'http://wxyx.lyfz.net/Public/mobile/images/default_portrait.jpg';
+            }
+
+            $data_obj['additional_user_name'] = $user_name;
         } else {
             if (Db::name('message_session_group')->where('session_id', $session_id)->find()) {
                 $opercode = 4;
