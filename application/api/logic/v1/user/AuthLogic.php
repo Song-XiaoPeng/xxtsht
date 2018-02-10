@@ -110,12 +110,14 @@ class AuthLogic extends Model{
             $ip_res['body'] = '暂无';
         }
 
-        $login_remind_data = [
-            'type' => 'remind',
-            'countDownClose' => 20,
-            'icon' => 'http://kf.lyfz.net/static/images/ok.png',
-            'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：'.$ip_res['body'].'</div><div class="nickname">登录时间：'.$time.'</div>'
-        ];
+        if ($c_version != 'mobile') {
+            $login_remind_data = [
+                'type' => 'remind',
+                'countDownClose' => 20,
+                'icon' => 'http://kf.lyfz.net/static/images/ok.png',
+                'contentHtml' => '<div class="nickname">欢迎使用网鱼客服系统！</div><div class="nickname">账号：'.$phone_no.'</div><div class="nickname">登录IP：'.$ip.'</div><div class="nickname">登录地址：'.$ip_res['body'].'</div><div class="nickname">登录时间：'.$time.'</div>'
+            ];
+        }
 
         return msg(
             200,
