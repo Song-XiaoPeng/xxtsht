@@ -13,7 +13,7 @@ class AuthLogic extends Model{
     public function login($data){
         $phone_no = $data['phone_no'];
         $password = $data['password'];
-        $client_version = $data['version'];
+        $client_version = empty($data['version']) == true ? '' : $data['version'];
         $client_type = $data['client'];
         $client_network_mac = empty($data['client_network_mac']) == true ? '' : $data['client_network_mac'];
         $time = date('Y-m-d H:i:s');
