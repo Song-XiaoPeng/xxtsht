@@ -555,9 +555,9 @@ class CommonLogic extends Model{
         ->field('openid,customer_service_uid')
         ->select();
 
-
-
         foreach ($list as $k => $v) {
+            $list[$k]['user_name'] = '暂无';
+
             foreach($wx_user_list as $c=>$t){
                 if($t['openid'] == $v['customer_wx_openid']){
                     $user_name = Db::name('user')->where(['uid' => $t['customer_service_uid']])->cache(true, 3600)->value('user_name');
